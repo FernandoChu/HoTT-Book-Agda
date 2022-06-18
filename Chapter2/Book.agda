@@ -55,7 +55,7 @@ _ ≡⟨⟩ x≡y = x≡y
 
 step-≡ : {X : 𝒰 𝒾} (x {y z} : X) → y ≡ z → x ≡ y → x ≡ z
 step-≡ _ y≡z x≡y = x≡y ∙ y≡z
-syntax step-≡  x y≡z x≡y = x ≡⟨  x≡y ⟩ y≡z
+syntax step-≡  x y≡z x≡y = x ≡⟨ x≡y ⟩ y≡z
 
 step-≡˘ : {X : 𝒰 𝒾} (x {y z} : X) → y ≡ z → y ≡ x → x ≡ z
 step-≡˘ _ y≡z y≡x = (y≡x)⁻¹ ∙ y≡z

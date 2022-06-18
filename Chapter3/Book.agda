@@ -4,6 +4,10 @@ module Chapter3.Book where
 
 open import Chapter2.Book public
 
+---------------------------------------------------------------------------------
+
+-- 3.1 Sets and n-types
+
 -- Definition 3.1.1
 isSet : 𝒰 𝒾 → 𝒰 𝒾
 isSet X = (x y : X) (p q : x ≡ y) → (p ≡ q)
@@ -247,3 +251,61 @@ isContr-isContr fe A c =
     Bx-isProp x = pr₂ (contr-are-pointed-props (B x) (p x))
     Π-isProp : isProp ((x : A) → B x)
     Π-isProp = Π-preserves-props fe A B Bx-isProp
+
+has-section : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
+has-section r = Σ s ꞉ (codomain r → domain r), r ∘ s ∼ id
+
+-- We say that X is a retract of Y, written X ◁ Y,
+-- if we have a function Y → X which has a section:
+_◁_ : 𝒰 𝒾 → 𝒰 𝒿 → 𝒰 (𝒾 ⊔ 𝒿)
+X ◁ Y = Σ r ꞉ (Y → X), has-section r
+
+-- Helpers
+retraction : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → X ◁ Y → Y → X
+retraction (r , s , ε) = r
+
+section : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → X ◁ Y → X → Y
+section (r , s , ε) = s
+
+
+retract-equation : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (ρ : X ◁ Y)
+                 → retraction ρ ∘ section ρ ∼ 𝑖𝑑 X
+retract-equation (r , s , ε) = ε
+
+retraction-has-section : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (ρ : X ◁ Y)
+                       → has-section (retraction ρ)
+retraction-has-section (r , h) = h
+
+-- Lemma 3.11.7
+rectraction-of-contr-isContr :
+  (B : 𝒰 𝒾) (A : 𝒰 𝒿) → B ◁ A → isContr A → isContr B
+rectraction-of-contr-isContr B A (r , s , ε) (a₀ , contr) =
+  (b₀ , λ b → (p b)⁻¹)
+    where
+      b₀ : B
+      b₀ = r a₀
+      p : (b : B) → b ≡ b₀
+      p b = (ε b)⁻¹ ∙ ap r (contr (s b)⁻¹)
+
+-- Lemma 3.11.8
+based-paths-isContr : (A : 𝒰 𝒾) (a : A) → isContr (Σ x ꞉ A , a ≡ x)
+based-paths-isContr A a = ( (a , refl a) , f )
+  where
+    f : (xp : Σ x ꞉ A , a ≡ x) → (a , refl a) ≡ xp
+    f (x , p) = pair⁼(p , ((trHomc- A a a x p (refl a)) ∙ refl-left))
+
+-- Lemma 3.11.9
+
+-- Lemma 3.11.10
+props-if-contr-Id : (A : 𝒰 𝒾)
+                    → ((x y : A) → isContr (x ≡ y))
+                    → isProp A
+props-if-contr-Id A f x y = pr₁ (f x y)
+
+props-have-contr-Id : (A : 𝒰 𝒾) → isProp A
+                    → ((x y : A) → isContr (x ≡ y))
+props-have-contr-Id A f x y =
+  pointed-props-are-contr (x ≡ y) (f x y , P)
+    where
+      P : isProp (x ≡ y)
+      P p q = props-are-sets A f x y p q
