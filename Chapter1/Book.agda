@@ -95,7 +95,6 @@ infixr 20 _⊎_
             → ((x : X) → A (inl x))
             → ((y : Y) → A (inr y))
             → (z : X ⊎ Y) → A z
-
 ⊎-induction A f g (inl x) = f x
 ⊎-induction A f g (inr y) = g y
 
