@@ -59,20 +59,19 @@ e₀-is-not-e₁ p = ₁-is-not-₀ r
 
 -- Example 3.1.9
 p-is-not-refl : (is-univalent lzero) → (¬ (isSet 𝒰₀))
-p-is-not-refl ua is-set-𝒰₀ =
-  let (Eq→Id' , (Id→Eq∘Eq→Id , Eq→IdId→Eq∘)) = qinv-ua ua 𝟚 𝟚
-      p : 𝟚 ≡ 𝟚
-      p = Eq→Id' e₁
-      assumption : p ≡ refl 𝟚
-      assumption = is-set-𝒰₀ 𝟚 𝟚 p (refl 𝟚)
-      p≡refl : e₁ ≡ Id→Eq 𝟚 𝟚 (refl 𝟚)
-      p≡refl = begin
-        e₁                  ≡˘⟨ Id→Eq∘Eq→Id e₁ ⟩
-        Id→Eq 𝟚 𝟚 p         ≡⟨ ap (Id→Eq 𝟚 𝟚) assumption ⟩
-        Id→Eq 𝟚 𝟚 (refl 𝟚)  ∎
-      swap₂≡id : swap₂ ≡ 𝑖𝑑 𝟚
-      swap₂≡id = ap pr₁ p≡refl
-   in swap₂-is-not-id swap₂≡id
+p-is-not-refl u is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
+  where
+    p : 𝟚 ≡ 𝟚
+    p = ua u e₁
+    assumption : p ≡ refl 𝟚
+    assumption = is-set-𝒰₀ 𝟚 𝟚 p (refl 𝟚)
+    p≡refl : e₁ ≡ idtoeqv (refl 𝟚)
+    p≡refl = begin
+      e₁                ≡⟨ id∼idtoeqv∘ua u e₁ ⟩
+      idtoeqv (ua u e₁) ≡⟨ ap (idtoeqv) assumption ⟩
+      idtoeqv (refl 𝟚)  ∎
+    swap₂≡id : swap₂ ≡ 𝑖𝑑 𝟚
+    swap₂≡id = ap pr₁ p≡refl
 
 ---------------------------------------------------------------------------------
 
@@ -108,7 +107,7 @@ props-are-sets A f x y p q = (claim2 x y p) ∙ (claim2 x y q)⁻¹
     g z = f x z
     claim1 : (y z : A) (p : y ≡ z) → g y ∙ p ≡ g z
     claim1 y z p = begin
-      g(y) ∙ p                  ≡˘⟨ trHomc- A x y z p (f x y) ⟩
+      g(y) ∙ p                  ≡˘⟨ trHomc- x y z p (f x y) ⟩
       tr (λ - → x ≡ -) p (g(y)) ≡⟨ apd g p ⟩
       g z                       ∎
     claim2 : (y z : A) (p : y ≡ z) → p ≡ (g y)⁻¹ ∙ g z
@@ -165,7 +164,7 @@ PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
 -- 3.6 The logic of mere propositions
 
 -- Example 3.6.2
-Π-preserves-props : {𝒾 𝒿 : Level} → funext {𝒾} {𝒿} →
+Π-preserves-props : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
                     (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) →
                     ((x : A) → isProp (B x)) → isProp ((x : A) → B x)
 Π-preserves-props fe A B p f g = pr₁ (pr₁ (fe f g)) (λ x → p x (f x) (g x))
@@ -221,7 +220,7 @@ pointed-props-are-contr : (A : 𝒰 𝒾) → A × isProp A → isContr A
 pointed-props-are-contr A (a , p) = (a , λ x → p a x)
 
 -- Lemma 3.11.4
-isContr-isProp : {𝒾 : Level} → funext {𝒾} {𝒾} → (A : 𝒰 𝒾) → isProp(isContr A)
+isContr-isProp : {𝒾 : Level} → has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isProp(isContr A)
 isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
   where
     q : a ≡ a'
@@ -234,12 +233,12 @@ isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
            (tr (λ - → (x : A) → - ≡ x) q p) p'
 
 -- Corollary 3.11.5
-isContr-isContr : funext → (A : 𝒰 𝒾) → isContr A → isContr (isContr A)
+isContr-isContr : has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isContr A → isContr (isContr A)
 isContr-isContr fe A c =
   pointed-props-are-contr (isContr A) (c , (isContr-isProp fe A))
 
 -- Lemma 3.11.6
-Π-preserves-contr : {𝒾 𝒿 : Level} → funext {𝒾} {𝒿} →
+Π-preserves-contr : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
                     (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) →
                     ((x : A) → isContr (B x)) → isContr ((x : A) → B x)
 Π-preserves-contr fe A B p =
@@ -292,7 +291,7 @@ based-paths-isContr : (A : 𝒰 𝒾) (a : A) → isContr (Σ x ꞉ A , a ≡ x)
 based-paths-isContr A a = ( (a , refl a) , f )
   where
     f : (xp : Σ x ꞉ A , a ≡ x) → (a , refl a) ≡ xp
-    f (x , p) = pair⁼(p , ((trHomc- A a a x p (refl a)) ∙ refl-left))
+    f (x , p) = pair⁼(p , ((trHomc- a a x p (refl a)) ∙ refl-left))
 
 -- Lemma 3.11.9
 

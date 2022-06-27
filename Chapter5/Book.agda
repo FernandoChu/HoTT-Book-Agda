@@ -79,20 +79,22 @@ double𝕎-1𝕎 = refl (double𝕎 1𝕎)
 -- 5.4 Inductive types are initial algebras
 
 -- Definition 5.4.1
-ℕAlg : {𝒾 : Level} → 𝒰 (𝒾 ⁺)
-ℕAlg {𝒾} = Σ C ꞉ 𝒰 𝒾 , C × (C → C)
+ℕAlg : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
+ℕAlg 𝒾 = Σ C ꞉ 𝒰 𝒾 , C × (C → C)
 
 -- Definition 5.4.2
-ℕHom : {𝒾 : Level} (C D : ℕAlg) → 𝒰 𝒾
-ℕHom (C , c₀ , cₛ) (D , d₀ , dₛ) =
+ℕHom : (𝒾 j : Level) (C : ℕAlg 𝒾) (D : ℕAlg 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
+ℕHom 𝒾 𝒿 (C , c₀ , cₛ) (D , d₀ , dₛ) =
   Σ h ꞉ (C → D) , (h c₀ ≡ d₀) × ((c : C) → h (cₛ c) ≡ dₛ (h c))
 
 -- Lemmas needed for 5.4.4
 
-∘-ℕHom : {𝒾 : Level}
-         (C D E : ℕAlg {𝒾})
-         (f : ℕHom C D) (g : ℕHom D E)
-       → ℕHom C E
+∘-ℕHom : {𝒾 𝒿 𝓀 : Level}
+         (C : ℕAlg 𝒾)
+         (D : ℕAlg 𝒿)
+         (E : ℕAlg 𝓀)
+         (f : ℕHom 𝒾 𝒿 C D) (g : ℕHom 𝒿 𝓀 D E)
+       → ℕHom 𝒾 𝓀 C E
 ∘-ℕHom (C , c₀ , cₛ) (D , d₀ , dₛ) (E , e₀ , eₛ)
   (f , fc₀ , fc) (g , gd₀ , gd) =
     (g ∘ f , p , q)
@@ -107,54 +109,107 @@ double𝕎-1𝕎 = refl (double𝕎 1𝕎)
           eₛ (g (f c)) ∎
 
 id-ℕHom : {𝒾 : Level}
-          (C : ℕAlg {𝒾})
-        → ℕHom C C
+          (C : ℕAlg 𝒾)
+        → ℕHom 𝒾 𝒾 C C
 id-ℕHom (C , c₀ , cₛ) =
   (id , refl c₀ , λ - → refl (cₛ -))
 
 -- Definition 5.4.3
-isHinit-ℕ : {𝒾 : Level} (I : ℕAlg) → 𝒰 (𝒾 ⁺)
-isHinit-ℕ I = (C : ℕAlg) → isContr (ℕHom I C)
+isHinit-ℕ : (𝒾 : Level) (I : ℕAlg 𝒾) → 𝒰 (𝒾 ⁺)
+isHinit-ℕ 𝒾 I = (C : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 I C)
+
+d : (𝒾 : Level) → ℕAlg 𝒾 → 𝒰 (𝒾 ⁺)
+d 𝒾 = isHinit-ℕ 𝒾
 
 -- Theorem 5.4.4
-isHinit-ℕ-isProp : {𝒾 : Level}
+isHinit-ℕ-isProp : (𝒾 𝒿 : Level)
                  → (is-univalent 𝒾)
-                 → (I J : ℕAlg {𝒾})
-                 → (isHinit-ℕ I) → (isHinit-ℕ J)
+                 → funext {𝒾} {𝒾}
+                 → funext {𝒾 ⁺} {𝒾}
+                 → funext {𝒾 ⁺} {𝒾 ⁺}
+                 → (I J : ℕAlg 𝒾)
+                 → (isHinit-ℕ 𝒾 I) → (isHinit-ℕ 𝒾 J)
                  → I ≡ J
-isHinit-ℕ-isProp ua I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
+isHinit-ℕ-isProp 𝒾 𝒿 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
  pair⁼ (cI≡cJ , missing)
  where
-  F : ℕHom I J
+  F : ℕHom 𝒾 𝒾 I J
   F = pr₁ (fI J)
-  G : ℕHom J I
+  G : ℕHom 𝒾 𝒾 J I
   G = pr₁ (gJ I)
-  f : pr₁ I → pr₁ J
+  f : cI → cJ
   f = pr₁ F
-  g : pr₁ J → pr₁ I
+  g : cJ → cI
   g = pr₁ G
 
   g∘f≡id : g ∘ f ≡ id
   g∘f≡id = ap pr₁ (endoI-isProp (∘-ℕHom I J I F G) (id-ℕHom I))
    where
-    endoI-isProp : isProp (ℕHom I I)
-    endoI-isProp = pr₂ (contr-are-pointed-props (ℕHom I I) (fI I))
+    endoI-isProp : isProp (ℕHom 𝒾 𝒾 I I)
+    endoI-isProp = pr₂ (contr-are-pointed-props (ℕHom 𝒾 𝒾 I I) (fI I))
 
   f∘g≡id : f ∘ g ≡ id
   f∘g≡id = ap pr₁ (endoJ-isProp (∘-ℕHom J I J G F) (id-ℕHom J))
    where
-    endoJ-isProp : isProp (ℕHom J J)
-    endoJ-isProp = pr₂ (contr-are-pointed-props (ℕHom J J) (gJ J))
+    endoJ-isProp : isProp (ℕHom 𝒾 𝒾 J J)
+    endoJ-isProp = pr₂ (contr-are-pointed-props (ℕHom 𝒾 𝒾 J J) (gJ J))
 
-  cI≡cJ : cI ≡ cJ
-  cI≡cJ = Eq→Id ua (pr₁ I) (pr₁ J) (f , invs-are-equivs f q-qinv-f)
+  cI≃cJ : cI ≃ cJ
+  cI≃cJ = (f , invs-are-equivs f q-qinv-f)
    where
     q-qinv-f : qinv f
     q-qinv-f = (g , happly (f ∘ g) id f∘g≡id , happly (g ∘ f) id g∘f≡id)
 
+
+  cI≡cJ : cI ≡ cJ
+  cI≡cJ = ua u cI cJ cI≃cJ
+
+  c : isProp ((C : ℕAlg 𝒾) → (D : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 C D))
+  c = Π-preserves-props fe2 (ℕAlg 𝒾)
+   (λ C → (D : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 C D)) b
+   where
+    b : (C : ℕAlg 𝒾) → isProp ((D : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 C D))
+    b C = Π-preserves-props fe1 (ℕAlg 𝒾)
+      (λ D → isContr (ℕHom 𝒾 𝒾 C D))
+      (λ D → isContr-isProp fe (ℕHom 𝒾 𝒾 C D))
+
+
   missing : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡
               (j₀ , jₛ)
-  missing = _
+  missing = begin
+   tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡⟨ tr× ⟩
+   (tr (λ C → C) cI≡cJ i₀ ,
+     tr (λ C → (C → C)) cI≡cJ iₛ)         ≡⟨ pair×⁼ (tr-i₀≡j₀ , tr-iₛ≡jₛ) ⟩
+   (j₀ , jₛ) ∎
+   where
+    tr× : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡
+          (tr (λ C → C) cI≡cJ i₀ , tr (λ C → (C → C)) cI≡cJ iₛ)
+    tr× = trA×B (𝒰 𝒾) (λ C → C) (λ C → C → C) cI cJ cI≡cJ (i₀ , iₛ)
+
+    tr-i₀≡j₀ : tr (λ C → C) (cI≡cJ) i₀ ≡ j₀
+    tr-i₀≡j₀ = begin
+      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡u-comp u cI≃cJ i₀ ⟩
+      pr₁ cI≃cJ i₀            ≡⟨⟩
+      f i₀                    ≡⟨ pr₁ (pr₂ F) ⟩
+      j₀                      ∎
+
+    tr-iₛ≡jₛ : tr (λ C → (C → C)) (cI≡cJ) iₛ ≡ jₛ
+    tr-iₛ≡jₛ = _
+     where
+      x : tr (λ x → x → x) cI≡cJ iₛ ≡
+            (λ x → tr id cI≡cJ (iₛ (tr id (cI≡cJ ⁻¹) x)))
+      x = trf (𝒰 𝒾) id id cI cJ cI≡cJ iₛ
+    -- st = begin
+    --   tr (λ C → (C → C)) (cI≡cJ) i₀ ≡⟨ ≡u-comp u cI cJ cI≃cJ i₀ ⟩
+    --   pr₁ cI≃cJ i₀                  ≡⟨⟩
+    --   f i₀                          ≡⟨ pr₁ (pr₂ F) ⟩
+    --   jₛ                            ∎
 
   related? : (cI × (cI → cI)) → (cJ × (cJ → cJ))
   related? = tr (λ C → C × (C → C)) cI≡cJ
+
+  -- P : (A B : Σ C ꞉ (𝒰 𝒾) , C) → (pr₁ A ≡ pr₁ B) → A ≡ B
+  -- P (A , a0) (B , b0) p = pair⁼(p , x)
+  --  where
+  --   x : tr (λ C → C) p a0 ≡ b0
+  --   x = _

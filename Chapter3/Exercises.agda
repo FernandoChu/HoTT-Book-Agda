@@ -5,14 +5,14 @@ module Chapter3.Exercises where
 open import Chapter3.Book public
 
 -- Exercise 3.4
-prop-if-endo-are-contr : funext → (A : 𝒰 𝒾) → isProp A → isContr (A → A)
+prop-if-endo-are-contr : has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isProp A → isContr (A → A)
 prop-if-endo-are-contr fe A h = (id , p)
   where
     p : (g : A → A) → id ≡ g
     p g = (pr₁ (pr₁ (fe id g))) (λ x → h x (g x))
 
 contr-endo-implies-prop : (A : 𝒰 𝒾) → isContr (A → A) → isProp A
-contr-endo-implies-prop A h x y = happly f g (A→A-isProp f g) x
+contr-endo-implies-prop A h x y = happly (A→A-isProp f g) x
   where
     A→A-isProp : isProp (A → A)
     A→A-isProp = pr₂ (contr-are-pointed-props (A → A) h)
@@ -22,14 +22,14 @@ contr-endo-implies-prop A h x y = happly f g (A→A-isProp f g) x
     g - = y
 
 -- Exercise 3.6
-isProp→isDecidible-isProp : funext → (A : 𝒰 𝒾) → isProp A → isProp (A ⊎ (¬ A))
+isProp→isDecidible-isProp : has-funext 𝒾 lzero → (A : 𝒰 𝒾) → isProp A → isProp (A ⊎ (¬ A))
 isProp→isDecidible-isProp fe A f (inl x) (inl y) = ap inl (f x y)
 isProp→isDecidible-isProp fe A f (inl x) (inr c) = !𝟘 (inl x ≡ inr c) (c x)
 isProp→isDecidible-isProp fe A f (inr c) (inl x) = !𝟘 (inr c ≡ inl x) (c x)
 isProp→isDecidible-isProp fe A f (inr c) (inr d) = ap inr p
   where
     p : c ≡ d
-    p = pr₁ (pr₁ (fe c d)) (λ x → !𝟘 (c x ≡ d x) (c x))
+    p = funext fe (λ x → !𝟘 (c x ≡ d x) (c x))
 
 -- Exercise 3.7
 isProp→isDecidible-isProp' : (A : 𝒰 𝒾) → (B : 𝒰 𝒿)

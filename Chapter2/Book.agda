@@ -55,7 +55,7 @@ _ ≡⟨⟩ x≡y = x≡y
 
 step-≡ : {X : 𝒰 𝒾} (x {y z} : X) → y ≡ z → x ≡ y → x ≡ z
 step-≡ _ y≡z x≡y = x≡y ∙ y≡z
-syntax step-≡  x y≡z x≡y = x ≡⟨ x≡y ⟩ y≡z
+syntax step-≡ x y≡z x≡y = x ≡⟨ x≡y ⟩ y≡z
 
 step-≡˘ : {X : 𝒰 𝒾} (x {y z} : X) → y ≡ z → y ≡ x → x ≡ z
 step-≡˘ _ y≡z y≡x = (y≡x)⁻¹ ∙ y≡z
@@ -66,11 +66,6 @@ _∎ : {X : 𝒰 𝒾} (x : X) → x ≡ x
 _∎ x = refl x
 infix  3 _∎
 
--- b : {A : 𝒰 𝒾} (y z : A) (p q : y ≡ z) → p ≡ q
--- b y z p q = begin
---   p ≡˘⟨ {!!} ⟩
---   (refl y) ∙ p ≡⟨ _ ⟩
---   _
 ---------------------------------------------------------------------------------
 
 -- Section 2.2 Functions are functors
@@ -79,9 +74,10 @@ ap : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y) {x x' : X} → x ≡ x' → f
 ap f {x} {x'} (refl x) = refl (f x)
 
 -- Lemma 2.2.2 i)
-ap-refl : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y) (x : X)
-        → ap f (refl x) ≡ refl (f x)
-ap-refl f x = refl (refl (f x))
+ap-∙ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y) {x y z : X}
+       (p : x ≡ y) (q : y ≡ z)
+     → ap f (p ∙ q) ≡ ap f p ∙ ap f q
+ap-∙ f (refl x) (refl x) = refl (refl (f x))
 
 -- Lemma 2.2.2 ii)
 ap⁻¹ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y) {x y : X} (p : x ≡ y)
@@ -116,6 +112,13 @@ apd : {X : 𝒰 𝒾} {A : X → 𝒰 𝒿} (f : (x : X) → A x) {x y : X}
       (p : x ≡ y) → tr A p (f x) ≡ f y
 apd f (refl x) = refl (f x)
 
+-- Lemma 2.3.9
+-- (Slight generalization for the ua-∘ proof)
+tr-tr : {A : 𝒰 𝒾} {P : A → 𝒰 𝒿} {x y z : A}
+       (p : x ≡ y) (q : y ≡ z)
+     → (tr P q) ∘ (tr P p) ≡ tr P (p ∙ q)
+tr-tr (refl x) (refl x) = refl id
+
 ---------------------------------------------------------------------------------
 
 -- Section 2.4 Homotopies and equivalences
@@ -139,24 +142,32 @@ f ∼ g = ∀ x → f x ≡ g x
         → (f ∼ h)
 ∼-trans f g h H1 H2 = λ x → (H1 x) ∙ (H2 x)
 
+-- Lemma 2.4.3
 ∼-naturality : {X : 𝒰 𝒾} {A : 𝒰 𝒿}
                (f g : X → A) (H : f ∼ g) {x y : X} {p : x ≡ y}
              → H x ∙ ap g p ≡ ap f p ∙ H y
 ∼-naturality f g H {x} {_} {refl a} = refl-right ∙ refl-left ⁻¹
 
-corollary244 : {X : 𝒰 𝒾} {A : 𝒰 𝒿}
+-- Corollary 2.4.4.
+~-id-naturality : {A : 𝒰 𝒾}
                   (f : A → A) (H : f ∼ id) {x : A}
                 → (H (f x)) ≡ (ap f (H x))
-corollary244 f H {x} = begin
-    H (f x) ≡˘⟨ refl-right ⟩
-    H (f x) ∙ (refl (f x)) ≡˘⟨ ap (H (f x) ∙_) (⁻¹-right∙ (H x)) ⟩
-    H (f x) ∙ (H x ∙ (H x)⁻¹) ≡˘⟨ ∙-assoc (H (f x)) ⟩
-    (H (f x) ∙ H x) ∙ (H x)⁻¹ ≡˘⟨ ap (λ - → (H (f x) ∙ (-)) ∙ (H x)⁻¹) (ap-id (H x)) ⟩
-    (H (f x) ∙ (ap id (H x))) ∙ (H x)⁻¹ ≡⟨ ap (_∙ (H x)⁻¹) (∼-naturality f id H) ⟩
-    (ap f (H x) ∙ (H x)) ∙ (H x)⁻¹ ≡⟨ ∙-assoc (ap f (H x)) ⟩
-    ap f (H x) ∙ ((H x) ∙ (H x)⁻¹) ≡⟨ ap (ap f (H x) ∙_) (⁻¹-right∙ (H x)) ⟩
+~-id-naturality f H {x} = begin
+    H (f x)                             ≡˘⟨ refl-right ⟩
+    H (f x) ∙ (refl (f x))              ≡˘⟨ i ⟩
+    H (f x) ∙ (H x ∙ (H x)⁻¹)           ≡˘⟨ ∙-assoc (H (f x)) ⟩
+    (H (f x) ∙ H x) ∙ (H x)⁻¹           ≡˘⟨ ii ⟩
+    (H (f x) ∙ (ap id (H x))) ∙ (H x)⁻¹ ≡⟨ iii ⟩
+    (ap f (H x) ∙ (H x)) ∙ (H x)⁻¹      ≡⟨ ∙-assoc (ap f (H x)) ⟩
+    ap f (H x) ∙ ((H x) ∙ (H x)⁻¹)      ≡⟨ iv ⟩
     ap f (H x) ∙ (refl (f x)) ≡⟨ refl-right ⟩
     ap f (H x) ∎
+  where
+    i = ap (H (f x) ∙_) (⁻¹-right∙ (H x))
+    ii = ap (λ - → (H (f x) ∙ (-)) ∙ (H x)⁻¹) (ap-id (H x))
+    iii = ap (_∙ (H x)⁻¹) (∼-naturality f id H)
+    iv = ap (ap f (H x) ∙_) (⁻¹-right∙ (H x))
+
 
 qinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 (𝒾 ⊔ 𝒿)
 qinv f = Σ g ꞉ (codomain f → domain f) , (f ∘ g ∼ id) × (g ∘ f ∼ id)
@@ -203,15 +214,16 @@ Eq→fun-is-equiv (f , i) = i
 ≃-refl X = ( 𝑖𝑑 X , invs-are-equivs (𝑖𝑑 X) (qinv-id-id X) )
 
 -- Lemma 2.4.12 ii)
-≃-sym : (X : 𝒰 𝒾) (Y : 𝒰 𝒿) → X ≃ Y → Y ≃ X
-≃-sym X Y ( f , e ) =
+≃-sym : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → X ≃ Y → Y ≃ X
+≃-sym ( f , e ) =
   let ( f⁻¹ , p , q) = ( equivs-are-invs f e )
   in  ( f⁻¹ , invs-are-equivs f⁻¹ (f , q , p) )
 
 -- Lemma 2.4.12 iii)
-≃-trans : (A : 𝒰 𝒾) (B : 𝒰 𝒿) (C : 𝒰 𝓀)
-        → A ≃ B → B ≃ C → A ≃ C
-≃-trans A B C ( f , ef ) ( g , eg ) =
+≃-trans-helper : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+                 (eqvf : A ≃ B) (eqvg : B ≃ C)
+               → is-equiv (pr₁ eqvg ∘ pr₁ eqvf)
+≃-trans-helper ( f , ef ) ( g , eg ) =
   let ( f⁻¹ , pf , qf ) = ( equivs-are-invs f ef )
       ( g⁻¹ , pg , qg ) = ( equivs-are-invs g eg )
       h1 : ((g ∘ f) ∘ (f⁻¹ ∘ g⁻¹) ∼ id)
@@ -224,7 +236,24 @@ Eq→fun-is-equiv (f , i) = i
         f⁻¹ (g⁻¹ (g (f x))) ≡⟨ ap f⁻¹ (qg (f x)) ⟩
         f⁻¹ (f x) ≡⟨ qf x ⟩
         x ∎
-  in  ( (g ∘ f) , invs-are-equivs (g ∘ f) ((f⁻¹ ∘ g⁻¹) , h1 , h2) )
+  in  invs-are-equivs (g ∘ f) ((f⁻¹ ∘ g⁻¹) , h1 , h2)
+
+≃-trans : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+        → A ≃ B → B ≃ C → A ≃ C
+≃-trans eqvf@( f , ef ) eqvg@( g , eg ) =
+  let ( f⁻¹ , pf , qf ) = ( equivs-are-invs f ef )
+      ( g⁻¹ , pg , qg ) = ( equivs-are-invs g eg )
+      h1 : ((g ∘ f) ∘ (f⁻¹ ∘ g⁻¹) ∼ id)
+      h1 x = begin
+        g (f (f⁻¹ (g⁻¹ x))) ≡⟨ ap g (pf (g⁻¹ x)) ⟩
+        g (g⁻¹ x)           ≡⟨ pg x ⟩
+        x ∎
+      h2 : ((f⁻¹ ∘ g⁻¹) ∘ (g ∘ f) ∼ id)
+      h2 x = begin
+        f⁻¹ (g⁻¹ (g (f x))) ≡⟨ ap f⁻¹ (qg (f x)) ⟩
+        f⁻¹ (f x)           ≡⟨ qf x ⟩
+        x ∎
+  in  ( (g ∘ f) , ≃-trans-helper eqvf eqvg )
 
 ---------------------------------------------------------------------------------
 
@@ -233,6 +262,36 @@ Eq→fun-is-equiv (f , i) = i
 ---------------------------------------------------------------------------------
 
 -- 2.6 Cartesian product types
+
+pair×⁼⁻¹ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
+        → (w ≡ w') → ((pr₁ w ≡ pr₁ w') × (pr₂ w ≡ pr₂ w'))
+pair×⁼⁻¹ (refl w) = ( refl (pr₁ w) , refl (pr₂ w) )
+
+pair×⁼ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
+        → ((pr₁ w ≡ pr₁ w') × (pr₂ w ≡ pr₂ w')) → (w ≡ w')
+pair×⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl (w1 , w2)
+
+-- Theorem 2.6.2
+×-≡-≃ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
+      → (w ≡ w') ≃ ((pr₁ w ≡ pr₁ w') × (pr₂ w ≡ pr₂ w'))
+×-≡-≃ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} =
+  pair×⁼⁻¹ , invs-are-equivs pair×⁼⁻¹ (pair×⁼ , α , β)
+    where
+      α : (pq : (w1 ≡ w'1) × (w2 ≡ w'2))
+        → pair×⁼⁻¹ (pair×⁼ pq) ≡ pq
+      α (refl w1 , refl w2) = refl (refl w1 , refl w2)
+      β : (p : (w1 , w2 ≡ w'1 , w'2))
+        → pair×⁼ (pair×⁼⁻¹ p) ≡ p
+      β (refl (w1 , w2)) = refl (refl (w1 , w2))
+
+×-uniq : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {z : X × Y}
+       → z ≡ (pr₁ z , pr₂ z)
+×-uniq {𝒾} {𝒿} {X} {Y} {z} = pair×⁼ (refl (pr₁ z) , refl (pr₂ z))
+
+trA×B : (Z : 𝒰 𝒾) (A : Z → 𝒰 𝒿) (B : Z → 𝒰 𝓀)
+        (z w : Z) (p : z ≡ w) (x : A z × B z)
+      → tr (λ - → A - × B -) p x ≡ (tr A p (pr₁ x) , tr B p (pr₂ x))
+trA×B Z A B z w (refl z) x = ×-uniq
 
 ---------------------------------------------------------------------------------
 
@@ -283,11 +342,25 @@ pair⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl (
 
 -- 2.9 Π-types and the function extensionality axiom
 
-happly : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} (f g : Π B) → f ≡ g → f ∼ g
-happly f g p x = ap (λ - → - x) p
+happly : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {f g : Π B} → f ≡ g → f ∼ g
+happly p x = ap (λ - → - x) p
 
-funext : {i j : Level} → 𝒰 ((i ⊔ j)⁺)
-funext {i} {j} = {X : 𝒰 i} {A : X → 𝒰 j} (f g : Π A) → is-equiv (happly f g)
+has-funext : (𝒾 𝒿 : Level) → 𝒰 ((𝒾 ⊔ 𝒿)⁺)
+has-funext 𝒾 𝒿 = {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} (f g : Π B)
+               → is-equiv (happly {𝒾} {𝒿} {A} {B} {f} {g})
+
+qinv-fe : has-funext 𝒾 𝒿 → {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} (f g : Π B) → qinv happly
+qinv-fe fe f g = equivs-are-invs happly (fe f g)
+
+funext : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} → has-funext 𝒾 𝒿 → {f g : Π B} → f ∼ g → f ≡ g
+funext fe {f} {g} htpy =
+  let (funext , _ , _ ) = qinv-fe fe f g
+   in funext htpy
+
+tr-f : (X : 𝒰 𝒾) (A : X → 𝒰 𝒿) (B : X → 𝒰 𝓀)
+      (x₁ x₂ : X) (p : x₁ ≡ x₂) (f : A x₁ → B x₁)
+    → tr (λ x → (A x → B x)) p f ≡ (λ x → tr B p (f (tr A (p ⁻¹) x)))
+tr-f X A B x₁ x₂ (refl x₁) f = refl f
 
 ---------------------------------------------------------------------------------
 
@@ -296,30 +369,136 @@ funext {i} {j} = {X : 𝒰 i} {A : X → 𝒰 j} (f g : Π A) → is-equiv (happ
 Id→Eq : (X Y : 𝒰 𝒾) → X ≡ Y → X ≃ Y
 Id→Eq X X (refl X) = 𝑖𝑑 X , invs-are-equivs (𝑖𝑑 X) (qinv-id-id X)
 
-is-univalent : (i : Level) → 𝒰 (i ⁺)
-is-univalent i = (X Y : 𝒰 i) → is-equiv (Id→Eq X Y)
+-- Workaround : I need this helper to delay the pattern match in `idtoeqv`,
+-- while still being able to use this same function in other places, like in
+-- the construction of `ua-∘`.
+idtoeqv-helper : {X Y : 𝒰 𝒾} (p : X ≡ Y) → is-equiv (tr (λ C → C) p)
+idtoeqv-helper (refl X) = invs-are-equivs (𝑖𝑑 X) (qinv-id-id X)
 
-qinv-ua : is-univalent 𝒾 → (X Y : 𝒰 𝒾) → qinv (Id→Eq X Y)
-qinv-ua ua X Y = equivs-are-invs (Id→Eq X Y) (ua X Y)
+idtoeqv : {X Y : 𝒰 𝒾} → X ≡ Y → X ≃ Y
+idtoeqv {𝒾} {X} {Y} p = tr (λ C → C) p , (idtoeqv-helper p)
 
-Eq→Id : is-univalent 𝒾 → (X Y : 𝒰 𝒾) → X ≃ Y → X ≡ Y
-Eq→Id ua X Y eqv =
-  let ((g , f-g) , (h , h-f)) = ua X Y
-  in  g eqv
+is-univalent : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
+is-univalent 𝒾 = (X Y : 𝒰 𝒾) → is-equiv (idtoeqv {𝒾} {X} {Y})
 
+qinv-ua : is-univalent 𝒾 → (X Y : 𝒰 𝒾) → qinv idtoeqv
+qinv-ua ua X Y = equivs-are-invs idtoeqv (ua X Y)
+
+ua : is-univalent 𝒾 → {X Y : 𝒰 𝒾} → X ≃ Y → X ≡ Y
+ua u {X} {Y} eqv =
+  let (ua , idtoeqv∘ua , ua∘idtoeqv) = qinv-ua u X Y
+   in ua eqv
+
+-- Helper
+id∼idtoeqv∘ua : (u : is-univalent 𝒾)
+              → {X Y : 𝒰 𝒾} (eqv : X ≃ Y)
+              → eqv ≡ idtoeqv (ua u eqv)
+id∼idtoeqv∘ua u {X} {Y} eqv =
+  let (ua , idtoeqv∘ua , ua∘idtoeqv) = qinv-ua u X Y
+   in (idtoeqv∘ua eqv)⁻¹
+
+≡u-comp : (u : is-univalent 𝒾)
+        → {X Y : 𝒰 𝒾} (eqv : X ≃ Y) (x : X)
+        → tr (λ C → C) (ua u eqv) x ≡ pr₁ eqv x
+≡u-comp u {X} {Y} eqv x =
+ happly q x
+  where
+   p : idtoeqv (ua u eqv) ≡ eqv
+   p = (id∼idtoeqv∘ua u eqv)⁻¹
+   q : tr (λ C → C) (ua u eqv) ≡ pr₁ eqv
+   q = ap pr₁ p
+
+≡u-uniq : (u : is-univalent 𝒾)
+        → {X Y : 𝒰 𝒾} (p : X ≡ Y)
+        → p ≡ ua u (idtoeqv p)
+≡u-uniq u {X} {Y} p =
+  let (ua , idtoeqv∘ua , ua∘idtoeqv) = qinv-ua u X Y
+   in (ua∘idtoeqv p)⁻¹
+
+
+ua-id : (u : is-univalent 𝒾)
+      → {A : 𝒰 𝒾}
+      → refl A ≡ ua u (≃-refl A)
+ua-id u {A} = begin
+  refl A                  ≡⟨ ≡u-uniq u (refl A) ⟩
+  ua u (idtoeqv (refl A)) ≡⟨⟩
+  ua u (≃-refl A)         ∎
+
+-- ua-∘ : (u : is-univalent 𝒾)
+--      → {X Y Z : 𝒰 𝒾} (eqvf : X ≃ Y) (eqvg : Y ≃ Z)
+--      → ua u eqvf ∙ ua u eqvg ≡ ua u (≃-trans eqvf eqvg)
+-- ua-∘ u {X} {Y} {Z} eqvf eqvg = proof ⁻¹
+--  where
+--   p : X ≡ Y
+--   p = ua u eqvf
+--   q : Y ≡ Z
+--   q = ua u eqvg
+--   x : (p : X ≡ Y) → is-equiv (tr (λ C → C) p)
+--   x (refl X) = invs-are-equivs (𝑖𝑑 X) (qinv-id-id X)
+--   a : idtoeqv p ≡ tr (λ C → C) p , idtoeqv-helper p
+--   a = refl _
+--   lemma' : ≃-trans (idtoeqv p) (idtoeqv q) ≡ idtoeqv (p ∙ q)
+--   lemma' = begin
+--      ≃-trans (idtoeqv p) (idtoeqv q) ≡⟨⟩
+--      ≃-trans (tr (λ C → C) p , idtoeqv-helper p)
+--        (tr (λ C → C) q , idtoeqv-helper q) ≡⟨⟩
+--      ((tr (λ C → C) q) ∘ (tr (λ C → C) p) , ≃-trans-helper (idtoeqv p) (idtoeqv q)) ≡⟨ pair⁼((trtr p q) , refl _) ⟩
+--      (tr (λ C → C) (p ∙ q) , tr (λ - → is-equiv -) (trtr p q) (≃-trans-helper (idtoeqv p) (idtoeqv q)) ) ≡⟨ pair⁼(refl _ , _) ⟩
+--      (tr (λ C → C) (p ∙ q) , idtoeqv-helper (p ∙ q)) ≡⟨⟩
+--      idtoeqv (p ∙ q) ∎
+--     where
+--      zz : (tr (λ C → C) q) ∘ (tr (λ C → C) p) ≡ tr (λ C → C) (p ∙ q)
+--      zz = trtr p q
+
+--   -- lemma : (p : X ≡ Y) (q : Y ≡ Z)
+--   --       → ≃-trans (idtoeqv p) (idtoeqv q) ≡ idtoeqv (p ∙ q)
+--   -- lemma (refl X) (refl Y) = x
+--   --  where
+--   --   x : ≃-trans (≃-refl X) (≃-refl X) ≡
+--   --         idtoeqv (refl X ∙ refl X)
+--   --   x = begin
+--   --    ≃-trans (≃-refl X) (≃-refl X) ≡⟨ _ ⟩
+--   --    id , _ ≡⟨⟩
+--   --    idtoeqv (refl X) ≡⟨⟩
+--   --    idtoeqv (refl X ∙ refl X) ∎
+--   proof : ua u (≃-trans eqvf eqvg) ≡ ua u eqvf ∙ ua u eqvg
+--   proof = begin
+--    ua u (≃-trans eqvf eqvg)               ≡⟨ ap (λ - → ua u (≃-trans - eqvg))
+--                                                (id∼idtoeqv∘ua u eqvf)         ⟩
+--    ua u (≃-trans (idtoeqv p) eqvg)        ≡⟨ ap (λ - → ua u
+--                                                 (≃-trans (idtoeqv p) -))
+--                                                (id∼idtoeqv∘ua u eqvg)         ⟩
+--    ua u (≃-trans (idtoeqv p) (idtoeqv q)) ≡⟨ ap (λ - → ua u -) (lemma') ⟩
+--    ua u (idtoeqv (p ∙ q))                 ≡˘⟨ ≡u-uniq u (p ∙ q) ⟩
+--    ua u eqvf ∙ ua u eqvg                  ∎
+
+-- ua⁻¹ : (u : is-univalent 𝒾)
+--      → {X Y : 𝒰 𝒾} (eqv : X ≃ Y)
+--      → (ua u eqv)⁻¹ ≡ ua u (≃-sym eqv)
+-- ua⁻¹ u eqv = _
+
+-- Note: Univalence could be expressed like this
 Univalence : 𝓤ω
 Univalence = ∀ i → is-univalent i
 
 ---------------------------------------------------------------------------------
 
 -- 2.11 Identity type
-trHomc- : (A : 𝒰 𝒾) (a x₁ x₂ : A) (p : x₁ ≡ x₂) (q : a ≡ x₁)
-          → tr (λ x → a ≡ x) p q ≡ q ∙ p
-trHomc- A a x₁ x₂ (refl x₁) (refl x₁) = refl-right ⁻¹
 
-trHom-c : (A : 𝒰 𝒾) (a x₁ x₂ : A) (p : x₁ ≡ x₂) (q : x₁ ≡ a)
+-- Lemma 2.11.2.
+trHomc- : {A : 𝒰 𝒾} (a x₁ x₂ : A) (p : x₁ ≡ x₂) (q : a ≡ x₁)
+          → tr (λ x → a ≡ x) p q ≡ q ∙ p
+trHomc- a x₁ x₂ (refl x₁) (refl x₁) = refl-right ⁻¹
+
+trHom-c : {A : 𝒰 𝒾} (a x₁ x₂ : A) (p : x₁ ≡ x₂) (q : x₁ ≡ a)
           → tr (λ x → x ≡ a) p q ≡ p ⁻¹ ∙ q
-trHom-c A a x₁ x₂ (refl x₁) (refl x₁) = refl-right ⁻¹
+trHom-c a x₁ x₂ (refl x₁) (refl x₁) = refl-right ⁻¹
+
+-- Theorem 2.11.3.
+tr-fx≡gx : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f g : A → B) {a a' : A}
+           (p : a ≡ a') (q : f a ≡ g a)
+         → tr (λ x → f x ≡ g x) p q ≡ (ap f p)⁻¹ ∙ q ∙ (ap g p)
+tr-fx≡gx f g (refl a) q = (refl-left)⁻¹ ∙ (refl-right)⁻¹
 
 ---------------------------------------------------------------------------------
 

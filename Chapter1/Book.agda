@@ -185,8 +185,7 @@ infix   0 _≡_
 _≢_ : {X : 𝒰 𝒾} → X → X → 𝒰 𝒾
 x ≢ y = ¬(x ≡ y)
 
-𝕁 : (X : 𝒰 𝒾) (A : (x y : X) → x ≡ y → 𝒰 𝒿)
-  → ((x : X) → A x x (refl x))
-  → (x y : X) (p : x ≡ y) → A x y p
-
-𝕁 X A f x x (refl x) = f x
+𝕁 : (A : 𝒰 𝒾) (D : (x y : A) → x ≡ y → 𝒰 𝒿)
+  → ((x : A) → D x x (refl x))
+  → (x y : A) (p : x ≡ y) → D x y p
+𝕁 A D d x x (refl x) = d x
