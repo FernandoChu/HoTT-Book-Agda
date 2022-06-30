@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --exact-split --safe --auto-inline --no-import-sorts #-}
-
 module Chapter1.Book where
 
 open import Lib.Universes public
@@ -121,10 +119,6 @@ pattern ₁ = inr ⋆
 𝟚-induction A a₀ a₁ ₀ = a₀
 𝟚-induction A a₀ a₁ ₁ = a₁
 
--- 𝟚-induction : (A : 𝟚 → 𝒰 𝒾) → A (inl ⋆) → A (inr ⋆) → (x : 𝟚) → A x
--- 𝟚-induction A a1 a2 (inl ⋆) = a1
--- 𝟚-induction A a1 a2 (inr ⋆) = a2
-
 ---------------------------------------------------------------------------------
 
 -- Section 1.9 The natural numbers
@@ -138,7 +132,6 @@ data ℕ : 𝒰₀ where
             → A 0
             → ((n : ℕ) → A n → A (succ n))
             → (n : ℕ) → A n
-
 ℕ-induction A a₀ f = h
   where
     h : (n : ℕ) → A n

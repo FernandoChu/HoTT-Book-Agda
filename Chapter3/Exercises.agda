@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --exact-split --safe --auto-inline --no-import-sorts #-}
-
 module Chapter3.Exercises where
 
 open import Chapter3.Book public

@@ -1,5 +1,3 @@
-{-# OPTIONS --without-K --exact-split --safe --auto-inline --no-import-sorts #-}
-
 module Chapter3.Book where
 
 open import Chapter2.Exercises public
@@ -155,7 +153,7 @@ Prop𝒰→𝒰⁺ (X , f) = Lift X , isProp-Lift X f
     isProp-Lift A p x y = ap lift' (p (Lift.unlift x) (Lift.unlift y))
 
 -- Similar to the is-univalent definition
-is-propres : (𝒾 : Level) → 𝒰 (𝒾 ⁺ ⁺)
+is-propres : (𝒾 : Level) → 𝒰 (𝒾 ⁺⁺)
 is-propres 𝒾 = is-equiv (Prop𝒰→𝒰⁺ {𝒾})
 
 -- Axiom 3.5.5
@@ -189,9 +187,7 @@ record subsingleton-truncations-exist : 𝓤ω where
                            → isProp P → (X → P) → ∥ X ∥ → P
   infix 0 ∥_∥
 
-module subsingleton-truncations
-       (pt  : subsingleton-truncations-exist)
-       where
+module _ (pt  : subsingleton-truncations-exist) where
   open subsingleton-truncations-exist pt public
 
 
