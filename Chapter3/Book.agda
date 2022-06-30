@@ -2,7 +2,7 @@
 
 module Chapter3.Book where
 
-open import Chapter2.Book public
+open import Chapter2.Exercises public
 
 ---------------------------------------------------------------------------------
 
@@ -10,14 +10,14 @@ open import Chapter2.Book public
 
 -- Definition 3.1.1
 isSet : 𝒰 𝒾 → 𝒰 𝒾
-isSet X = (x y : X) (p q : x ≡ y) → (p ≡ q)
+isSet X = {x y : X} (p q : x ≡ y) → (p ≡ q)
 
 -- Example 3.1.2
 𝟙-isSet : isSet 𝟙
-𝟙-isSet x y p q =
+𝟙-isSet {x} {y} p q =
   let (f , ((g , f-g) , (h , h-f))) = 𝟙-≡-≃ x y
       hfp≡hfq : h (f p) ≡ h (f q)
-      hfp≡hfq = ap h (𝟙-is-subsingleton (f p) (f q))
+      hfp≡hfq = ap h (𝟙-isProp (f p) (f q))
   in  begin
     p       ≡˘⟨ h-f p ⟩
     h (f p) ≡⟨ hfp≡hfq ⟩
@@ -26,7 +26,7 @@ isSet X = (x y : X) (p q : x ≡ y) → (p ≡ q)
 
 -- Example 3.1.3
 𝟘-isSet : isSet 𝟘
-𝟘-isSet x y p q = !𝟘 (p ≡ q) x
+𝟘-isSet {x} {y} p q = !𝟘 (p ≡ q) x
 
 -- 3.1.9
 swap₂ : 𝟚 → 𝟚
@@ -53,7 +53,7 @@ e₀-is-not-e₁ : e₀ ≢ e₁
 e₀-is-not-e₁ p = ₁-is-not-₀ r
  where
   q : id ≡ swap₂
-  q = ap ⌜_⌝ p
+  q = ap ≃-→ p
   r : ₁ ≡ ₀
   r = ap (λ - → - ₁) q
 
@@ -64,7 +64,7 @@ p-is-not-refl u is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
     p : 𝟚 ≡ 𝟚
     p = ua u e₁
     assumption : p ≡ refl 𝟚
-    assumption = is-set-𝒰₀ 𝟚 𝟚 p (refl 𝟚)
+    assumption = is-set-𝒰₀ {𝟚} {𝟚} p (refl 𝟚)
     p≡refl : e₁ ≡ idtoeqv (refl 𝟚)
     p≡refl = begin
       e₁                ≡⟨ id∼idtoeqv∘ua u e₁ ⟩
@@ -88,6 +88,9 @@ isProp : (P : 𝒰 𝒾) → 𝒰 𝒾
 isProp P = (x y : P) → x ≡ y
 
 -- Lemma 3.3.2
+isPointedProp≃𝟙 : (P : 𝒰 𝒾) → (x₀ : P) → (isProp P) → P ≃ 𝟙
+isPointedProp≃𝟙 P x₀ f = (λ - → ⋆) ,
+  invs-are-equivs (λ - → ⋆) ((λ - → x₀) , (λ x → 𝟙-isProp ⋆ x) , (λ x → f x₀ x))
 
 -- Lemma 3.3.3
 isProp-LogEq→Eq : (P Q : 𝒰 𝒾) → isProp P → isProp Q
@@ -100,8 +103,8 @@ isProp-LogEq→Eq P Q pP pQ f g = f , (invs-are-equivs f (g , f∘g∼id , g∘f
     g∘f∼id x = pP (g (f x)) x
 
 -- Lemma 3.3.4
-props-are-sets : (A : 𝒰 𝒾) → isProp A → isSet A
-props-are-sets A f x y p q = (claim2 x y p) ∙ (claim2 x y q)⁻¹
+props-are-sets : {A : 𝒰 𝒾} → isProp A → isSet A
+props-are-sets {𝒾} {A} f {x} {y} p q = (claim2 x y p) ∙ (claim2 x y q)⁻¹
   where
     g : (z : A) → x ≡ z
     g z = f x z
@@ -216,8 +219,27 @@ isContr A = Σ a ꞉ A , ((x : A) → a ≡ x)
 contr-are-pointed-props : (A : 𝒰 𝒾) → isContr A → A × isProp A
 contr-are-pointed-props A (a , p) = (a , λ x y → (p x)⁻¹ ∙ (p y))
 
-pointed-props-are-contr : (A : 𝒰 𝒾) → A × isProp A → isContr A
+pointed-props-are-contr : (A : 𝒰 𝒾) → A × (isProp A) → isContr A
 pointed-props-are-contr A (a , p) = (a , λ x → p a x)
+
+𝟙-isPointedProp : 𝟙 × (isProp 𝟙)
+𝟙-isPointedProp = (⋆ , 𝟙-isProp)
+
+≃𝟙→isPointedProp : (A : 𝒰 𝒾) → A ≃ 𝟙 → (A × isProp A)
+≃𝟙→isPointedProp A (f , eqv) =
+  let ( g , f∘g , g∘f ) = equivs-are-invs f eqv
+   in ( g ⋆ , λ x y → (g∘f x)⁻¹ ∙ ap g (𝟙-isProp (f x) (f y)) ∙ g∘f y)
+
+-- Helpers
+isContr→≃𝟙 : (A : 𝒰 𝒾) → isContr A → A ≃ 𝟙
+isContr→≃𝟙 A ap =
+  let ( a , p ) = contr-are-pointed-props A ap
+   in isPointedProp≃𝟙 A a p
+
+≃𝟙→isContr : (A : 𝒰 𝒾) → A ≃ 𝟙 → isContr A
+≃𝟙→isContr A feqv =
+  let ( a , p ) = ≃𝟙→isPointedProp A feqv
+   in pointed-props-are-contr A (a , p)
 
 -- Lemma 3.11.4
 isContr-isProp : {𝒾 : Level} → has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isProp(isContr A)
@@ -227,7 +249,7 @@ isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
     q = p a'
     a≡x-isProp : (x : A) → isProp (a' ≡ x)
     a≡x-isProp x r s =
-      props-are-sets A (pr₂ (contr-are-pointed-props A (a , p))) a' x r s
+      props-are-sets (pr₂ (contr-are-pointed-props A (a , p))) r s
     q' : tr (λ - → (x : A) → - ≡ x) q p ≡ p'
     q' = Π-preserves-props fe A (λ x → a' ≡ x) a≡x-isProp
            (tr (λ - → (x : A) → - ≡ x) q p) p'
@@ -235,13 +257,13 @@ isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
 -- Corollary 3.11.5
 isContr-isContr : has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isContr A → isContr (isContr A)
 isContr-isContr fe A c =
-  pointed-props-are-contr (isContr A) (c , (isContr-isProp fe A))
+  pointed-props-are-contr (isContr A) (c , isContr-isProp fe A)
 
 -- Lemma 3.11.6
 Π-preserves-contr : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
-                    (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) →
+                    {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} →
                     ((x : A) → isContr (B x)) → isContr ((x : A) → B x)
-Π-preserves-contr fe A B p =
+Π-preserves-contr fe {A} {B} p =
   pointed-props-are-contr ((x : A) → B x) (f , Π-isProp)
   where
     f : (x : A) → B x
@@ -287,24 +309,33 @@ rectraction-of-contr-isContr B A (r , s , ε) (a₀ , contr) =
       p b = (ε b)⁻¹ ∙ ap r (contr (s b)⁻¹)
 
 -- Lemma 3.11.8
-based-paths-isContr : (A : 𝒰 𝒾) (a : A) → isContr (Σ x ꞉ A , a ≡ x)
-based-paths-isContr A a = ( (a , refl a) , f )
+based-paths-isContr : {A : 𝒰 𝒾} (a : A) → isContr (Σ x ꞉ A , a ≡ x)
+based-paths-isContr {𝒾} {A} a = ( (a , refl a) , f )
   where
     f : (xp : Σ x ꞉ A , a ≡ x) → (a , refl a) ≡ xp
     f (x , p) = pair⁼(p , ((trHomc- a a x p (refl a)) ∙ refl-left))
 
 -- Lemma 3.11.9
+Σ-over-contr-family-≃-base : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿)
+                           → ((x : A) → isContr (P x))
+                           → (Σ x ꞉ A , P x) ≃ A
+Σ-over-contr-family-≃-base P f = map , invs-are-equivs map (map⁻¹ , ε , η)
+ where
+  map = pr₁
+  map⁻¹ = λ a → (a , pr₁ (f a))
+  ε = λ a → refl a
+  η = λ (a , pa) → pair⁼ (refl a , pr₂ (f a) pa)
 
 -- Lemma 3.11.10
-props-if-contr-Id : (A : 𝒰 𝒾)
+props-if-contr-Id : {A : 𝒰 𝒾}
                     → ((x y : A) → isContr (x ≡ y))
                     → isProp A
-props-if-contr-Id A f x y = pr₁ (f x y)
+props-if-contr-Id f x y = pr₁ (f x y)
 
-props-have-contr-Id : (A : 𝒰 𝒾) → isProp A
+props-have-contr-Id : {A : 𝒰 𝒾} → isProp A
                     → ((x y : A) → isContr (x ≡ y))
-props-have-contr-Id A f x y =
+props-have-contr-Id f x y =
   pointed-props-are-contr (x ≡ y) (f x y , P)
     where
       P : isProp (x ≡ y)
-      P p q = props-are-sets A f x y p q
+      P p q = props-are-sets f p q

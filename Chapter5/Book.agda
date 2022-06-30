@@ -9,7 +9,7 @@ open import Chapter4.Exercises public
 -- 5.1 Introduction to inductive types
 
 -- Theorem 5.1.1
-ℕ-uniqueness : funext →
+ℕ-uniqueness : has-funext lzero 𝒾 →
                (E : ℕ → 𝒰 𝒾)
                (f g : (x : ℕ) → E x)
                (ez : E 0)
@@ -19,7 +19,7 @@ open import Chapter4.Exercises public
              → ((n : ℕ) → g (succ n) ≡ eₛ n (g n))
              → f ≡ g
 ℕ-uniqueness fe E f g ez eₛ f0 g0 fs gs
-  = (pr₁ (pr₁ (fe f g))) f∼g
+  = funext fe f∼g
     where
       f∼g : f ∼ g
       f∼g 0 = f0 ∙ (g0 ⁻¹)
@@ -122,16 +122,16 @@ d : (𝒾 : Level) → ℕAlg 𝒾 → 𝒰 (𝒾 ⁺)
 d 𝒾 = isHinit-ℕ 𝒾
 
 -- Theorem 5.4.4
-isHinit-ℕ-isProp : (𝒾 𝒿 : Level)
+isHinit-ℕ-isProp : (𝒾 : Level)
                  → (is-univalent 𝒾)
-                 → funext {𝒾} {𝒾}
-                 → funext {𝒾 ⁺} {𝒾}
-                 → funext {𝒾 ⁺} {𝒾 ⁺}
+                 → has-funext 𝒾 𝒾
+                 → has-funext (𝒾 ⁺) 𝒾
+                 → has-funext (𝒾 ⁺) (𝒾 ⁺)
                  → (I J : ℕAlg 𝒾)
                  → (isHinit-ℕ 𝒾 I) → (isHinit-ℕ 𝒾 J)
                  → I ≡ J
-isHinit-ℕ-isProp 𝒾 𝒿 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
- pair⁼ (cI≡cJ , missing)
+isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
+ pair⁼ (cI≡cJ , ≡-signature)
  where
   F : ℕHom 𝒾 𝒾 I J
   F = pr₁ (fI J)
@@ -158,29 +158,18 @@ isHinit-ℕ-isProp 𝒾 𝒿 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , j�
   cI≃cJ = (f , invs-are-equivs f q-qinv-f)
    where
     q-qinv-f : qinv f
-    q-qinv-f = (g , happly (f ∘ g) id f∘g≡id , happly (g ∘ f) id g∘f≡id)
-
+    q-qinv-f = (g , happly f∘g≡id , happly g∘f≡id)
 
   cI≡cJ : cI ≡ cJ
-  cI≡cJ = ua u cI cJ cI≃cJ
+  cI≡cJ = ua u cI≃cJ
 
-  c : isProp ((C : ℕAlg 𝒾) → (D : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 C D))
-  c = Π-preserves-props fe2 (ℕAlg 𝒾)
-   (λ C → (D : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 C D)) b
-   where
-    b : (C : ℕAlg 𝒾) → isProp ((D : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 C D))
-    b C = Π-preserves-props fe1 (ℕAlg 𝒾)
-      (λ D → isContr (ℕHom 𝒾 𝒾 C D))
-      (λ D → isContr-isProp fe (ℕHom 𝒾 𝒾 C D))
-
-
-  missing : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡
-              (j₀ , jₛ)
-  missing = begin
-   tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡⟨ tr× ⟩
-   (tr (λ C → C) cI≡cJ i₀ ,
-     tr (λ C → (C → C)) cI≡cJ iₛ)         ≡⟨ pair×⁼ (tr-i₀≡j₀ , tr-iₛ≡jₛ) ⟩
-   (j₀ , jₛ) ∎
+  ≡-signature : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡ (j₀ , jₛ)
+  ≡-signature = begin
+    tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡⟨ tr× ⟩
+    (tr (λ C → C) cI≡cJ i₀ ,
+      tr (λ C → (C → C)) cI≡cJ iₛ)         ≡⟨ pair×⁼ (tr-i₀≡j₀ ,
+                                               funext fe tr-iₛx≡jₛx) ⟩
+    (j₀ , jₛ) ∎
    where
     tr× : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡
           (tr (λ C → C) cI≡cJ i₀ , tr (λ C → (C → C)) cI≡cJ iₛ)
@@ -189,27 +178,22 @@ isHinit-ℕ-isProp 𝒾 𝒿 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , j�
     tr-i₀≡j₀ : tr (λ C → C) (cI≡cJ) i₀ ≡ j₀
     tr-i₀≡j₀ = begin
       tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡u-comp u cI≃cJ i₀ ⟩
-      pr₁ cI≃cJ i₀            ≡⟨⟩
       f i₀                    ≡⟨ pr₁ (pr₂ F) ⟩
       j₀                      ∎
 
-    tr-iₛ≡jₛ : tr (λ C → (C → C)) (cI≡cJ) iₛ ≡ jₛ
-    tr-iₛ≡jₛ = _
+    tr-iₛx≡jₛx : tr (λ C → (C → C)) (cI≡cJ) iₛ ∼ jₛ
+    tr-iₛx≡jₛx x = begin
+      tr (λ C → (C → C)) cI≡cJ iₛ x         ≡⟨ i ⟩
+      tr id cI≡cJ (iₛ (tr id (cI≡cJ ⁻¹) x)) ≡⟨ ii ⟩
+      f (iₛ (tr id (cI≡cJ ⁻¹) x))           ≡⟨ iii ⟩
+      f (iₛ (tr id (ua u (≃-sym cI≃cJ)) x)) ≡⟨ iv ⟩
+      f (iₛ (g x))                          ≡⟨ v ⟩
+      jₛ (f (g x))                          ≡⟨ vi ⟩
+      jₛ x                     ∎
      where
-      x : tr (λ x → x → x) cI≡cJ iₛ ≡
-            (λ x → tr id cI≡cJ (iₛ (tr id (cI≡cJ ⁻¹) x)))
-      x = trf (𝒰 𝒾) id id cI cJ cI≡cJ iₛ
-    -- st = begin
-    --   tr (λ C → (C → C)) (cI≡cJ) i₀ ≡⟨ ≡u-comp u cI cJ cI≃cJ i₀ ⟩
-    --   pr₁ cI≃cJ i₀                  ≡⟨⟩
-    --   f i₀                          ≡⟨ pr₁ (pr₂ F) ⟩
-    --   jₛ                            ∎
-
-  related? : (cI × (cI → cI)) → (cJ × (cJ → cJ))
-  related? = tr (λ C → C × (C → C)) cI≡cJ
-
-  -- P : (A B : Σ C ꞉ (𝒰 𝒾) , C) → (pr₁ A ≡ pr₁ B) → A ≡ B
-  -- P (A , a0) (B , b0) p = pair⁼(p , x)
-  --  where
-  --   x : tr (λ C → C) p a0 ≡ b0
-  --   x = _
+      i = happly (tr-f (𝒰 𝒾) id id cI cJ cI≡cJ iₛ) x
+      ii = ≡u-comp u cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
+      iii = ap (λ - → f (iₛ (tr id - x))) (ua⁻¹ fe u cI≃cJ)
+      iv = ap (λ - → f (iₛ -)) (≡u-comp u (≃-sym cI≃cJ) x)
+      v = pr₂ (pr₂ F) (g x)
+      vi = ap jₛ (happly f∘g≡id x)
