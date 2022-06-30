@@ -4,6 +4,17 @@ open import Lib.Universes public
 
 ---------------------------------------------------------------------------------
 
+-- Section 1.3 Dependent function types
+
+-- Workaround to have cumulativity
+record Lift (A : 𝒰 𝒾) : 𝒰 (𝒾 ⁺) where
+  constructor liftT
+  field unlift : A
+
+open Lift public
+
+---------------------------------------------------------------------------------
+
 -- Section 1.4 Dependent function types
 
 Π : {X : 𝒰 𝒾} (Y : X → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)

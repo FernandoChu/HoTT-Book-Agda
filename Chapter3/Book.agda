@@ -141,16 +141,11 @@ has-decidable-equality X = (x y : X) → decidable (x ≡ y)
 Prop𝒰 : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
 Prop𝒰 𝒾 = Σ A ꞉ (𝒰 𝒾) , isProp(A)
 
--- Helper to have cumulativity
-record Lift (A : 𝒰 𝒾) : 𝒰 (𝒾 ⁺) where
-  constructor lift'
-  field unlift : A
-
 Prop𝒰→𝒰⁺ : {𝒾 : Level} → (Prop𝒰 𝒾) → (Prop𝒰 (𝒾 ⁺))
 Prop𝒰→𝒰⁺ (X , f) = Lift X , isProp-Lift X f
   where
     isProp-Lift : (A : 𝒰 𝒾) → isProp A → isProp (Lift A)
-    isProp-Lift A p x y = ap lift' (p (Lift.unlift x) (Lift.unlift y))
+    isProp-Lift A p x y = ap liftT (p (unlift x) (unlift y))
 
 -- Similar to the is-univalent definition
 is-propres : (𝒾 : Level) → 𝒰 (𝒾 ⁺⁺)

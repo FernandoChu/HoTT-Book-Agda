@@ -1,6 +1,5 @@
 name: hott-book
 include: .
-depend: standard-library
 flags: --without-K
        --exact-split
        --safe
