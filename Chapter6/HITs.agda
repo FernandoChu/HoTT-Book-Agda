@@ -32,29 +32,27 @@ module _ (circle : CircleExists) where
     data S : 𝒰₀ where
      c : 𝕊¹' → S
 
-   f𝕊¹ : 𝒰₀
-   f𝕊¹ = S
+   𝕊¹ : 𝒰₀
+   𝕊¹ = S
 
-   fbase : f𝕊¹
-   fbase = c base'
+   base : 𝕊¹
+   base = c base'
 
-   floop : fbase ≡ fbase
-   floop = ap c circle
+   loop : base ≡ base
+   loop = ap c circle
 
-   f𝕊¹-rec : {B : 𝒰 𝒾}
+   𝕊¹-rec : {B : 𝒰 𝒾}
          → (b : B)
          → (l : b ≡ b)
-         → f𝕊¹ -> B
-   f𝕊¹-rec b _ point = b
+         → 𝕊¹ -> B
+   𝕊¹-rec b _ point = b
 
-   f𝕊¹-ind : {P : f𝕊¹ → 𝒰 𝒾}
-          → (b : P fbase)
-          → (l : tr P floop b ≡ b)
-          → ((x : f𝕊¹) → P x)
-   f𝕊¹-ind {𝒾} {P} b l (c x) =
+   𝕊¹-ind : {P : 𝕊¹ → 𝒰 𝒾}
+          → (b : P base)
+          → (l : tr P loop b ≡ b)
+          → ((x : 𝕊¹) → P x)
+   𝕊¹-ind {𝒾} {P} b l (c x) =
      𝕊¹-ind-helper (λ x → P (c x)) b x
-
-open Circle public
 
 ---------------------------------------------------------------------------------
 
@@ -99,30 +97,28 @@ module _ (interval : IntervalExists) where
       data I : 𝒰₀ where
         i : 𝕀' → I
 
-    f𝕀 : 𝒰₀
-    f𝕀 = I
+    𝕀 : 𝒰₀
+    𝕀 = I
 
-    f0ᵢ : f𝕀
-    f0ᵢ = i 0ᵢ'
+    0ᵢ : 𝕀
+    0ᵢ = i 0ᵢ'
 
-    f1ᵢ : f𝕀
-    f1ᵢ = i 1ᵢ'
+    1ᵢ : 𝕀
+    1ᵢ = i 1ᵢ'
 
-    fseg : f0ᵢ ≡ f1ᵢ
-    fseg = ap i interval
+    seg : 0ᵢ ≡ 1ᵢ
+    seg = ap i interval
 
-    f𝕀-rec : {B : 𝒰 𝒾}
+    𝕀-rec : {B : 𝒰 𝒾}
           → (b₀ b₁ : B)
           → (s : b₀ ≡ b₁)
-          → f𝕀 -> B
-    f𝕀-rec b₀ b₁ s (i x) = 𝕀-rec-helper b₀ b₁ s x
+          → 𝕀 -> B
+    𝕀-rec b₀ b₁ s (i x) = 𝕀-rec-helper b₀ b₁ s x
 
-    f𝕀-ind : {P : f𝕀 → 𝒰 𝒾}
-          → (b₀ : P f0ᵢ)
-          → (b₁ : P f1ᵢ)
-          → (s : tr P fseg b₀ ≡ b₁)
-          → ((x : f𝕀) -> P x)
-    f𝕀-ind {𝒾} {P} b₀ b₁ s (i x) =
+    𝕀-ind : {P : 𝕀 → 𝒰 𝒾}
+          → (b₀ : P 0ᵢ)
+          → (b₁ : P 1ᵢ)
+          → (s : tr P seg b₀ ≡ b₁)
+          → ((x : 𝕀) -> P x)
+    𝕀-ind {𝒾} {P} b₀ b₁ s (i x) =
       𝕀-ind-helper (λ x → P (i x)) b₀ b₁ x
-
-open Interval public
