@@ -38,7 +38,7 @@ refl-right {𝓤} {X} {x} {y} {refl x} = refl (refl x)
 
 -- Lemma 2.1.4 iv)
 ∙-assoc : {X : 𝒰 𝒾} {x y z t : X} (p : x ≡ y) {q : y ≡ z} {r : z ≡ t}
-       → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
+        → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
 ∙-assoc (refl x) {refl x} {refl x} = refl (refl x)
 
 -- Common ≡ reasoning helpers from
@@ -93,24 +93,69 @@ ap-id : {X : 𝒰 𝒾} {x y : X} (p : x ≡ y)
       → ap id p ≡ p
 ap-id (refl x) = refl (refl x)
 
+-- Some more helpers
+∙-left-cancel : {X : 𝒰 𝒾} {x y z : X}
+                (p : x ≡ y) {q r : y ≡ z}
+              → p ∙ q ≡ p ∙ r
+              → q ≡ r
+∙-left-cancel p {q} {r} path = begin
+  q              ≡˘⟨ refl-left ⟩
+  refl _ ∙ q     ≡˘⟨ ap (_∙ q) (⁻¹-left∙ p) ⟩
+  (p ⁻¹ ∙ p) ∙ q ≡⟨ ∙-assoc (p ⁻¹) ⟩
+  p ⁻¹ ∙ (p ∙ q) ≡⟨ ap ((p ⁻¹) ∙_) path ⟩
+  p ⁻¹ ∙ (p ∙ r) ≡˘⟨ ∙-assoc (p ⁻¹) ⟩
+  (p ⁻¹ ∙ p) ∙ r ≡⟨ ap (_∙ r) (⁻¹-left∙ p) ⟩
+  refl _ ∙ r     ≡⟨ refl-left ⟩
+  r ∎
+
+∙-right-cancel : {X : 𝒰 𝒾} {x y z : X}
+                 (p : x ≡ y) {q : x ≡ y} {r : y ≡ z}
+               → p ∙ r ≡ q ∙ r
+               → p ≡ q
+∙-right-cancel p {q} {r} path = begin
+  p              ≡˘⟨ refl-right ⟩
+  p ∙ refl _     ≡˘⟨ ap (p ∙_) (⁻¹-right∙ r) ⟩
+  p ∙ (r ∙ r ⁻¹) ≡˘⟨ ∙-assoc p ⟩
+  (p ∙ r) ∙ r ⁻¹ ≡⟨ ap (_∙ (r ⁻¹)) path ⟩
+  (q ∙ r) ∙ r ⁻¹ ≡⟨ ∙-assoc q ⟩
+  q ∙ (r ∙ r ⁻¹) ≡⟨ ap (q ∙_) (⁻¹-right∙ r) ⟩
+  q ∙ refl _     ≡⟨ refl-right ⟩
+  q ∎
+
 ---------------------------------------------------------------------------------
 
 -- Section 2.3 Type families are fibrations
 
-tr : {X : 𝒰 𝒾} (A : X → 𝒰 𝒿) {x y : X}
-          → x ≡ y → A x → A y
-tr A (refl x) = id
+-- Lemma 2.3.1.
+tr : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y : A}
+          → x ≡ y → P x → P y
+tr P (refl x) = id
 
+-- Lemma 2.3.2.
 lift : {A : 𝒰 𝒾} {P : A → 𝒰 𝒿}
        {x y : A} (u : P x) (p : x ≡ y)
      → ((x , u) ≡ (y , tr P p u))
 lift u (refl x) = refl (x , u)
 
-apd : {X : 𝒰 𝒾} {A : X → 𝒰 𝒿} (f : (x : X) → A x) {x y : X}
-      (p : x ≡ y) → tr A p (f x) ≡ f y
+-- Lemma 2.3.4.
+apd : {A : 𝒰 𝒾} {P : A → 𝒰 𝒿} (f : (x : A) → P x) {x y : A}
+      (p : x ≡ y) → tr P p (f x) ≡ f y
 apd f (refl x) = refl (f x)
 
--- Lemma 2.3.9
+-- Lemma 2.3.5.
+trconst : {A : 𝒰 𝒾} (B : 𝒰 𝒿) {x y : A}
+          (p : x ≡ y) (b : B)
+        → tr (λ - → B) p b ≡ b
+trconst B (refl x) b = refl b
+
+-- Lemma 2.3.8.
+apd-trconst : {A : 𝒰 𝒾} (B : 𝒰 𝒿) {x y : A}
+              (f : A → B)
+              (p : x ≡ y)
+            → apd f p ≡ trconst B p (f x) ∙ ap f p
+apd-trconst B f (refl x) = refl (refl (f x))
+
+-- Lemma 2.3.9.
 -- (Slight generalization for the ua-∘ proof)
 tr-∘ : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y z : A}
        (p : x ≡ y) (q : y ≡ z)
@@ -140,7 +185,7 @@ f ∼ g = ∀ x → f x ≡ g x
         → (f ∼ h)
 ∼-trans f g h H1 H2 = λ x → (H1 x) ∙ (H2 x)
 
--- Lemma 2.4.3
+-- Lemma 2.4.3.
 ∼-naturality : {X : 𝒰 𝒾} {A : 𝒰 𝒿}
                (f g : X → A) (H : f ∼ g) {x y : X} {p : x ≡ y}
              → H x ∙ ap g p ≡ ap f p ∙ H y
@@ -220,17 +265,17 @@ A ≃ B = Σ f ꞉ (A → B), is-equiv f
  let (g , ε , η) = equivs-are-invs f eqv
   in η
 
--- Lemma 2.4.12 i)
+-- Lemma 2.4.12. i)
 ≃-refl : (X : 𝒰 𝒾) → X ≃ X
 ≃-refl X = ( 𝑖𝑑 X , invs-are-equivs (𝑖𝑑 X) (qinv-id-id X) )
 
--- Lemma 2.4.12 ii)
+-- Lemma 2.4.12. ii)
 ≃-sym : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → X ≃ Y → Y ≃ X
 ≃-sym ( f , e ) =
   let ( f⁻¹ , p , q) = ( equivs-are-invs f e )
   in  ( f⁻¹ , invs-are-equivs f⁻¹ (f , q , p) )
 
--- Lemma 2.4.12 iii)
+-- Lemma 2.4.12. iii)
 ≃-trans-helper : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
                  (eqvf : A ≃ B) (eqvg : B ≃ C)
                → is-equiv (pr₁ eqvg ∘ pr₁ eqvf)
@@ -578,19 +623,72 @@ Univalence = ∀ i → is-univalent i
 -- 2.11 Identity type
 
 -- Lemma 2.11.2.
-trHomc- : {A : 𝒰 𝒾} (a x₁ x₂ : A) (p : x₁ ≡ x₂) (q : a ≡ x₁)
+trHomc- : {A : 𝒰 𝒾} (a : A) {x₁ x₂ : A} (p : x₁ ≡ x₂) (q : a ≡ x₁)
           → tr (λ x → a ≡ x) p q ≡ q ∙ p
-trHomc- a x₁ x₂ (refl x₁) (refl x₁) = refl-right ⁻¹
+trHomc- a (refl _) (refl _) = refl-right ⁻¹
 
-trHom-c : {A : 𝒰 𝒾} (a x₁ x₂ : A) (p : x₁ ≡ x₂) (q : x₁ ≡ a)
+trHom-c : {A : 𝒰 𝒾} (a : A) {x₁ x₂ : A} (p : x₁ ≡ x₂) (q : x₁ ≡ a)
           → tr (λ x → x ≡ a) p q ≡ p ⁻¹ ∙ q
-trHom-c a x₁ x₂ (refl x₁) (refl x₁) = refl-right ⁻¹
+trHom-c a (refl _) (refl _) = refl-right ⁻¹
+
+trHom─ : {A : 𝒰 𝒾} {x₁ x₂ : A} (p : x₁ ≡ x₂) (q : x₁ ≡ x₁)
+          → tr (λ x → x ≡ x) p q ≡ p ⁻¹ ∙ q ∙ p
+trHom─ (refl _) q = (ap (_∙ refl _) refl-left ∙ refl-right) ⁻¹
 
 -- Theorem 2.11.3.
 tr-fx≡gx : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f g : A → B) {a a' : A}
            (p : a ≡ a') (q : f a ≡ g a)
          → tr (λ x → f x ≡ g x) p q ≡ (ap f p)⁻¹ ∙ q ∙ (ap g p)
 tr-fx≡gx f g (refl a) q = (refl-left)⁻¹ ∙ (refl-right)⁻¹
+
+-- Theorem 2.11.5.
+tr-x≡x-≃ : {A : 𝒰 𝒾} {a a' : A}
+           (p : a ≡ a') (q : a ≡ a) (r : a' ≡ a')
+         → (tr (λ x → x ≡ x) p q ≡ r) ≃ (q ∙ p ≡ p ∙ r)
+tr-x≡x-≃ {𝒾} {A} {a} {a'} (refl a) q r =
+  map , invs-are-equivs map (map⁻¹ , ε , η)
+ where
+  map : q ≡ r → (q ∙ refl a ≡ refl a ∙ r)
+  map eq = refl-right ∙ eq ∙ (refl-left)⁻¹
+  map⁻¹ : (q ∙ refl a ≡ refl a ∙ r) → (q ≡ r)
+  map⁻¹ eq' = (refl-right)⁻¹ ∙ eq' ∙ refl-left
+  ε : map ∘ map⁻¹ ∼ id
+  ε eq' = begin
+    refl-right ∙ ((refl-right)⁻¹ ∙ eq' ∙ refl-left) ∙ (refl-left)⁻¹ ≡˘⟨ i ⟩
+    refl-right ∙ ((refl-right)⁻¹ ∙ eq') ∙ refl-left ∙ (refl-left)⁻¹ ≡˘⟨ ii ⟩
+    refl-right ∙ (refl-right)⁻¹ ∙ eq' ∙ refl-left ∙ (refl-left)⁻¹   ≡⟨ iii ⟩
+    refl _ ∙ eq' ∙ refl-left ∙ (refl-left)⁻¹                        ≡⟨ iv ⟩
+    eq' ∙ refl-left ∙ (refl-left)⁻¹                                 ≡⟨ v ⟩
+    eq' ∙ (refl-left ∙ (refl-left)⁻¹)                               ≡⟨ vi ⟩
+    eq' ∙ refl _                                                    ≡⟨ vii ⟩
+    eq' ∎
+   where
+    i   = ap (_∙ (refl-left)⁻¹) (∙-assoc refl-right)
+    ii  = ap (λ - → - ∙ refl-left ∙ (refl-left)⁻¹) (∙-assoc refl-right)
+    iii = ap (λ - → - ∙ eq' ∙ refl-left ∙ (refl-left)⁻¹) (⁻¹-right∙ refl-right)
+    iv  = ap (λ - → - ∙ refl-left ∙ (refl-left)⁻¹) refl-left
+    v   = ∙-assoc eq'
+    vi  = ap (eq' ∙_) (⁻¹-right∙ refl-left)
+    vii = refl-right
+  η : map⁻¹ ∘ map ∼ id
+  η eq = begin
+    (refl-right)⁻¹ ∙ (refl-right ∙ eq ∙ (refl-left)⁻¹) ∙ refl-left ≡˘⟨ i ⟩
+    (refl-right)⁻¹ ∙ (refl-right ∙ eq) ∙ (refl-left)⁻¹ ∙ refl-left ≡˘⟨ ii ⟩
+    (refl-right)⁻¹ ∙ refl-right ∙ eq ∙ (refl-left)⁻¹ ∙ refl-left   ≡⟨ iii ⟩
+    refl _ ∙ eq ∙ (refl-left)⁻¹ ∙ refl-left                        ≡⟨ iv ⟩
+    eq ∙ (refl-left)⁻¹ ∙ refl-left                                 ≡⟨ v ⟩
+    eq ∙ ((refl-left)⁻¹ ∙ refl-left)                               ≡⟨ vi ⟩
+    eq ∙ refl _                                                    ≡⟨ vii ⟩
+    eq ∎
+   where
+    i   = ap (_∙ refl-left) (∙-assoc ((refl-right)⁻¹))
+    ii  = ap (λ - → - ∙ (refl-left)⁻¹ ∙ refl-left) (∙-assoc ((refl-right)⁻¹))
+    iii = ap (λ - → - ∙ eq ∙ (refl-left)⁻¹ ∙ refl-left) (⁻¹-left∙ refl-right)
+    iv  = ap (λ - → - ∙ (refl-left)⁻¹ ∙ refl-left) refl-left
+    v   = ∙-assoc eq
+    vi  = ap (eq ∙_) (⁻¹-left∙ refl-left)
+    vii = refl-right
+
 
 ---------------------------------------------------------------------------------
 
@@ -612,7 +710,7 @@ tr-fx≡gx f g (refl a) q = (refl-left)⁻¹ ∙ (refl-right)⁻¹
 
 -- 2.15 Universal properties
 
--- Theorem 2.15.7
+-- Theorem 2.15.7.
 ΠΣ-comm : {X : 𝒰 𝒾} {A : X → 𝒰 𝒿} {P : (x : X) → A x → 𝒰 𝓀}
         → has-funext 𝒾 (𝒿 ⊔ 𝓀)
         → ((x : X) → Σ a ꞉ (A x) , P x a)

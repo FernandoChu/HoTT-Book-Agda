@@ -108,7 +108,7 @@ props-are-sets {𝒾} {A} f {x} {y} p q = (claim2 x y p) ∙ (claim2 x y q)⁻¹
     g z = f x z
     claim1 : (y z : A) (p : y ≡ z) → g y ∙ p ≡ g z
     claim1 y z p = begin
-      g(y) ∙ p                  ≡˘⟨ trHomc- x y z p (f x y) ⟩
+      g(y) ∙ p                  ≡˘⟨ trHomc- x p (f x y) ⟩
       tr (λ - → x ≡ -) p (g(y)) ≡⟨ apd g p ⟩
       g z                       ∎
     claim2 : (y z : A) (p : y ≡ z) → p ≡ (g y)⁻¹ ∙ g z
@@ -161,9 +161,9 @@ PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
 
 -- Example 3.6.2
 Π-preserves-props : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
-                    (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) →
+                    {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} →
                     ((x : A) → isProp (B x)) → isProp ((x : A) → B x)
-Π-preserves-props fe A B p f g = pr₁ (pr₁ (fe f g)) (λ x → p x (f x) (g x))
+Π-preserves-props fe p f g = pr₁ (pr₁ (fe f g)) (λ x → p x (f x) (g x))
 
 ---------------------------------------------------------------------------------
 
@@ -242,7 +242,7 @@ isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
     a≡x-isProp x r s =
       props-are-sets (pr₂ (contr-are-pointed-props A (a , p))) r s
     q' : tr (λ - → (x : A) → - ≡ x) q p ≡ p'
-    q' = Π-preserves-props fe A (λ x → a' ≡ x) a≡x-isProp
+    q' = Π-preserves-props fe a≡x-isProp
            (tr (λ - → (x : A) → - ≡ x) q p) p'
 
 -- Corollary 3.11.5
@@ -262,7 +262,7 @@ isContr-isContr fe A c =
     Bx-isProp : (x : A) → isProp (B x)
     Bx-isProp x = pr₂ (contr-are-pointed-props (B x) (p x))
     Π-isProp : isProp ((x : A) → B x)
-    Π-isProp = Π-preserves-props fe A B Bx-isProp
+    Π-isProp = Π-preserves-props fe Bx-isProp
 
 has-section : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
 has-section r = Σ s ꞉ (codomain r → domain r), r ∘ s ∼ id
@@ -304,7 +304,7 @@ based-paths-isContr : {A : 𝒰 𝒾} (a : A) → isContr (Σ x ꞉ A , a ≡ x)
 based-paths-isContr {𝒾} {A} a = ( (a , refl a) , f )
   where
     f : (xp : Σ x ꞉ A , a ≡ x) → (a , refl a) ≡ xp
-    f (x , p) = pair⁼(p , ((trHomc- a a x p (refl a)) ∙ refl-left))
+    f (x , p) = pair⁼(p , ((trHomc- a p (refl a)) ∙ refl-left))
 
 -- Lemma 3.11.9
 Σ-over-contr-family-≃-base : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿)

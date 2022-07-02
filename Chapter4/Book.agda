@@ -417,7 +417,6 @@ ishae-isProp u fe1 fe2 fe3 fe4 fe5 f =
 biinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
 biinv f = rinv f × linv f
 
-
 -- Helper for the next theorem
 ×-preserves-contr : {A : 𝒰 𝒾} → {B : 𝒰 𝒿}
                   → isContr A
@@ -428,15 +427,15 @@ biinv f = rinv f × linv f
 
 -- Theorem 4.3.2.
 biinv-isprop : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+             → is-univalent 𝒾
+             → is-univalent 𝒿
              → has-funext (𝒾 ⊔ 𝒿) (𝒾 ⁺)
              → has-funext 𝒿 𝒾
              → has-funext 𝒾 𝒾
              → has-funext 𝒿 𝒿
              → has-funext (𝒾 ⊔ 𝒿) (𝒿 ⁺)
-             → is-univalent 𝒾
-             → is-univalent 𝒿
              → (f : A → B) → isProp (biinv f)
-biinv-isprop fe1 fe2 fe3 fe4 fe5 u1 u2 f =
+biinv-isprop u1 u2 fe1 fe2 fe3 fe4 fe5 f =
   point→isContr-implies-isProp v
  where
   v : biinv f → isContr (biinv f)
@@ -448,12 +447,52 @@ biinv-isprop fe1 fe2 fe3 fe4 fe5 u1 u2 f =
     rinv-isContr = qinv→rinv-isContr fe4 fe2 fe5 u2 f qinvf
 
 is-equiv-isprop : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+             → is-univalent 𝒾
+             → is-univalent 𝒿
              → has-funext (𝒾 ⊔ 𝒿) (𝒾 ⁺)
              → has-funext 𝒿 𝒾
              → has-funext 𝒾 𝒾
              → has-funext 𝒿 𝒿
              → has-funext (𝒾 ⊔ 𝒿) (𝒿 ⁺)
-             → is-univalent 𝒾
-             → is-univalent 𝒿
              → (f : A → B) → isProp (is-equiv f)
 is-equiv-isprop = biinv-isprop
+
+-- Corollary 4.3.3.
+ishae→biinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+            → (f : A → B)
+            → ishae f → biinv f
+ishae→biinv f haef = invs-are-equivs f (ishae→qinv f haef)
+-- TODO
+
+---------------------------------------------------------------------------------
+
+-- 4.4 Contractible fibers
+
+-- Definition 4.1.1.
+isContrMap : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 (𝒾 ⊔ 𝒿)
+isContrMap f = (y : codomain f) → isContr (fib f y)
+
+-- Theorem 4.4.3.
+contrMap→hae : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+             → is-univalent 𝒿
+             → has-funext 𝒾 (𝒾 ⊔ 𝒿)
+             → has-funext 𝒾 (𝒿 ⁺)
+             → (f : A → B)
+             → isContrMap f → ishae f
+contrMap→hae u fe1 fe2 f P = g , pr₁ rcohf , ε , pr₂ rcohf
+ where
+  g = λ y → pr₁ (pr₁ (P y))
+  ε = λ y → pr₂ (pr₁ (P y))
+  rcohf : rcoh f (g , ε)
+  rcohf = ≃-← (rcoh≃ u fe1 fe2 f (g , ε))
+           (λ x → (pr₂ (P (f x)) (g (f x) , ε (f x)))⁻¹
+                   ∙ (pr₂ (P (f x)) (x , refl (f x))))
+
+-- Lemma 4.4.4.
+isContrMap-isProp : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+                  → has-funext 𝒿 (𝒾 ⊔ 𝒿)
+                  → has-funext (𝒾 ⊔ 𝒿) (𝒾 ⊔ 𝒿)
+                  → (f : A → B)
+                  → isProp (isContrMap f)
+isContrMap-isProp fe1 fe2 f =
+  Π-preserves-props fe1 (λ y → isContr-isProp fe2 (fib f y))
