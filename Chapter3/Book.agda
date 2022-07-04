@@ -182,8 +182,8 @@ record subsingleton-truncations-exist : 𝓤ω where
                            → isProp P → (X → P) → ∥ X ∥ → P
   infix 0 ∥_∥
 
-module _ (pt  : subsingleton-truncations-exist) where
-  open subsingleton-truncations-exist pt public
+postulate pt : subsingleton-truncations-exist
+open subsingleton-truncations-exist pt public
 
 
 ---------------------------------------------------------------------------------
@@ -194,9 +194,9 @@ module _ (pt  : subsingleton-truncations-exist) where
 
 -- 3.9 The principle of unique choice
 
-  truncations-fixes-props : (P : 𝒰 𝒾) → isProp P → (P ≃ ∥ P ∥)
-  truncations-fixes-props P p =
-    isProp-LogEq→Eq P (∥ P ∥) p ∥∥-is-subsingleton ∣_∣ (∥∥-recursion p id)
+truncations-fixes-props : (P : 𝒰 𝒾) → isProp P → (P ≃ ∥ P ∥)
+truncations-fixes-props P p =
+  isProp-LogEq→Eq P (∥ P ∥) p ∥∥-is-subsingleton ∣_∣ (∥∥-recursion p id)
 
 ---------------------------------------------------------------------------------
 

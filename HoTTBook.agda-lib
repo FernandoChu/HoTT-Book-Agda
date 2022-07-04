@@ -2,6 +2,5 @@ name: hott-book
 include: .
 flags: --without-K
        --exact-split
-       --safe
        --auto-inline
        --no-import-sorts
