@@ -41,6 +41,11 @@ refl-right {𝓤} {X} {x} {y} {refl x} = refl (refl x)
         → (p ∙ q) ∙ r ≡ p ∙ (q ∙ r)
 ∙-assoc (refl x) {refl x} {refl x} = refl (refl x)
 
+-- Additional helper
+⁻¹-∙ : {X : 𝒰 𝒾} {x y z : X} (p : x ≡ y) {q : y ≡ z}
+     → (p ∙ q)⁻¹ ≡  (q)⁻¹ ∙ (p)⁻¹
+⁻¹-∙ (refl x) {refl x} = refl (refl x)
+
 -- Common ≡ reasoning helpers from
 -- https://agda.github.io/agda-stdlib/Relation.Binary.PropositionalEquality.Core.html#2708
 
@@ -63,6 +68,18 @@ infixr 2 _≡⟨⟩_ step-≡ step-≡˘
 _∎ : {X : 𝒰 𝒾} (x : X) → x ≡ x
 _∎ x = refl x
 infix  3 _∎
+
+-- Definition 2.1.7.
+𝒰∙ : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
+𝒰∙ 𝒾 = Σ A ꞉ (𝒰 𝒾) , A
+
+-- Definition 2.1.8
+Ω : ((A , a) : (𝒰∙ 𝒾)) → 𝒰∙ 𝒾
+Ω (A , a) = ((a ≡ a) , refl a)
+
+Ωⁿ : (n : ℕ) → ((A , a) : (𝒰∙ 𝒾)) → 𝒰∙ 𝒾
+Ωⁿ 0 (A , a) = (A , a)
+Ωⁿ (succ n) (A , a) = Ωⁿ n (Ω (A , a))
 
 ---------------------------------------------------------------------------------
 
@@ -94,6 +111,11 @@ ap-id : {X : 𝒰 𝒾} {x y : X} (p : x ≡ y)
 ap-id (refl x) = refl (refl x)
 
 -- Some more helpers
+ap-const : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {a₁ a₂ : A}
+           (p : a₁ ≡ a₂) (c : B)
+         → ap (λ _ → c) p ≡ refl c
+ap-const (refl _) c = refl _
+
 ∙-left-cancel : {X : 𝒰 𝒾} {x y z : X}
                 (p : x ≡ y) {q r : y ≡ z}
               → p ∙ q ≡ p ∙ r
@@ -494,7 +516,6 @@ id∼idtoeqv∘ua u {X} {Y} eqv =
 ≡u-uniq u {X} {Y} p =
   let (ua , idtoeqv∘ua , ua∘idtoeqv) = qinv-ua u X Y
    in (ua∘idtoeqv p)⁻¹
-
 
 ua-id : (u : is-univalent 𝒾)
       → {A : 𝒰 𝒾}

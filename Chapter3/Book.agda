@@ -56,8 +56,8 @@ e₀-is-not-e₁ p = ₁-is-not-₀ r
   r = ap (λ - → - ₁) q
 
 -- Example 3.1.9
-p-is-not-refl : (is-univalent lzero) → (¬ (isSet 𝒰₀))
-p-is-not-refl u is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
+𝒰₀-is-not-set : (is-univalent lzero) → (¬ (isSet 𝒰₀))
+𝒰₀-is-not-set u is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
   where
     p : 𝟚 ≡ 𝟚
     p = ua u e₁

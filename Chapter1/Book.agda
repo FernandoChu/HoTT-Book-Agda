@@ -100,12 +100,19 @@ data _⊎_ (X : 𝒰 𝒾) (Y : 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
  inr : Y → X ⊎ Y
 infixr 20 _⊎_
 
-⊎-induction : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (A : X ⊎ Y → 𝒰 𝓀)
-            → ((x : X) → A (inl x))
-            → ((y : Y) → A (inr y))
-            → (z : X ⊎ Y) → A z
-⊎-induction A f g (inl x) = f x
-⊎-induction A f g (inr y) = g y
+⊎-rec : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (C : 𝒰 𝓀)
+      → ((x : A) → C)
+      → ((y : B) → C)
+      → (A ⊎ B → C)
+⊎-rec C f g (inl x) = f x
+⊎-rec C f g (inr y) = g y
+
+⊎-ind : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (C : A ⊎ B → 𝒰 𝓀)
+      → ((x : A) → C (inl x))
+      → ((y : B) → C (inr y))
+      → (z : A ⊎ B) → C z
+⊎-ind C f g (inl x) = f x
+⊎-ind C f g (inr y) = g y
 
 data 𝟘 : 𝒰₀ where
 
@@ -125,6 +132,10 @@ data 𝟘 : 𝒰₀ where
 
 pattern ₀ = inl ⋆
 pattern ₁ = inr ⋆
+
+𝟚-rec : (C : 𝒰 𝒾) → C → C → 𝟚 → C
+𝟚-rec C c₀ c₁ ₀ = c₀
+𝟚-rec C c₀ c₁ ₁ = c₁
 
 𝟚-induction : (A : 𝟚 → 𝒰 𝒾) → A ₀ → A ₁ → (n : 𝟚) → A n
 𝟚-induction A a₀ a₁ ₀ = a₀

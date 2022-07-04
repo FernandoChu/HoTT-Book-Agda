@@ -118,3 +118,69 @@ module _ (interval : IntervalExists) where
           → ((x : 𝕀) → P x)
     𝕀-ind P b₀ b₁ s (i x) =
       𝕀-ind-helper (λ x → P (i x)) b₀ b₁ x
+
+---------------------------------------------------------------------------------
+
+-- Suspensions
+
+private module Suspension' where
+  private
+    data S (A : 𝒰 𝒾) : 𝒰₀ where
+      Zero : S A
+      One : S A
+
+  𝝨' : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰₀
+  𝝨' A = S A
+
+  N' : (A : 𝒰 𝒾) → (S A)
+  N' A = Zero
+
+  S' : (A : 𝒰 𝒾) → (S A)
+  S' A = One
+
+  𝝨-rec-helper : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+               → (n s : B)
+               → (m : A → (n ≡ s))
+               → 𝝨' A → B
+  𝝨-rec-helper A B n s m Zero = n
+  𝝨-rec-helper A B n s m One = s
+
+  𝝨-ind-helper : (A : 𝒰 𝒾) (P : 𝝨' A → 𝒰 𝒿)
+               → (n : P (N' A)) → (s : P (S' A))
+               → ((x : 𝝨' A) → P x)
+  𝝨-ind-helper A P n s Zero = n
+  𝝨-ind-helper A P n s One = s
+
+open Suspension'
+
+SuspensionsExist = {𝒾 : Level} (A : 𝒰 𝒾) → N' A ≡ S' A
+
+module _ (suspension : SuspensionsExist) where
+  module Suspension where
+    private
+     data Sus (A : 𝒰 𝒾) : 𝒰₀ where
+      c : 𝝨' A → Sus A
+
+    𝝨 : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰₀
+    𝝨 A = Sus A
+
+    N : (A : 𝒰 𝒾) → 𝝨 A
+    N A = c (N' A)
+
+    S : (A : 𝒰 𝒾) → 𝝨 A
+    S A = c (S' A)
+
+    merid : (A : 𝒰 𝒾) → A → N A ≡ S A
+    merid A a = ap c (suspension A)
+
+    𝝨-rec : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+          → (n s : B)
+          → (m : A → (n ≡ s))
+          → 𝝨 A → B
+    𝝨-rec A B n s m (c x) = 𝝨-rec-helper A B n s m x
+
+    𝝨-ind : (A : 𝒰 𝒾) (P : 𝝨 A → 𝒰 𝒿)
+          → (n : P (N A)) → (s : P (S A))
+          → (m : (a : A) → tr P (merid A a) n ≡ s)
+          → ((x : 𝝨 A) → P x)
+    𝝨-ind A P n s m (c x) = 𝝨-ind-helper A (λ x → P (c x)) n s x

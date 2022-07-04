@@ -84,8 +84,6 @@ fib-≡-≃ u fe f y (x , p) (x' , p') =
   tr (λ - → ((x , p) ≡ (x' , p')) ≃ -) ≡fams Σ-≡-≃
  where
   const-y = λ _ → y
-  ap-const : (p : x' ≡ x) → ap const-y p ≡ refl y
-  ap-const (refl x') = refl _
 
   ∼fams : (λ γ → tr (λ - → f - ≡ y) γ p ≡ p') ∼ (λ γ → ap f γ ∙ p' ≡ p)
   ∼fams γ = begin
@@ -111,7 +109,7 @@ fib-≡-≃ u fe f y (x , p) (x' , p') =
      ap f γ ∙ p'                                ∎
       where
        i = tr-fx≡gx f const-y (γ ⁻¹) p'
-       ii = ap (λ - → (ap f (γ ⁻¹))⁻¹ ∙ p' ∙ -) (ap-const (γ ⁻¹))
+       ii = ap (λ - → (ap f (γ ⁻¹))⁻¹ ∙ p' ∙ -) (ap-const (γ ⁻¹) y)
        iii = ∙-assoc ((ap f (γ ⁻¹))⁻¹)
        iv = ap ((ap f (γ ⁻¹))⁻¹ ∙_) refl-right
        v = ap (_∙ p') (ap⁻¹ f (γ ⁻¹))
