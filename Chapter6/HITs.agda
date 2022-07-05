@@ -88,11 +88,11 @@ open Interval public
 
 module Suspension where
   private
-    data Sus (A : 𝒰 𝒾) : 𝒰₀ where
+    data Sus (A : 𝒰 𝒾) : 𝒰 𝒾 where
       Zero : Sus A
       One : Sus A
 
-  𝝨 : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰₀
+  𝝨 : (A : 𝒰 𝒾) → 𝒰 𝒾
   𝝨 A = Sus A
 
   N : (A : 𝒰 𝒾) → (Sus A)
@@ -128,3 +128,4 @@ module Suspension where
               → ((a : A) → (apd (𝝨-ind A P n s m) (merid A a) ≡ m a))
 
 open Suspension public
+

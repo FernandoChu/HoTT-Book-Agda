@@ -1,6 +1,6 @@
 module Chapter3.Book where
 
-open import Chapter2.Exercises public
+open import Chapter3.PropositionalTruncation public
 
 ---------------------------------------------------------------------------------
 
@@ -169,21 +169,20 @@ PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
 
 -- 3.7 Propositional truncation
 
--- Workaround: non cubical agda must express truncations in this manner
--- and the existence of an element of this type must be postulated or assumed
--- for a particular statement.
+-- Workaround: Propositional truncations are defined (with postulates) in
+-- Chapter3.PropositionalTruncation.
 
-record subsingleton-truncations-exist : 𝓤ω where
-  field
-    ∥_∥                  : {𝒾 : Level} → 𝒰 𝒾 → 𝒰 𝒾
-    ∥∥-is-subsingleton   : {𝒾 : Level} {X : 𝒰 𝒾} → isProp (∥ X ∥)
-    ∣_∣                  : {𝒾 : Level} {X : 𝒰 𝒾} → X → ∥ X ∥
-    ∥∥-recursion         : {𝒾 𝒿 : Level} {X : 𝒰 𝒾} {P : 𝒰 𝒿}
-                           → isProp P → (X → P) → ∥ X ∥ → P
-  infix 0 ∥_∥
+-- record subsingleton-truncations-exist : 𝓤ω where
+--   field
+--     ∥_∥                  : {𝒾 : Level} → 𝒰 𝒾 → 𝒰 𝒾
+--     ∥∥-is-subsingleton   : {𝒾 : Level} {X : 𝒰 𝒾} → isProp (∥ X ∥)
+--     ∣_∣                  : {𝒾 : Level} {X : 𝒰 𝒾} → X → ∥ X ∥
+--     ∥∥-recursion         : {𝒾 𝒿 : Level} {X : 𝒰 𝒾} {P : 𝒰 𝒿}
+--                            → isProp P → (X → P) → ∥ X ∥ → P
+--   infix 0 ∥_∥
 
-postulate pt : subsingleton-truncations-exist
-open subsingleton-truncations-exist pt public
+-- postulate pt : subsingleton-truncations-exist
+-- open subsingleton-truncations-exist pt public
 
 
 ---------------------------------------------------------------------------------
@@ -196,7 +195,7 @@ open subsingleton-truncations-exist pt public
 
 truncations-fixes-props : (P : 𝒰 𝒾) → isProp P → (P ≃ ∥ P ∥)
 truncations-fixes-props P p =
-  isProp-LogEq→Eq P (∥ P ∥) p ∥∥-is-subsingleton ∣_∣ (∥∥-recursion p id)
+  isProp-LogEq→Eq P (∥ P ∥) p ∥∥-isProp ∣_∣ (∥∥-rec P P p id)
 
 ---------------------------------------------------------------------------------
 

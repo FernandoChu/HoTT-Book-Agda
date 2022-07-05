@@ -147,6 +147,23 @@ loop≢refl u eq = 𝒰₀-is-not-set u (A-is-set 𝒰₀)
     p≡refl : p ≡ refl x
     p≡refl = (𝕊¹-rec-comp A x p)⁻¹ ∙ (ap (λ - → ap f -) eq)
 
+-- Lemma 6.4.4.
+ap² : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {x y : A} {p q : x ≡ y}
+      (f : A → B) (r : p ≡ q)
+    → ap f p ≡ ap f q
+ap² f (refl p) = refl _
+
+-- Lemma 6.4.5.
+tr² : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y : A}
+      {p q : x ≡ y} (r : p ≡ q) (u : P x)
+    → tr P p u ≡ tr P q u
+tr² P (refl p) u = refl _
+
+apd² : {A : 𝒰 𝒾} {P : A → 𝒰 𝒿} {x y : A} {p q : x ≡ y}
+       (f : (x : A) → P x) (r : p ≡ q)
+     → apd f p ≡ (tr² P r (f x) ∙ apd f q)
+apd² f (refl p) = (refl-left)⁻¹
+
 ---------------------------------------------------------------------------------
 
 -- 6.5 Suspensions
@@ -256,10 +273,10 @@ _₊ : (A : 𝒰 𝒾) → 𝒰∙ 𝒾
 A ₊ = (A ⊎ 𝟙) , inr ⋆
 
 -- Lemma 6.5.3.
-Map*' : has-funext 𝒾 𝒿
+Map₊≃ : has-funext 𝒾 𝒿
       → (A : 𝒰 𝒾) → ((B , b₀) : 𝒰∙ 𝒿)
       → Map* (A ₊) (B , b₀) ≃ (A → B)
-Map*' fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
+Map₊≃ fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
  where
   map = λ (f , eq) → f ∘ inl
   map⁻¹ = λ g → ⊎-rec B g (λ - → b₀) , refl b₀
@@ -297,3 +314,133 @@ Map*' fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
       iv  = refl-right
       v   = ap (λ - → (- (inr ⋆))⁻¹) (≡fe-comp fe f'∼f)
       vi  = ⁻¹-involutive eq
+
+---------------------------------------------------------------------------------
+
+-- 6.9 Truncations
+
+---------------------------------------------------------------------------------
+
+-- 0-Truncations
+
+module 0-Truncations where
+  private
+    data PT (A : 𝒰 𝒾) : 𝒰 𝒾 where
+      forget : A → PT A
+
+  ∥_∥₀ : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰 𝒾
+  ∥ A ∥₀ = PT A
+
+  ∣_∣₀ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → ∥ A ∥₀
+  ∣ a ∣₀ = forget a
+
+  postulate ∥∥₀-isSet : {X : 𝒰 𝒾} → isSet ∥ X ∥₀
+
+  ∥∥₀-ind : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
+          → ((x y : ∥ A ∥₀) (z : B x) (w : B y)
+             (p q : x ≡ y) (r : tr B p z ≡ w) (s : tr B q z ≡ w)
+             → r ≡ tr² B (∥∥₀-isSet p q) z ∙ s)
+          → (g : (a : A) → B (∣ a ∣₀))
+          → ((x : ∥ A ∥₀) → B x)
+  ∥∥₀-ind A B Bsetish g (forget x) = g x
+
+  postulate ∥∥₀-ind-comp : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
+              → (Bsetish : (x y : ∥ A ∥₀) (z : B x) (w : B y)
+                 (p q : x ≡ y) (r : tr B p z ≡ w) (s : tr B q z ≡ w)
+                 → r ≡ tr² B (∥∥₀-isSet p q) z ∙ s)
+              → (g : (a : A) → B (∣ a ∣₀))
+              → (x y : ∥ A ∥₀) (z : B x) (w : B y)
+                 (p q : x ≡ y)
+              → apd² (∥∥₀-ind A B Bsetish g) (∥∥₀-isSet p q) ≡ Bsetish x y
+                 ((∥∥₀-ind A B Bsetish g) x) ((∥∥₀-ind A B Bsetish g) y) p q
+                  (apd (∥∥₀-ind A B Bsetish g) p) (apd (∥∥₀-ind A B Bsetish g) q)
+
+open 0-Truncations public
+
+-- Lemma 6.9.1.
+∥∥₀-family-of-sets : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
+                   → ((a : A) → B (∣ a ∣₀))
+                   → ((x : ∥ A ∥₀) → isSet (B x))
+                   → ((x : ∥ A ∥₀) → B x)
+∥∥₀-family-of-sets A B g BxIsSet =
+  ∥∥₀-ind A B (λ x y z w p q r s → BxIsSet y r (tr² B (∥∥₀-isSet p q) z ∙ s)) g
+
+-- 6.10 Quotients
+
+mereRelation : {𝒾 : Level} (A : 𝒰 𝒾) (𝒿 : Level) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
+mereRelation A 𝒿 = A × A → Prop𝒰 𝒿
+
+module SetQuotient where
+  private
+    data Q (A : 𝒰 𝒾) (R : mereRelation A 𝒿) : 𝒰 (𝒾 ⊔ (𝒿 ⁺)) where
+      proj : (a : A) → Q A R
+
+  _∕_ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
+  A ∕ R = Q A R
+  infixr 30 _∕_
+
+  quot : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+       → A → (A ∕ R)
+  quot A R a = proj a
+
+  postulate quot≡ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+                  → (a b : A) → (pr₁ (R (a , b)))
+                  → (quot A R a ≡ quot A R b)
+
+  postulate ∕-isSet : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+                    → (x y : A ∕ R) (r s : x ≡ y)
+                    → r ≡ s
+
+  ∕-rec : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) (B : 𝒰 𝓀)
+        → (f : A → B)
+        → ((a b : A) → (pr₁ (R (a , b))) → f a ≡ f b)
+        → A ∕ R → B
+  ∕-rec A R B f _ (proj x) = f x
+
+  ∕-ind : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) (B : A ∕ R → 𝒰 𝓀)
+        → (f : (a : A) → B (quot A R a))
+        → ((a b : A) → (resp : pr₁ (R (a , b)))
+           → tr B (quot≡ A R a b resp) (f a) ≡ f b)
+        → ((x : A ∕ R) → B x)
+  ∕-ind A R B f _ (proj x) = f x
+
+open SetQuotient public
+
+-- Lemma 6.10.2.
+quot-isSurjec : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+               → isSurjec (quot A R)
+quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects-R
+  where
+    f : (a : A) → ∥ fib (quot A R) (quot A R a) ∥
+    f a = ∣ a , refl (quot A R a) ∣
+    f-respects-R : (a b : A) → (resp : pr₁ (R (a , b)))
+                 → tr (λ z → ∥ fib (λ a₁ → quot A R a₁) z ∥)
+                       (quot≡ A R a b resp) (f a) ≡ f b
+    f-respects-R a b resp = ∥∥-isProp _ _
+
+reflexive
+ symmetric
+ transitive
+ equivalenceRelation : {X : 𝒰 𝒾} → (X → X → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
+
+reflexive  _≈_ = ∀ x → x ≈ x
+symmetric  _≈_ = ∀ x y → x ≈ y → y ≈ x
+transitive _≈_ = ∀ x y z → x ≈ y → y ≈ z → x ≈ z
+
+equivalenceRelation _≈_ = reflexive _≈_
+                        × symmetric _≈_
+                        × transitive _≈_
+
+-- Definition 6.10.4.
+_isEquivalenceClassOf_ : {A : 𝒰 𝒾}
+                         (P : A → Prop𝒰 𝒿) (R : mereRelation A 𝓀)
+                       → 𝒰 (𝒾 ⊔ 𝒿 ⊔ 𝓀)
+P isEquivalenceClassOf R =
+  ∥ Σ a ꞉ (domain P) ,
+    ((b : (domain P)) → pr₁ (R (a , b)) ≃ pr₁ (P b)) ∥
+
+-- Definition 6.10.4.
+_⃫_ : {𝒾 𝒿 𝓀 : Level}
+      (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+    → 𝒰 (𝒾 ⊔ 𝒿 ⊔ (𝓀 ⁺))
+(_⃫_) {𝒾} {𝒿} {𝓀} A R = Σ P ꞉ (A → Prop𝒰 𝓀) , P isEquivalenceClassOf R

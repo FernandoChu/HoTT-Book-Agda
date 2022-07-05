@@ -494,3 +494,18 @@ isContrMap-isProp : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
                   → isProp (isContrMap f)
 isContrMap-isProp fe1 fe2 f =
   Π-preserves-props fe1 (λ y → isContr-isProp fe2 (fib f y))
+
+---------------------------------------------------------------------------------
+
+-- 4.6 Surjections and embeddings
+
+isSurjec : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+         → (f : A → B)
+         → 𝒰 (𝒾 ⊔ 𝒿)
+isSurjec f = (b : codomain f) → ∥ fib f b ∥
+
+isSurjec-isProp : has-funext 𝒿 (𝒾 ⊔ 𝒿)
+                → {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+                → (f : A → B)
+                → isProp (isSurjec f)
+isSurjec-isProp fe f = Π-preserves-props fe (λ - → ∥∥-isProp)
