@@ -80,3 +80,17 @@ open import Chapter8.Exercises public
 open import Chapter9.Book public
 open import Chapter9.Exercises public
 ```
+
+### Chapter 10. Set Theory
+
+```agda
+open import Chapter10.Book public
+open import Chapter10.Exercises public
+```
+
+### Chapter 11. Real Numbers
+
+```agda
+open import Chapter11.Book public
+open import Chapter11.Exercises public
+```

@@ -1,8 +1,8 @@
 ---
-title: Chapter 11. Real numbers
+title: Chapter 11. Real Numbers
 ---
 
-# Chapter 11. Real numbers
+# Chapter 11. Real Numbers
 
 ```
 module Chapter11.Book where
