@@ -7,7 +7,7 @@ title: Chapter 6. Higher Inductive Types
 ```agda
 module Chapter6.Book where
 
-open import Chapter6.HITs public
+open import Chapter5.Exercises public
 ```
 
 ## 6.1 Introduction
@@ -16,6 +16,64 @@ Workaround: Since HIT's are not available in agda, I'm implementing
 them in another module. I need two nested modules to claim they exist
 and have the appropriate computing rules (for the paths).
 They compute as they should in the points.
+
+```agda
+postulate
+  𝕊¹ : 𝒰₀
+  base : 𝕊¹
+  loop : base ≡ base
+  𝕊¹-ind : (P : 𝕊¹ → 𝒰 𝒾)
+         → (b : P base)
+         → (l : tr P loop b ≡ b)
+         → ((x : 𝕊¹) → P x)
+  𝕊¹-ind-comp-base : (P : 𝕊¹ → 𝒰 𝒾)
+                   → (b : P base)
+                   → (l : tr P loop b ≡ b)
+                   → 𝕊¹-ind P b l base ≡ b
+  {-# REWRITE 𝕊¹-ind-comp-base #-}
+  𝕊¹-ind-comp : (P : 𝕊¹ → 𝒰 𝒾)
+              → (b : P base)
+              → (l : tr P loop b ≡ b)
+              → (apd (𝕊¹-ind P b l) loop ≡ l)
+
+postulate
+  𝕀 : 𝒰₀
+  0ᵢ : 𝕀
+  1ᵢ : 𝕀
+  seg : 0ᵢ ≡ 1ᵢ
+  𝕀-rec : (B : 𝒰 𝒾)
+        → (b₀ b₁ : B)
+        → (s : b₀ ≡ b₁)
+        → 𝕀 → B
+  𝕀-rec-comp-0ᵢ : (B : 𝒰 𝒾)
+                → (b₀ b₁ : B)
+                → (s : b₀ ≡ b₁)
+                → 𝕀-rec B b₀ b₁ s 0ᵢ ≡ b₀
+  𝕀-rec-comp-1ᵢ : (B : 𝒰 𝒾)
+                → (b₀ b₁ : B)
+                → (s : b₀ ≡ b₁)
+                → 𝕀-rec B b₀ b₁ s 1ᵢ ≡ b₁
+  {-# REWRITE 𝕀-rec-comp-0ᵢ 𝕀-rec-comp-1ᵢ #-}
+  𝕀-rec-comp : (B : 𝒰 𝒾)
+             → (b₀ b₁ : B)
+             → (s : b₀ ≡ b₁)
+             → (ap (𝕀-rec B b₀ b₁ s) seg ≡ s)
+  𝕀-ind : (P : 𝕀 → 𝒰 𝒾)
+        → (b₀ : P 0ᵢ)
+        → (b₁ : P 1ᵢ)
+        → (s : tr P seg b₀ ≡ b₁)
+        → ((x : 𝕀) → P x)
+  𝕀-ind-comp-0ᵢ : (P : 𝕀 → 𝒰 𝒾)
+                → (b₀ : P 0ᵢ)
+                → (b₁ : P 1ᵢ)
+                → (s : tr P seg b₀ ≡ b₁)
+                → 𝕀-ind P b₀ b₁ s 0ᵢ ≡ b₀
+  𝕀-ind-comp : (P : 𝕀 → 𝒰 𝒾)
+             → (b₀ : P 0ᵢ)
+             → (b₁ : P 1ᵢ)
+             → (s : tr P seg b₀ ≡ b₁)
+             → 𝕀-ind P b₀ b₁ s 1ᵢ ≡ b₁
+```
 
 ## 6.2 Induction principles and dependent paths
 
@@ -233,6 +291,49 @@ apd² f (refl p) = (refl-left)⁻¹
 ## 6.5 Suspensions
 
 ```agda
+postulate
+  𝝨 : (A : 𝒰 𝒾) → 𝒰 𝒾
+  N : (A : 𝒰 𝒾) → 𝝨 A
+  S : (A : 𝒰 𝒾) → 𝝨 A
+  merid : (A : 𝒰 𝒾) → A → N A ≡ S A
+  𝝨-rec : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+        → (n s : B)
+        → (m : A → (n ≡ s))
+        → 𝝨 A → B
+  𝝨-rec-comp-N : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+              → (n s : B)
+              → (m : A → (n ≡ s))
+              → 𝝨-rec A B n s m (N A) ≡ n
+  {-# REWRITE 𝝨-rec-comp-N #-}
+  𝝨-rec-comp-S : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+              → (n s : B)
+              → (m : A → (n ≡ s))
+              → 𝝨-rec A B n s m (S A) ≡ s
+  {-# REWRITE 𝝨-rec-comp-S #-}
+  𝝨-rec-comp : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+              → (n s : B)
+              → (m : A → (n ≡ s))
+              → ((a : A) → ap (𝝨-rec A B n s m) (merid A a) ≡ (m a))
+  𝝨-ind : (A : 𝒰 𝒾) (P : 𝝨 A → 𝒰 𝒿)
+        → (n : P (N A)) → (s : P (S A))
+        → (m : (a : A) → tr P (merid A a) n ≡ s)
+        → ((x : 𝝨 A) → P x)
+  𝝨-ind-comp-N : (A : 𝒰 𝒾) (P : 𝝨 A → 𝒰 𝒿)
+              → (n : P (N A)) → (s : P (S A))
+              → (m : (a : A) → tr P (merid A a) n ≡ s)
+              → 𝝨-ind A P n s m (N A) ≡ n
+  {-# REWRITE 𝝨-ind-comp-N #-}
+  𝝨-ind-comp-S : (A : 𝒰 𝒾) (P : 𝝨 A → 𝒰 𝒿)
+              → (n : P (N A)) → (s : P (S A))
+              → (m : (a : A) → tr P (merid A a) n ≡ s)
+              → 𝝨-ind A P n s m (S A) ≡ s
+  {-# REWRITE 𝝨-ind-comp-S #-}
+  𝝨-ind-comp : (A : 𝒰 𝒾) (P : 𝝨 A → 𝒰 𝒿)
+              → (n : P (N A)) → (s : P (S A))
+              → (m : (a : A) → tr P (merid A a) n ≡ s)
+              → ((a : A) → (apd (𝝨-ind A P n s m) (merid A a) ≡ m a))
+
+
 𝝨𝟚≃𝕊¹ : 𝝨 𝟚 ≃ 𝕊¹
 𝝨𝟚≃𝕊¹ = f , invs-are-equivs f (g , ε , η)
  where
@@ -416,7 +517,38 @@ module 0-Truncations where
                  ((∥∥₀-ind A B Bsetish g) x) ((∥∥₀-ind A B Bsetish g) y) p q
                   (apd (∥∥₀-ind A B Bsetish g) p) (apd (∥∥₀-ind A B Bsetish g) q)
 
-open 0-Truncations public
+-- open 0-Truncations public
+postulate
+  ∥_∥₀ : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰 𝒾
+  ∣_∣₀ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → ∥ A ∥₀
+  ∥∥₀-isSet : {X : 𝒰 𝒾} → isSet (∥ X ∥₀)
+  ∥∥₀-rec : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+          → isSet B
+          → (g : A → B)
+          → ∥ A ∥₀ → B
+  ∥∥₀-rec-comp : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+               → (p : isSet B)
+               → (g : A → B)
+               → (a : A)
+               → ∥∥₀-rec A B p g (∣ a ∣₀) ≡ g a
+  {-# REWRITE ∥∥₀-rec-comp #-}
+  ∥∥₀-ind : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
+          → ((x y : ∥ A ∥₀) (z : B x) (w : B y)
+             (p q : x ≡ y) (r : tr B p z ≡ w) (s : tr B q z ≡ w)
+             → r ≡ tr² B (∥∥₀-isSet p q) z ∙ s)
+          → (g : (a : A) → B (∣ a ∣₀))
+          → ((x : ∥ A ∥₀) → B x)
+  ∥∥₀-ind-comp : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
+              → (Bsetish : (x y : ∥ A ∥₀) (z : B x) (w : B y)
+                 (p q : x ≡ y) (r : tr B p z ≡ w) (s : tr B q z ≡ w)
+                 → r ≡ tr² B (∥∥₀-isSet p q) z ∙ s)
+              → (g : (a : A) → B (∣ a ∣₀))
+              → (x y : ∥ A ∥₀) (z : B x) (w : B y)
+                 (p q : x ≡ y)
+              → apd² (∥∥₀-ind A B Bsetish g) (∥∥₀-isSet p q) ≡ Bsetish x y
+                 ((∥∥₀-ind A B Bsetish g) x) ((∥∥₀-ind A B Bsetish g) y) p q
+                  (apd (∥∥₀-ind A B Bsetish g) p) (apd (∥∥₀-ind A B Bsetish g) q)
+  -- {-# REWRITE ∥∥₀-ind-comp #-}
 
 -- Lemma 6.9.1.
 ∥∥₀-family-of-sets : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
@@ -546,25 +678,4 @@ rℕ (a , b) =
 
 ℤ : 𝒰₀
 ℤ = Σ x ꞉ (ℕ × ℕ) , (rℕ x ≡ x)
-
-
-pr₁-ap-pair⁼ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
-        (p : (pr₁ w ≡ pr₁ w')) → (q : tr Y p (pr₂ w) ≡ (pr₂ w'))
-        → ap pr₁ (pair⁼(p , q)) ≡ p
-pr₁-ap-pair⁼ (refl _) (refl _) = refl _
-
--- test
-pr₁-is-fibration' : (B : 𝒰 𝒾) (P : B → 𝒰 𝒿) (X : 𝒰 𝓀)
-                   (f g : X → B) (h : f ∼ g)
-                   (f' : (x : X) → P (f x))
-                 → Σ h' ꞉ ((x : X) → Id (Σ P) (f x , f' x) (g x , tr P (h x) (f' x))),
-                     ((x : X) → ap pr₁ (h' x) ≡ h x)
-pr₁-is-fibration' B P X f g h f' =
-  h' , h'-lifts-h
- where
-  h' : (x : X) → Id (Σ P) (f x , f' x) (g x , tr P (h x) (f' x))
-  h' x = pair⁼(h x , refl _)
-
-  h'-lifts-h : (x : X) → ap pr₁ (h' x) ≡ h x
-  h'-lifts-h x = pr₁-ap-pair⁼ (h x) (refl _)
 ```

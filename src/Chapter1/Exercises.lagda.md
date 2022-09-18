@@ -1,3 +1,9 @@
+---
+title: Chapter 1. Type Theory - Exercises
+---
+
+# Chapter 1. Type Theory - Exercises
+
 ```agda
 module Chapter1.Exercises where
 

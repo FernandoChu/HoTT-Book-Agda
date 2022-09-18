@@ -1,3 +1,9 @@
+---
+title: Chapter 2. Homotopy Type Theory - Exercises
+---
+
+# Chapter 2. Homotopy Type Theory - Exercises
+
 ```agda
 module Chapter2.Exercises where
 

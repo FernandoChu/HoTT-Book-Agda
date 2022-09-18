@@ -2,13 +2,32 @@
 title: Chapter 1. Type Theory
 ---
 
-# Chapter 1. Type Theory
-
+We begin with importing the Agda primitives and renaming them to match the notatio of book.
 ```agda
 module Chapter1.Book where
 
-open import Lib.Universes public
+open import Agda.Primitive public
+  renaming (
+            Set to Universe
+          ; lsuc to infix 1 _⁺
+          ; Setω to 𝓤ω)
+
+variable
+  𝒾 𝒿 𝓀 : Level
+
+𝒰 : (ℓ : Level) → Universe (ℓ ⁺)
+𝒰 ℓ = Universe ℓ
+
+𝒰₀ = Universe lzero
+
+_⁺⁺ : (ℓ : Level) → Level
+ℓ ⁺⁺ = (ℓ ⁺) ⁺
+
+universe-of : {ℓ : Level} (X : 𝒰 ℓ) → Level
+universe-of {ℓ} X = ℓ
 ```
+
+# Chapter 1. Type Theory
 
 ## Section 1.3 Dependent function types
 
@@ -202,6 +221,7 @@ _≡_ : {X : 𝒰 𝒾} → X → X → 𝒰 𝒾
 x ≡ y = Id _ x y
 infix   0 _≡_
 {-# BUILTIN EQUALITY _≡_ #-}
+{-# BUILTIN REWRITE _≡_ #-}
 
 -- Helper
 _≢_ : {X : 𝒰 𝒾} → X → X → 𝒰 𝒾

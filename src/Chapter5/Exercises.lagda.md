@@ -1,3 +1,9 @@
+---
+title: Chapter 5. Induction - Exercises
+---
+
+# Chapter 5. Induction - Exercises
+
 ```agda
 module Chapter5.Exercises where
 

@@ -1,3 +1,9 @@
+---
+title: Chapter 3. Sets and logic - Exercises
+---
+
+# Chapter 3. Sets and logic - Exercises
+
 ```agda
 module Chapter3.Exercises where
 

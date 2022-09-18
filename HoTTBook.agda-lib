@@ -4,3 +4,4 @@ flags: --without-K
        --exact-split
        --auto-inline
        --no-import-sorts
+       --rewriting

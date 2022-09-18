@@ -7,7 +7,7 @@ title: Chapter 3. Sets and logic
 ```agda
 module Chapter3.Book where
 
-open import Chapter3.PropositionalTruncation public
+open import Chapter2.Exercises public
 ```
 
 ## 3.1 Sets and n-types
@@ -176,21 +176,20 @@ PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
 ## 3.7 Propositional truncation
 
 ```agda
--- Workaround: Propositional truncations are defined (with postulates) in
--- Chapter3.PropositionalTruncation.
-
--- record subsingleton-truncations-exist : 𝓤ω where
---   field
---     ∥_∥                  : {𝒾 : Level} → 𝒰 𝒾 → 𝒰 𝒾
---     ∥∥-is-subsingleton   : {𝒾 : Level} {X : 𝒰 𝒾} → isProp (∥ X ∥)
---     ∣_∣                  : {𝒾 : Level} {X : 𝒰 𝒾} → X → ∥ X ∥
---     ∥∥-recursion         : {𝒾 𝒿 : Level} {X : 𝒰 𝒾} {P : 𝒰 𝒿}
---                            → isProp P → (X → P) → ∥ X ∥ → P
---   infix 0 ∥_∥
-
--- postulate pt : subsingleton-truncations-exist
--- open subsingleton-truncations-exist pt public
-
+postulate
+  ∥_∥ : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰 𝒾
+  ∣_∣ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → ∥ A ∥
+  ∥∥-isProp : {X : 𝒰 𝒾} → isProp (∥ X ∥)
+  ∥∥-rec : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+          → isProp B
+          → (g : A → B)
+          → ∥ A ∥ → B
+  ∥∥-rec-comp : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+               → (p : isProp B)
+               → (g : A → B)
+               → (a : A)
+               → ∥∥-rec A B p g (∣ a ∣) ≡ g a
+  {-# REWRITE ∥∥-rec-comp #-}
 ```
 
 ## 3.8 The axiom of choice

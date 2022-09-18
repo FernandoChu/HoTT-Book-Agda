@@ -1,3 +1,9 @@
+---
+title: Chapter 4. Equivalences - Exercises
+---
+
+# Chapter 4. Equivalences - Exercises
+
 ```agda
 module Chapter4.Exercises where
 
