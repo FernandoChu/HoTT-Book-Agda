@@ -11,7 +11,8 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
-          agda --version
+          git config --global --add safe.directory /__w/HoTT-Book-Agda/HoTT-Book-Agda
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
           npm ci
           npm run build
 
