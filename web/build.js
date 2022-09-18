@@ -10,7 +10,7 @@ async function build() {
     // Typecheck and generate md
     await exec("rm -rf html");
     await exec(
-      "agda --html --html-dir=html --html-highlight=code --css=Agda.css src/readme.lagda.md"
+      "agda --html --html-dir=html --html-highlight=code --css=Agda.css src/index.lagda.md"
     );
 
     // Generate template
@@ -21,18 +21,35 @@ async function build() {
     const files = await fs.readdir("./html/");
     for (const file of files) {
       // Read file
-      const md = await fs.readFile(`./html/${file}`, "utf8");
+      const fileContents = await fs.readFile(`./html/${file}`, "utf8");
 
-      // Parse File
-      const conv = new showdown.Converter({ metadata: true });
-      const html = conv.makeHtml(md);
-      const metadata = conv.getMetadata(); // returns metadata of last conv
+      if (file === "Agda.Primitive.html") {
+        await fs.writeFile(
+          `./html/${file}`,
+          template({
+            body: `<pre class="Agda">${fileContents}</pre>`,
+            title: "Agda Primitives",
+            backToIndex: `<a href="index.html">Back to index</a>`,
+          })
+        );
+      } else {
+        // Parse File
+        const conv = new showdown.Converter({ metadata: true });
+        const html = conv.makeHtml(fileContents);
+        const metadata = conv.getMetadata(); // returns metadata of last conv
 
-      // Write
-      await fs.writeFile(
-        `./html/${file.slice(0, file.length - 3)}.html`,
-        template({ body: html, title: metadata.title })
-      );
+        // Write
+        await fs.writeFile(
+          `./html/${file.slice(0, file.length - 3)}.html`,
+          template({
+            body: html,
+            title: metadata.title,
+            backToIndex: metadata.isIndex
+              ? null
+              : `<a href="index.html">Back to index</a>`,
+          })
+        );
+      }
     }
 
     // Paste styles.css

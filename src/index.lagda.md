@@ -1,10 +1,11 @@
 ---
 title: Homotopy Type Theory
+isIndex: true
 ---
 
 <!--
 ```agda
-module readme where
+module index where
 ```
 -->
 
