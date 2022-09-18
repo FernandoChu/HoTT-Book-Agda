@@ -1,3 +1,4 @@
+```agda
 module Chapter1.Exercises where
 
 open import Chapter1.Book public
@@ -9,3 +10,4 @@ _∘_ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {Z : Y → 𝒰 𝓀}
     → (x : X) → Z (f x)
 g ∘ f = λ x → g (f x)
 infixl 70 _∘_
+```

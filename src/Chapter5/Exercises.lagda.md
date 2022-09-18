@@ -1,3 +1,4 @@
+```agda
 module Chapter5.Exercises where
 
 open import Chapter5.Book public
@@ -18,3 +19,4 @@ ind𝟚 E (e₀ , e₁) ₁ = e₁
          (refl _ , refl _))
   η : map⁻¹ ∘ (ind𝟚 E) ∼ id
   η (e₀ , e₁) = refl _
+```

@@ -1,20 +1,25 @@
+---
+title: Chapter 6. Higher Inductive Types
+---
+
+# Chapter 6. Higher Inductive Types
+
+```agda
 module Chapter6.Book where
 
 open import Chapter6.HITs public
+```
 
----------------------------------------------------------------------------------
+## 6.1 Introduction
 
--- 6.1 Introduction
+Workaround: Since HIT's are not available in agda, I'm implementing
+them in another module. I need two nested modules to claim they exist
+and have the appropriate computing rules (for the paths).
+They compute as they should in the points.
 
--- Workaround: Since HIT's are not available in agda, I'm implementing
--- them in another module. I need two nested modules to claim they exist
--- and have the appropriate computing rules (for the paths).
--- They compute as they should in the points.
+## 6.2 Induction principles and dependent paths
 
----------------------------------------------------------------------------------
-
--- 6.2 Induction principles and dependent paths
-
+```agda
 -- Lemma 6.2.5.
 𝕊¹-rec : (A : 𝒰 𝒾)
        → (a : A)
@@ -69,58 +74,118 @@ open import Chapter6.HITs public
 --   φ g = g base , ap g loop
 
 --   contrFib : (y : codomain φ) → isContr (fib φ y)
---   contrFib y@(b , l) = fibφ , fibeq
+--   contrFib y@(b , l) = pointed-props-are-contr (fib φ y) (fibφ , fibeq)
 --    where
---     f = 𝕊¹-rec A b l
---     eqf = pair⁼(refl b , 𝕊¹-rec-comp A b l)
---     fibφ = (f , eqf)
+--     f' = 𝕊¹-rec A b l
+--     eqf' = pair⁼(refl b , 𝕊¹-rec-comp A b l)
+--     fibφ = (f' , eqf')
 
---     fibeq : ((g , eqg) : fib φ (b , l)) → (f , eqf) ≡ (g , eqg)
---     fibeq (g , eqg) = pair⁼(f≡g , eqf≡eqg)
+--     fibeq : ((f , eqf) (g , eqg) : fib φ (b , l)) → (f , eqf) ≡ (g , eqg)
+--     fibeq (f , eqf) (g , eqg) = pair⁼(f≡g , eqf≡eqg)
 --      where
---       f≡g-lemma : tr (λ x → x ≡ x) (ap pr₁ eqg ⁻¹) (ap f loop) ≡ ap g loop
+--       f≡g-lemma : tr (λ x → x ≡ x) (ap pr₁ eqf ∙ (ap pr₁ eqg)⁻¹)
+--                     (ap f loop) ≡ ap g loop
 --       f≡g-lemma = begin
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) (ap f loop)              ≡⟨ i ⟩
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) l                        ≡⟨ ii ⟩
+--         tr (λ x → x ≡ x) (ap pr₁ eqf ∙ (ap pr₁ eqg)⁻¹) (ap f loop) ≡˘⟨ i ⟩
 --         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---           (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqg)) (ap g loop))       ≡⟨ iii ⟩
+--           (tr (λ x → x ≡ x) (ap pr₁ eqf) (ap f loop))              ≡˘⟨ ii ⟩
 --         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---           (tr (λ x → x ≡ x) (ap pr₁ eqg) (ap g loop))              ≡⟨ iv ⟩
---         tr (λ x → x ≡ x) (ap pr₁ eqg ∙ (ap pr₁ eqg)⁻¹) (ap g loop) ≡⟨ v ⟩
+--           (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqf)) (ap f loop))       ≡⟨ iii ⟩
+--         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) l ≡⟨ iv ⟩
+--         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
+--           (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqg)) (ap g loop))       ≡⟨ v ⟩
+--         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
+--           (tr (λ x → x ≡ x) (ap pr₁ eqg) (ap g loop))              ≡⟨ vi ⟩
+--         tr (λ x → x ≡ x) (ap pr₁ eqg ∙ (ap pr₁ eqg)⁻¹) (ap g loop) ≡⟨ vii ⟩
 --         ap g loop ∎
 --        where
---         i = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -) (𝕊¹-rec-comp A b l)
---         ii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -)
+--         i = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqf) ((ap pr₁ eqg)⁻¹)) (ap f loop)
+--         ii = ap (λ - → tr (λ x → x ≡ x)
+--                ((ap pr₁ eqg)⁻¹) (tr (λ x → x ≡ x) - (ap f loop)))
+--                (pr₁pair⁼⁻¹-is-ap eqf)
+--         iii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -) (pr₂ (pair⁼⁻¹ eqf))
+--         iv = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -)
 --                  ((pr₂ (pair⁼⁻¹ eqg))⁻¹)
---         Σ-lemma : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w₁ w₂ : Σ B} (p : w₁ ≡ w₂)
---                 → pr₁ (pair⁼⁻¹ p) ≡ ap pr₁ p
---         Σ-lemma (refl _) = refl _
---         iii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---                   (tr (λ x → x ≡ x) - (ap g loop))) (Σ-lemma eqg)
---         iv = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqg) ((ap pr₁ eqg)⁻¹))
+--         v = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
+--                   (tr (λ x → x ≡ x) - (ap g loop))) (pr₁pair⁼⁻¹-is-ap eqg)
+--         vi = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqg) ((ap pr₁ eqg)⁻¹))
 --                      (ap g loop)
---         v = ap (λ - → tr (λ x → x ≡ x) - (ap g loop)) (⁻¹-right∙ (ap pr₁ eqg))
---       f≡g = funext fe1 (𝕊¹-ind-uniq f g ((ap pr₁ eqg)⁻¹) f≡g-lemma)
+--         vii = ap (λ - → tr (λ x → x ≡ x) - (ap g loop)) (⁻¹-right∙ (ap pr₁ eqg))
+
+--       f≡g = funext fe1
+--               (𝕊¹-ind-uniq f g ((ap pr₁ eqf ∙ (ap pr₁ eqg)⁻¹)) f≡g-lemma)
+
 --       eqf≡eqg : tr (λ x → φ x ≡ b , l) f≡g eqf ≡ eqg
 --       eqf≡eqg = begin
 --         tr (λ x → φ x ≡ b , l) f≡g eqf              ≡⟨ i ⟩
 --         (ap φ f≡g)⁻¹ ∙ eqf ∙ (ap (λ _ → b , l) f≡g) ≡⟨ ii ⟩
 --         (ap φ f≡g)⁻¹ ∙ eqf ∙ refl _                 ≡⟨ iii ⟩
 --         (ap φ f≡g)⁻¹ ∙ (eqf ∙ refl _)               ≡⟨ iv ⟩
---         (ap φ f≡g)⁻¹ ∙ eqf                          ≡⟨ v eqf eqg f≡g ⟩
+--         (ap φ f≡g)⁻¹ ∙ eqf                          ≡⟨ v eqf eqg ⟩
 --         eqg ∎
 --        where
 --         i = tr-fx≡gx φ (λ _ → (b , l)) f≡g eqf
 --         ii = ap ((ap φ f≡g)⁻¹ ∙ eqf ∙_) (ap-const f≡g (b , l))
 --         iii = ∙-assoc ((ap φ f≡g)⁻¹)
 --         iv = ap ((ap φ f≡g)⁻¹ ∙_) refl-right
---         v : {f g : 𝕊¹ → A} (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) (p : f ≡ g) → (ap φ p)⁻¹ ∙ eqf ≡ eqg
---         v eqh eqg (refl h) = refl-left ∙ _
+--         v : (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) → (ap φ f≡g)⁻¹ ∙ eqf ≡ eqg
+--         v (refl _) eqg = refl-right ∙ arst
+--           where
+--             arst : (ap φ (funext fe1 _))⁻¹ ≡ eqg
+--             arst = _
+--         v' : (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) → (ap φ f≡g)⁻¹ ∙ eqf ≡ eqg
+--         v' eqf eqg = arst
+--           where
+--             arst : {!ap φ f≡g ⁻¹ ∙ eqf ≡ eqg!}
+--             arst = _
+        -- v (refl _) eqg (refl h) = refl-left ∙ {!!}
 
----------------------------------------------------------------------------------
+    -- fibeq : ((g , eqg) : fib φ (b , l)) → (f , eqf) ≡ (g , eqg)
+    -- fibeq (g , eqg) = pair⁼(f≡g , eqf≡eqg)
+    --  where
+    --   f≡g-lemma : tr (λ x → x ≡ x) (ap pr₁ eqg ⁻¹) (ap f loop) ≡ ap g loop
+    --   f≡g-lemma = begin
+    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) (ap f loop)              ≡⟨ i ⟩
+    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) l                        ≡⟨ ii ⟩
+    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
+    --       (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqg)) (ap g loop))       ≡⟨ iii ⟩
+    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
+    --       (tr (λ x → x ≡ x) (ap pr₁ eqg) (ap g loop))              ≡⟨ iv ⟩
+    --     tr (λ x → x ≡ x) (ap pr₁ eqg ∙ (ap pr₁ eqg)⁻¹) (ap g loop) ≡⟨ v ⟩
+    --     ap g loop ∎
+    --    where
+    --     i = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -) (𝕊¹-rec-comp A b l)
+    --     ii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -)
+    --              ((pr₂ (pair⁼⁻¹ eqg))⁻¹)
+    --     Σ-lemma : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w₁ w₂ : Σ B} (p : w₁ ≡ w₂)
+    --             → pr₁ (pair⁼⁻¹ p) ≡ ap pr₁ p
+    --     Σ-lemma (refl _) = refl _
+    --     iii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
+    --               (tr (λ x → x ≡ x) - (ap g loop))) (Σ-lemma eqg)
+    --     iv = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqg) ((ap pr₁ eqg)⁻¹))
+    --                  (ap g loop)
+    --     v = ap (λ - → tr (λ x → x ≡ x) - (ap g loop)) (⁻¹-right∙ (ap pr₁ eqg))
+    --   f≡g = funext fe1 (𝕊¹-ind-uniq f g ((ap pr₁ eqg)⁻¹) f≡g-lemma)
+    --   eqf≡eqg : tr (λ x → φ x ≡ b , l) f≡g eqf ≡ eqg
+    --   eqf≡eqg = begin
+    --     tr (λ x → φ x ≡ b , l) f≡g eqf              ≡⟨ i ⟩
+    --     (ap φ f≡g)⁻¹ ∙ eqf ∙ (ap (λ _ → b , l) f≡g) ≡⟨ ii ⟩
+    --     (ap φ f≡g)⁻¹ ∙ eqf ∙ refl _                 ≡⟨ iii ⟩
+    --     (ap φ f≡g)⁻¹ ∙ (eqf ∙ refl _)               ≡⟨ iv ⟩
+    --     (ap φ f≡g)⁻¹ ∙ eqf                          ≡⟨ v eqf eqg f≡g ⟩
+    --     eqg ∎
+    --    where
+    --     i = tr-fx≡gx φ (λ _ → (b , l)) f≡g eqf
+    --     ii = ap ((ap φ f≡g)⁻¹ ∙ eqf ∙_) (ap-const f≡g (b , l))
+    --     iii = ∙-assoc ((ap φ f≡g)⁻¹)
+    --     iv = ap ((ap φ f≡g)⁻¹ ∙_) refl-right
+    --     v : {f g : 𝕊¹ → A} (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) (p : f ≡ g) → (ap φ p)⁻¹ ∙ eqf ≡ eqg
+    --     v (refl _) eqg (refl h) = refl-left ∙ _
+```
 
--- 6.3 The interval
+## 6.3 The interval
 
+```agda
 𝕀-isContr : isContr 𝕀
 𝕀-isContr = (1ᵢ , λ x → (contr x)⁻¹)
  where
@@ -129,11 +194,11 @@ open import Chapter6.HITs public
    where
     treq : tr (λ x → x ≡ 1ᵢ) seg seg ≡ refl 1ᵢ
     treq = (trHom-c 1ᵢ seg seg) ∙ (⁻¹-left∙ seg)
+```
 
----------------------------------------------------------------------------------
+## 6.4 Circles and spheres
 
--- 6.4 Circles and spheres
-
+```agda
 -- Lemma 6.4.1.
 loop≢refl : (is-univalent lzero)
           → loop ≢ refl base
@@ -163,11 +228,11 @@ apd² : {A : 𝒰 𝒾} {P : A → 𝒰 𝒿} {x y : A} {p q : x ≡ y}
        (f : (x : A) → P x) (r : p ≡ q)
      → apd f p ≡ (tr² P r (f x) ∙ apd f q)
 apd² f (refl p) = (refl-left)⁻¹
+```
 
----------------------------------------------------------------------------------
+## 6.5 Suspensions
 
--- 6.5 Suspensions
-
+```agda
 𝝨𝟚≃𝕊¹ : 𝝨 𝟚 ≃ 𝕊¹
 𝝨𝟚≃𝕊¹ = f , invs-are-equivs f (g , ε , η)
  where
@@ -314,15 +379,11 @@ Map₊≃ fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
       iv  = refl-right
       v   = ap (λ - → (- (inr ⋆))⁻¹) (≡fe-comp fe f'∼f)
       vi  = ⁻¹-involutive eq
+```
 
----------------------------------------------------------------------------------
+## 6.9 Truncations
 
--- 6.9 Truncations
-
----------------------------------------------------------------------------------
-
--- 0-Truncations
-
+```agda
 module 0-Truncations where
   private
     data PT (A : 𝒰 𝒾) : 𝒰 𝒾 where
@@ -364,9 +425,11 @@ open 0-Truncations public
                    → ((x : ∥ A ∥₀) → B x)
 ∥∥₀-family-of-sets A B g BxIsSet =
   ∥∥₀-ind A B (λ x y z w p q r s → BxIsSet y r (tr² B (∥∥₀-isSet p q) z ∙ s)) g
+```
 
--- 6.10 Quotients
+## 6.10 Quotients
 
+```agda
 mereRelation : {𝒾 : Level} (A : 𝒰 𝒾) (𝒿 : Level) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
 mereRelation A 𝒿 = A × A → Prop𝒰 𝒿
 
@@ -444,3 +507,64 @@ _⃫_ : {𝒾 𝒿 𝓀 : Level}
       (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
     → 𝒰 (𝒾 ⊔ 𝒿 ⊔ (𝓀 ⁺))
 (_⃫_) {𝒾} {𝒿} {𝓀} A R = Σ P ꞉ (A → Prop𝒰 𝓀) , P isEquivalenceClassOf R
+
+
+-- Definitions and lemmas for definition of ℤ
+data _≤_ : ℕ → ℕ → 𝒰₀ where
+  z≤n : {n : ℕ} → zero ≤ n
+  s≤s : {m n : ℕ} → m ≤ n → succ m ≤ succ n
+infix 4 _≤_
+
+¬s≤z : ∀ {m : ℕ} → ¬ (succ m ≤ zero)
+¬s≤z ()
+¬s≤s : ∀ {m n : ℕ} → ¬ (m ≤ n) → ¬ (succ m ≤ succ n)
+¬s≤s ¬m≤n (s≤s m≤n) = ¬m≤n m≤n
+
+≤-isDecidable : (n m : ℕ) → isDecidable (n ≤ m)
+≤-isDecidable zero m = inl z≤n
+≤-isDecidable (succ n) zero = inr ¬s≤z
+≤-isDecidable (succ n) (succ m) =
+  ⊎-rec (isDecidable (succ n ≤ succ m))
+    (λ - → inl (s≤s -))
+    (λ - → inr (¬s≤s -))
+    (≤-isDecidable n m)
+
+_∸_ : ℕ → ℕ → ℕ
+n      ∸ zero = n
+zero   ∸ succ m = zero
+succ n ∸ succ m = n ∸ m
+infixl 6 _∸_
+
+{-# BUILTIN NATMINUS _∸_ #-}
+
+rℕ : ℕ × ℕ → ℕ × ℕ
+rℕ (a , b) =
+  ⊎-rec (ℕ × ℕ)
+    (λ _ → ((a ∸ b) , 0))
+    (λ _ → (0 , (b ∸ a)))
+    (≤-isDecidable b a)
+
+ℤ : 𝒰₀
+ℤ = Σ x ꞉ (ℕ × ℕ) , (rℕ x ≡ x)
+
+
+pr₁-ap-pair⁼ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
+        (p : (pr₁ w ≡ pr₁ w')) → (q : tr Y p (pr₂ w) ≡ (pr₂ w'))
+        → ap pr₁ (pair⁼(p , q)) ≡ p
+pr₁-ap-pair⁼ (refl _) (refl _) = refl _
+
+-- test
+pr₁-is-fibration' : (B : 𝒰 𝒾) (P : B → 𝒰 𝒿) (X : 𝒰 𝓀)
+                   (f g : X → B) (h : f ∼ g)
+                   (f' : (x : X) → P (f x))
+                 → Σ h' ꞉ ((x : X) → Id (Σ P) (f x , f' x) (g x , tr P (h x) (f' x))),
+                     ((x : X) → ap pr₁ (h' x) ≡ h x)
+pr₁-is-fibration' B P X f g h f' =
+  h' , h'-lifts-h
+ where
+  h' : (x : X) → Id (Σ P) (f x , f' x) (g x , tr P (h x) (f' x))
+  h' x = pair⁼(h x , refl _)
+
+  h'-lifts-h : (x : X) → ap pr₁ (h' x) ≡ h x
+  h'-lifts-h x = pr₁-ap-pair⁼ (h x) (refl _)
+```

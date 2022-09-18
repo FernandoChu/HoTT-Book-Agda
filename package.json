@@ -1,0 +1,23 @@
+{
+  "name": "hottbook",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "node web/build.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Ryunaq/HoTT-Book-Agda.git"
+  },
+  "author": "",
+  "license": "GPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/Ryunaq/HoTT-Book-Agda/issues"
+  },
+  "homepage": "https://github.com/Ryunaq/HoTT-Book-Agda#readme",
+  "dependencies": {
+    "handlebars": "^4.7.7",
+    "showdown": "^2.1.0"
+  }
+}

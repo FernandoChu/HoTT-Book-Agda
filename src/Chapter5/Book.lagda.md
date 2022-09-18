@@ -1,11 +1,18 @@
+---
+title: Chapter 5. Induction
+---
+
+# Chapter 5. Induction
+
+```agda
 module Chapter5.Book where
 
 open import Chapter4.Exercises public
+```
 
----------------------------------------------------------------------------------
+## 5.1 Introduction to inductive types
 
--- 5.1 Introduction to inductive types
-
+```agda
 -- Theorem 5.1.1
 ℕ-uniqueness : has-funext lzero 𝒾 →
                (E : ℕ → 𝒰 𝒾)
@@ -26,15 +33,17 @@ open import Chapter4.Exercises public
         eₛ n (f n) ≡⟨ ap (λ - → eₛ n -) (f∼g n) ⟩
         eₛ n (g n) ≡˘⟨ gs n ⟩
         g (succ n) ∎
+```
 
----------------------------------------------------------------------------------
+## 5.2 Uniqueness of inductive types
 
--- 5.2 Uniqueness of inductive types
+```agda
+--
+```
 
----------------------------------------------------------------------------------
+## 5.3 W-types
 
--- 5.3 W-types
-
+```agda
 data 𝕎 (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
   sup : (x : A) (f : B x → 𝕎 A B) → 𝕎 A B
 
@@ -71,11 +80,11 @@ double𝕎 (sup ₁ α) = succ𝕎 (succ𝕎 (α ⋆))
 
 double𝕎-1𝕎 : double𝕎 1𝕎 ≡ succ𝕎 (succ𝕎 0𝕎)
 double𝕎-1𝕎 = refl (double𝕎 1𝕎)
+```
 
----------------------------------------------------------------------------------
+## 5.4 Inductive types are initial algebras
 
--- 5.4 Inductive types are initial algebras
-
+```agda
 -- Definition 5.4.1
 ℕAlg : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
 ℕAlg 𝒾 = Σ C ꞉ 𝒰 𝒾 , C × (C → C)
@@ -115,9 +124,6 @@ id-ℕHom (C , c₀ , cₛ) =
 -- Definition 5.4.3
 isHinit-ℕ : (𝒾 : Level) (I : ℕAlg 𝒾) → 𝒰 (𝒾 ⁺)
 isHinit-ℕ 𝒾 I = (C : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 I C)
-
-d : (𝒾 : Level) → ℕAlg 𝒾 → 𝒰 (𝒾 ⁺)
-d 𝒾 = isHinit-ℕ 𝒾
 
 -- Theorem 5.4.4
 isHinit-ℕ-isProp : (𝒾 : Level)
@@ -187,7 +193,7 @@ isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) f
       f (iₛ (tr id (ua u (≃-sym cI≃cJ)) x)) ≡⟨ iv ⟩
       f (iₛ (g x))                          ≡⟨ v ⟩
       jₛ (f (g x))                          ≡⟨ vi ⟩
-      jₛ x                     ∎
+      jₛ x                                  ∎
      where
       i = happly (tr-f (𝒰 𝒾) id id cI cJ cI≡cJ iₛ) x
       ii = ≡u-comp u cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
@@ -195,3 +201,4 @@ isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) f
       iv = ap (λ - → f (iₛ -)) (≡u-comp u (≃-sym cI≃cJ) x)
       v = pr₂ (pr₂ F) (g x)
       vi = ap jₛ (happly f∘g≡id x)
+```

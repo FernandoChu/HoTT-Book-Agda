@@ -1,3 +1,4 @@
+```agda
 module Chapter2.Exercises where
 
 open import Chapter2.Book public
@@ -11,3 +12,4 @@ open import Chapter2.Book public
   map⁻¹ = λ ((x , y) , c) → (x , y , c)
   ε = λ - → refl -
   η = λ - → refl -
+```

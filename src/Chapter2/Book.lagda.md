@@ -1,12 +1,19 @@
+---
+title: Chapter 2. Homotopy Type Theory
+---
+
+# Chapter 2. Homotopy Type Theory
+
+```agda
 module Chapter2.Book where
 
 open import Chapter1.Book public
 open import Chapter1.Exercises public
+```
 
----------------------------------------------------------------------------------
+## Section 2.1 Types are higher groupoids
 
--- Section 2.1 Types are higher groupoids
-
+```agda
 _⁻¹ : {X : 𝒰 𝒾} → {x y : X} → x ≡ y → y ≡ x
 (refl x)⁻¹ = refl x
 infix  40 _⁻¹
@@ -80,11 +87,11 @@ infix  3 _∎
 Ωⁿ : (n : ℕ) → ((A , a) : (𝒰∙ 𝒾)) → 𝒰∙ 𝒾
 Ωⁿ 0 (A , a) = (A , a)
 Ωⁿ (succ n) (A , a) = Ωⁿ n (Ω (A , a))
+```
 
----------------------------------------------------------------------------------
+## Section 2.2 Functions are functors
 
--- Section 2.2 Functions are functors
-
+```agda
 ap : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y) {x x' : X} → x ≡ x' → f x ≡ f x'
 ap f {x} {x'} (refl x) = refl (f x)
 
@@ -143,11 +150,11 @@ ap-const (refl _) c = refl _
   q ∙ (r ∙ r ⁻¹) ≡⟨ ap (q ∙_) (⁻¹-right∙ r) ⟩
   q ∙ refl _     ≡⟨ refl-right ⟩
   q ∎
+```
 
----------------------------------------------------------------------------------
+## Section 2.3 Type families are fibrations
 
--- Section 2.3 Type families are fibrations
-
+```agda
 -- Lemma 2.3.1.
 tr : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y : A}
           → x ≡ y → P x → P y
@@ -183,11 +190,11 @@ tr-∘ : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y z : A}
        (p : x ≡ y) (q : y ≡ z)
      → (tr P q) ∘ (tr P p) ≡ tr P (p ∙ q)
 tr-∘ P (refl x) (refl x) = refl id
+```
 
----------------------------------------------------------------------------------
+## Section 2.4 Homotopies and equivalences
 
--- Section 2.4 Homotopies and equivalences
-
+```agda
 _∼_ : {X : 𝒰 𝒾} {P : X → 𝒰 𝒿} → Π P → Π P → 𝒰 (𝒾 ⊔ 𝒿)
 f ∼ g = ∀ x → f x ≡ g x
 
@@ -332,15 +339,13 @@ A ≃ B = Σ f ꞉ (A → B), is-equiv f
         f⁻¹ (f x)           ≡⟨ qf x ⟩
         x ∎
   in  ((g ∘ f) , ≃-trans-helper eqvf eqvg)
+```
 
----------------------------------------------------------------------------------
+## 2.5 The higher groupoid structure of type formers
 
--- 2.5 The higher groupoid structure of type formers
+## 2.6 Cartesian product types
 
----------------------------------------------------------------------------------
-
--- 2.6 Cartesian product types
-
+```agda
 pair×⁼⁻¹ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
         → (w ≡ w') → ((pr₁ w ≡ pr₁ w') × (pr₂ w ≡ pr₂ w'))
 pair×⁼⁻¹ (refl w) = ( refl (pr₁ w) , refl (pr₂ w) )
@@ -370,11 +375,11 @@ trA×B : (Z : 𝒰 𝒾) (A : Z → 𝒰 𝒿) (B : Z → 𝒰 𝓀)
         (z w : Z) (p : z ≡ w) (x : A z × B z)
       → tr (λ - → A - × B -) p x ≡ (tr A p (pr₁ x) , tr B p (pr₂ x))
 trA×B Z A B z w (refl z) x = ×-uniq
+```
 
----------------------------------------------------------------------------------
+## 2.7 Σ-types
 
--- 2.7 Σ-types
-
+```agda
 -- Theorem 2.7.2.
 pair⁼⁻¹ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
         → (w ≡ w') → (Σ p ꞉ (pr₁ w ≡ pr₁ w') , tr Y p (pr₂ w) ≡ (pr₂ w'))
@@ -396,15 +401,21 @@ pair⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl (
         → pair⁼ (pair⁼⁻¹ p) ≡ p
       β (refl (w1 , w2)) = refl (refl (w1 , w2))
 
+-- Additional lemma
+pr₁pair⁼⁻¹-is-ap : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
+                 → (p : w ≡ w')
+                 → (pr₁ (pair⁼⁻¹ p)) ≡ (ap pr₁ p)
+pr₁pair⁼⁻¹-is-ap (refl w) = refl (pr₁ (pair⁼⁻¹ (refl w)))
+
 -- Corollary 2.7.3.
 Σ-uniq : {X : 𝒰 𝒾} {P : X → 𝒰 𝒿} (z : Σ P)
        → z ≡ (pr₁ z , pr₂ z)
 Σ-uniq z = pair⁼ (refl _ , refl _)
+```
 
----------------------------------------------------------------------------------
+## 2.8 The unit type
 
--- 2.8 The unit type
-
+```agda
 𝟙-≡-≃ : (x y : 𝟙) → (x ≡ y) ≃ 𝟙
 𝟙-≡-≃ ⋆ ⋆ = f , invs-are-equivs f (g , α , β)
   where
@@ -421,11 +432,11 @@ pair⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl (
 𝟙-isProp x y =
   let (f , ((g , f-g) , (h , h-f))) = 𝟙-≡-≃ x y
    in h ⋆
+```
 
----------------------------------------------------------------------------------
+## 2.9 Π-types and the function extensionality axiom
 
--- 2.9 Π-types and the function extensionality axiom
-
+```agda
 happly : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {f g : Π B}
        → f ≡ g → f ∼ g
 happly p x = ap (λ - → - x) p
@@ -466,11 +477,11 @@ tr-f : (X : 𝒰 𝒾) (A : X → 𝒰 𝒿) (B : X → 𝒰 𝓀)
       (x₁ x₂ : X) (p : x₁ ≡ x₂) (f : A x₁ → B x₁)
     → tr (λ x → (A x → B x)) p f ≡ (λ x → tr B p (f (tr A (p ⁻¹) x)))
 tr-f X A B x₁ x₂ (refl x₁) f = refl f
+```
 
----------------------------------------------------------------------------------
+## 2.10 Universes and the univalence axiom
 
--- 2.10 Universes and the univalence axiom
-
+```agda
 -- I need this helper to delay the pattern match in `idtoeqv`, while
 -- still being able to use this same function in other places, like in
 -- the construction of `ua-∘`.
@@ -638,11 +649,11 @@ ua⁻¹ fe u {X} {Y} eqvf@(f , e) =
 -- Note: Univalence could be expressed like this
 Univalence : 𝓤ω
 Univalence = ∀ i → is-univalent i
+```
 
----------------------------------------------------------------------------------
+## 2.11 Identity type
 
--- 2.11 Identity type
-
+```agda
 -- Lemma 2.11.2.
 trHomc- : {A : 𝒰 𝒾} (a : A) {x₁ x₂ : A} (p : x₁ ≡ x₂) (q : a ≡ x₁)
           → tr (λ x → a ≡ x) p q ≡ q ∙ p
@@ -709,12 +720,11 @@ tr-x≡x-≃ {𝒾} {A} {a} {a'} (refl a) q r =
     v   = ∙-assoc eq
     vi  = ap (eq ∙_) (⁻¹-left∙ refl-left)
     vii = refl-right
+```
 
+## 2.12 Coproducts
 
----------------------------------------------------------------------------------
-
--- 2.12 Coproducts
-
+```agda
 𝟙-is-not-𝟘 : 𝟙 ≢ 𝟘
 𝟙-is-not-𝟘 p = tr id p ⋆
 
@@ -726,11 +736,11 @@ tr-x≡x-≃ {𝒾} {A} {a} {a'} (refl a) q r =
   f ₁ = 𝟙
   q : 𝟙 ≡ 𝟘
   q = ap f p
+```
 
----------------------------------------------------------------------------------
+## 2.15 Universal properties
 
--- 2.15 Universal properties
-
+```agda
 -- Theorem 2.15.7.
 ΠΣ-comm : {X : 𝒰 𝒾} {A : X → 𝒰 𝒿} {P : (x : X) → A x → 𝒰 𝓀}
         → has-funext 𝒾 (𝒿 ⊔ 𝓀)
@@ -748,3 +758,4 @@ tr-x≡x-≃ {𝒾} {A} {a} {a'} (refl a) q r =
     ε (g , h) = refl _
     η : map⁻¹ ∘ map ∼ id
     η f = funext fe (λ x → (Σ-uniq (f x))⁻¹)
+```

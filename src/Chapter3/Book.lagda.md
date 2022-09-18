@@ -1,11 +1,18 @@
+---
+title: Chapter 3. Sets and logic
+---
+
+# Chapter 3. Sets and logic
+
+```agda
 module Chapter3.Book where
 
 open import Chapter3.PropositionalTruncation public
+```
 
----------------------------------------------------------------------------------
+## 3.1 Sets and n-types
 
--- 3.1 Sets and n-types
-
+```agda
 -- Definition 3.1.1
 isSet : 𝒰 𝒾 → 𝒰 𝒾
 isSet X = {x y : X} (p q : x ≡ y) → (p ≡ q)
@@ -70,17 +77,18 @@ e₀-is-not-e₁ p = ₁-is-not-₀ r
       idtoeqv (refl 𝟚)  ∎
     swap₂≡id : swap₂ ≡ 𝑖𝑑 𝟚
     swap₂≡id = ap pr₁ p≡refl
+```
 
----------------------------------------------------------------------------------
+## 3.2 Propositions as types?
 
+```agda
 -- Theorem 3.2.2
-
 -- Corollary 3.27
+```
 
----------------------------------------------------------------------------------
+## 3.3 Mere Propositions
 
--- 3.3 Mere Propositions
-
+```agda
 -- Definition 3.3.1
 isProp : (P : 𝒰 𝒾) → 𝒰 𝒾
 isProp P = (x y : P) → x ≡ y
@@ -118,26 +126,25 @@ props-are-sets {𝒾} {A} f {x} {y} p q = (claim2 x y p) ∙ (claim2 x y q)⁻¹
       ((g y)⁻¹ ∙ g y) ∙ p ≡⟨ ∙-assoc ((g y)⁻¹) ⟩
       (g y)⁻¹ ∙ (g y ∙ p) ≡⟨ ap (λ - → (g y)⁻¹ ∙ -) (claim1 y z p) ⟩
       (g y)⁻¹ ∙ g z       ∎
+```
 
+## 3.4 Classical vs. intuitionistic logic
 
----------------------------------------------------------------------------------
-
--- 3.4 Classical vs. intuitionistic logic
-
+```agda
 -- Definition 3.4.3
-decidable : 𝒰 𝒾 → 𝒰 𝒾
-decidable A = A ⊎ ¬ A
+isDecidable : 𝒰 𝒾 → 𝒰 𝒾
+isDecidable A = A ⊎ ¬ A
 
 decidable-family : (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
 decidable-family A B = (a : A) → (B a) ⊎ (¬ (B a))
 
 has-decidable-equality : 𝒰 𝒾 → 𝒰 𝒾
-has-decidable-equality X = (x y : X) → decidable (x ≡ y)
+has-decidable-equality X = (x y : X) → isDecidable (x ≡ y)
+```
 
----------------------------------------------------------------------------------
+## 3.5 Subsets and propositional resizing
 
--- 3.5 Subsets and propositional resizing
-
+```agda
 Prop𝒰 : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
 Prop𝒰 𝒾 = Σ A ꞉ (𝒰 𝒾) , isProp(A)
 
@@ -154,21 +161,21 @@ is-propres 𝒾 = is-equiv (Prop𝒰→𝒰⁺ {𝒾})
 -- Axiom 3.5.5
 PropositionalResizing : 𝓤ω
 PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
+```
 
----------------------------------------------------------------------------------
+## 3.6 The logic of mere propositions
 
--- 3.6 The logic of mere propositions
-
+```agda
 -- Example 3.6.2
 Π-preserves-props : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
                     {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} →
                     ((x : A) → isProp (B x)) → isProp ((x : A) → B x)
 Π-preserves-props fe p f g = pr₁ (pr₁ (fe f g)) (λ x → p x (f x) (g x))
+```
 
----------------------------------------------------------------------------------
+## 3.7 Propositional truncation
 
--- 3.7 Propositional truncation
-
+```agda
 -- Workaround: Propositional truncations are defined (with postulates) in
 -- Chapter3.PropositionalTruncation.
 
@@ -184,23 +191,24 @@ PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
 -- postulate pt : subsingleton-truncations-exist
 -- open subsingleton-truncations-exist pt public
 
+```
 
----------------------------------------------------------------------------------
+## 3.8 The axiom of choice
 
--- 3.8 The axiom of choice
+```agda
+```
 
----------------------------------------------------------------------------------
+## 3.9 The principle of unique choice
 
--- 3.9 The principle of unique choice
-
+```agda
 truncations-fixes-props : (P : 𝒰 𝒾) → isProp P → (P ≃ ∥ P ∥)
 truncations-fixes-props P p =
   isProp-LogEq→Eq P (∥ P ∥) p ∥∥-isProp ∣_∣ (∥∥-rec P P p id)
+```
 
----------------------------------------------------------------------------------
+## 3.11 Contractibility
 
--- 3.11 Contractibility
-
+```agda
 -- Definition 3.11.1
 isContr : 𝒰 𝒾 → 𝒰 𝒾
 isContr A = Σ a ꞉ A , ((x : A) → a ≡ x)
@@ -329,3 +337,4 @@ props-have-contr-Id f x y =
     where
       P : isProp (x ≡ y)
       P p q = props-are-sets f p q
+```

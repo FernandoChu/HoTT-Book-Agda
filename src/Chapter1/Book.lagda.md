@@ -1,22 +1,29 @@
+---
+title: Chapter 1. Type Theory
+---
+
+# Chapter 1. Type Theory
+
+```agda
 module Chapter1.Book where
 
 open import Lib.Universes public
+```
 
----------------------------------------------------------------------------------
+## Section 1.3 Dependent function types
 
--- Section 1.3 Dependent function types
-
+```agda
 -- Workaround to have cumulativity
 record Lift (A : 𝒰 𝒾) : 𝒰 (𝒾 ⁺) where
   constructor liftT
   field unlift : A
 
 open Lift public
+```
 
----------------------------------------------------------------------------------
+## Section 1.4 Dependent function types
 
--- Section 1.4 Dependent function types
-
+```agda
 Π : {X : 𝒰 𝒾} (Y : X → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
 Π {𝒾} {𝒿} {X} Y = (x : X) → Y x
 
@@ -41,21 +48,21 @@ domain {𝒾} {𝒿} {X} {Y} f = X
 
 codomain : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 𝒿
 codomain {𝒾} {𝒿} {X} {Y} f = Y
+```
 
----------------------------------------------------------------------------------
+## Section 1.5 Product types
 
--- Section 1.5 Product types
-
+```agda
 data 𝟙 : 𝒰₀ where
   ⋆ : 𝟙
 
 𝟙-induction : (A : 𝟙 → 𝒰 𝒾) → A ⋆ → (x : 𝟙) → A x
 𝟙-induction A a ⋆ = a
+```
 
----------------------------------------------------------------------------------
+## Section 1.6 Dependent pairs types
 
--- Section 1.6 Dependent pairs types
-
+```agda
 record Σ {X : 𝒰 𝒾} (Y : X → 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
   constructor
     _,_
@@ -90,11 +97,11 @@ ac : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {R : A → B → 𝒰 𝓀}
    → (Π x ꞉ A , Σ y ꞉ B , R x y)
    → (Σ f ꞉ (A → B) , Π x ꞉ A , R x (f x))
 ac g = ((λ x → pr₁ (g x)) , (λ x → pr₂ (g x)))
+```
 
----------------------------------------------------------------------------------
+## Section 1.7 Coproduct types
 
--- Section 1.7 Coproduct types
-
+```agda
 data _⊎_ (X : 𝒰 𝒾) (Y : 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
  inl : X → X ⊎ Y
  inr : Y → X ⊎ Y
@@ -122,11 +129,11 @@ data 𝟘 : 𝒰₀ where
 -- Simple helper
 !𝟘 : (A : 𝒰 𝒾) → 𝟘 → A
 !𝟘 A = 𝟘-induction (λ _ → A)
+```
 
----------------------------------------------------------------------------------
+## Section 1.8 The type of booleans
 
--- Section 1.8 The type of booleans
-
+```agda
 𝟚 : 𝒰₀
 𝟚 = 𝟙 ⊎ 𝟙
 
@@ -140,11 +147,11 @@ pattern ₁ = inr ⋆
 𝟚-induction : (A : 𝟚 → 𝒰 𝒾) → A ₀ → A ₁ → (n : 𝟚) → A n
 𝟚-induction A a₀ a₁ ₀ = a₀
 𝟚-induction A a₀ a₁ ₁ = a₁
+```
 
----------------------------------------------------------------------------------
+## Section 1.9 The natural numbers
 
--- Section 1.9 The natural numbers
-
+```agda
 data ℕ : 𝒰₀ where
   zero : ℕ
   succ : ℕ → ℕ
@@ -159,11 +166,11 @@ data ℕ : 𝒰₀ where
     h : (n : ℕ) → A n
     h 0        = a₀
     h (succ n) = f n (h n)
+```
 
----------------------------------------------------------------------------------
+## Section 1.11 Propositions as types
 
--- Section 1.11 Propositions as types
-
+```agda
 ¬ : 𝒰 𝒾 → 𝒰 𝒾
 ¬ X = X → 𝟘
 
@@ -182,11 +189,11 @@ de-Morgan (f , g) (inr b) = g b
          (Π x ꞉ A , P x × Q x) →
          ((Π x ꞉ A , P x) × (Π x ꞉ A , Q x))
 Π-of-× f = ((λ x → pr₁ (f x)) , (λ x → pr₂ (f x)))
+```
 
----------------------------------------------------------------------------------
+## Section 1.12 Identity types
 
--- Section 1.12 Identity types
-
+```agda
 data Id (X : 𝒰 𝒾) : X → X → 𝒰 𝒾 where
   refl : (x : X) → Id X x x
 infix   0 Id
@@ -204,3 +211,4 @@ x ≢ y = ¬(x ≡ y)
   → ((x : A) → D x x (refl x))
   → (x y : A) (p : x ≡ y) → D x y p
 𝕁 A D d x x (refl x) = d x
+```

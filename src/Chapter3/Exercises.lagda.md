@@ -1,3 +1,4 @@
+```agda
 module Chapter3.Exercises where
 
 open import Chapter3.Book public
@@ -89,3 +90,4 @@ isProp→isDecidible-isProp' A B f g c (inr b) (inr b') =
      tr P ((f x)⁻¹ ∙ (f x)) px      ≡⟨ ap (λ - → tr P - px)
                                           (AisSet ((f x)⁻¹ ∙ (f x)) (refl x)) ⟩
      px                             ∎
+```

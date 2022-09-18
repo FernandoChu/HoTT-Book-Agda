@@ -1,15 +1,23 @@
+---
+title: Chapter 4. Equivalences
+---
+
+# Chapter 4. Equivalences
+
+```agda
 module Chapter4.Book where
 
 open import Chapter3.Exercises public
+```
 
----------------------------------------------------------------------------------
+## 4.1 Quasi-inverses
 
--- 4.1 Quasi-inverses
+```agda
+```
 
----------------------------------------------------------------------------------
+## 4.2 Half adjoint equivalences
 
--- 4.2 Half adjoint equivalences
-
+```agda
 -- Definition 4.2.1.
 ishae : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
 ishae f = Σ g ꞉ (codomain f → domain f)
@@ -406,11 +414,11 @@ ishae-isProp u fe1 fe2 fe3 fe4 fe5 f =
       ishae-rinv-implies-rcoh-isContr u fe1 fe2 f haef (g , ε)
   iv : ishae f → isContr (ishae f)
   iv haef = ≃-preserves-contr (≃-sym (≃-trans i ii)) (iii haef)
+```
 
----------------------------------------------------------------------------------
+## 4.3 Bi-invertible maps
 
--- 4.3 Bi-invertible maps
-
+```agda
 -- Definition 4.3.1.
 biinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
 biinv f = rinv f × linv f
@@ -461,11 +469,11 @@ ishae→biinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
             → ishae f → biinv f
 ishae→biinv f haef = invs-are-equivs f (ishae→qinv f haef)
 -- TODO
+```
 
----------------------------------------------------------------------------------
+## 4.4 Contractible fibers
 
--- 4.4 Contractible fibers
-
+```agda
 -- Definition 4.1.1.
 isContrMap : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 (𝒾 ⊔ 𝒿)
 isContrMap f = (y : codomain f) → isContr (fib f y)
@@ -494,11 +502,11 @@ isContrMap-isProp : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
                   → isProp (isContrMap f)
 isContrMap-isProp fe1 fe2 f =
   Π-preserves-props fe1 (λ y → isContr-isProp fe2 (fib f y))
+```
 
----------------------------------------------------------------------------------
+## 4.6 Surjections and embeddings
 
--- 4.6 Surjections and embeddings
-
+```agda
 isSurjec : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
          → (f : A → B)
          → 𝒰 (𝒾 ⊔ 𝒿)
@@ -509,3 +517,4 @@ isSurjec-isProp : has-funext 𝒿 (𝒾 ⊔ 𝒿)
                 → (f : A → B)
                 → isProp (isSurjec f)
 isSurjec-isProp fe f = Π-preserves-props fe (λ - → ∥∥-isProp)
+```
