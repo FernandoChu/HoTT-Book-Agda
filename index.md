@@ -61,3 +61,13 @@ Made by Fernando Chu.
 <pre class="Agda"><a id="1216" class="Keyword">open</a> <a id="1221" class="Keyword">import</a> <a id="1228" href="Chapter9.Book.html" class="Module">Chapter9.Book</a> <a id="1242" class="Keyword">public</a>
 <a id="1249" class="Keyword">open</a> <a id="1254" class="Keyword">import</a> <a id="1261" href="Chapter9.Exercises.html" class="Module">Chapter9.Exercises</a> <a id="1280" class="Keyword">public</a>
 </pre>
+### Chapter 10. Set Theory
+
+<pre class="Agda"><a id="1328" class="Keyword">open</a> <a id="1333" class="Keyword">import</a> <a id="1340" href="Chapter10.Book.html" class="Module">Chapter10.Book</a> <a id="1355" class="Keyword">public</a>
+<a id="1362" class="Keyword">open</a> <a id="1367" class="Keyword">import</a> <a id="1374" href="Chapter10.Exercises.html" class="Module">Chapter10.Exercises</a> <a id="1394" class="Keyword">public</a>
+</pre>
+### Chapter 11. Real Numbers
+
+<pre class="Agda"><a id="1444" class="Keyword">open</a> <a id="1449" class="Keyword">import</a> <a id="1456" href="Chapter11.Book.html" class="Module">Chapter11.Book</a> <a id="1471" class="Keyword">public</a>
+<a id="1478" class="Keyword">open</a> <a id="1483" class="Keyword">import</a> <a id="1490" href="Chapter11.Exercises.html" class="Module">Chapter11.Exercises</a> <a id="1510" class="Keyword">public</a>
+</pre>
