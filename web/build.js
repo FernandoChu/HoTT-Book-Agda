@@ -55,6 +55,7 @@ async function build() {
     // Paste styles.css
     await exec("cp ./web/styles.css ./html/styles.css");
   } catch (e) {
+    console.error(e);
     throw e;
   }
 }
