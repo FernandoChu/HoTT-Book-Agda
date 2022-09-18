@@ -3,18 +3,13 @@ on: [push, pull_request]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    concurrency: ci-${{ github.ref }}
+    container: pltamy/hottest-lecture-notes:latest
+
     steps:
       - name: Checkout 🛎️
         uses: actions/checkout@v3
 
-      - name: Install agda
-        run: |
-          sudo apt-get install cabal-install 
-          sudo cabal update
-          sudo cabal install Agda
-
-      - name: Install and Build 🔧 # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
+      - name: Install and Build 🔧
         run: |
           agda --version
           npm ci
