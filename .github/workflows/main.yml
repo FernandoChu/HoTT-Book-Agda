@@ -11,6 +11,7 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
+          apt-get update && apt-get install -y rsync
           npm ci
           npm run build
 
