@@ -11,13 +11,8 @@ jobs:
 
       - name: Install and Build 🔧
         run: |
-          git config --global --add safe.directory /__w/HoTT-Book-Agda/HoTT-Book-Agda
-          git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          pwd
-          ls -a
-          # npm ci
-          # npm run build
-          git status
+          npm ci
+          npm run build
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
