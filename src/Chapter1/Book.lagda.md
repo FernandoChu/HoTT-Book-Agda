@@ -2,7 +2,10 @@
 title: Chapter 1. Type Theory
 ---
 
+# Chapter 1. Type Theory
+
 We begin with importing the Agda primitives and renaming them to match the notatio of book.
+
 ```agda
 module Chapter1.Book where
 
@@ -26,8 +29,6 @@ _⁺⁺ : (ℓ : Level) → Level
 universe-of : {ℓ : Level} (X : 𝒰 ℓ) → Level
 universe-of {ℓ} X = ℓ
 ```
-
-# Chapter 1. Type Theory
 
 ## Section 1.3 Dependent function types
 

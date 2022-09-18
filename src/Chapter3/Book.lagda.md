@@ -195,6 +195,7 @@ postulate
 ## 3.8 The axiom of choice
 
 ```agda
+--
 ```
 
 ## 3.9 The principle of unique choice

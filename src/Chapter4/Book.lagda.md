@@ -13,6 +13,7 @@ open import Chapter3.Exercises public
 ## 4.1 Quasi-inverses
 
 ```agda
+--
 ```
 
 ## 4.2 Half adjoint equivalences
