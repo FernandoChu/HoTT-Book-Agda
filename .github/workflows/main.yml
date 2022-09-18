@@ -3,7 +3,7 @@ on: [push, pull_request]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    container: pltamy/hottest-lecture-notes:latest
+    container: shiranaiyo/agda:2.6.2.2
 
     steps:
       - name: Checkout 🛎️
