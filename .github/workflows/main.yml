@@ -7,15 +7,16 @@ jobs:
 
     steps:
       - name: Checkout 🛎️
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Install and Build 🔧
         run: |
-          # git config --global --add safe.directory /__w/HoTT-Book-Agda/HoTT-Book-Agda
-          # git config --global --add safe.directory "$GITHUB_WORKSPACE"
-          npm ci
-          npm run build
-          ls
+          git config --global --add safe.directory /__w/HoTT-Book-Agda/HoTT-Book-Agda
+          git config --global --add safe.directory "$GITHUB_WORKSPACE"
+          pwd
+          ls -a
+          # npm ci
+          # npm run build
           git status
 
       - name: Deploy 🚀
