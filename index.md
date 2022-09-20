@@ -71,3 +71,9 @@ Made by Fernando Chu.
 <pre class="Agda"><a id="1444" class="Keyword">open</a> <a id="1449" class="Keyword">import</a> <a id="1456" href="Chapter11.Book.html" class="Module">Chapter11.Book</a> <a id="1471" class="Keyword">public</a>
 <a id="1478" class="Keyword">open</a> <a id="1483" class="Keyword">import</a> <a id="1490" href="Chapter11.Exercises.html" class="Module">Chapter11.Exercises</a> <a id="1510" class="Keyword">public</a>
 </pre>
+### Acknowledgments
+
+A lot of my code is taken from Escardo's [notes](https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html).
+Other references I used where [agda-unimath](https://unimath.github.io/agda-unimath/), Rijke's [formalization](https://github.com/HoTT-Intro/Agda) of his book, the [HoTT-Agda](https://github.com/HoTT/HoTT-Agda) library, and of course Agda's [standard library](https://github.com/agda/agda-stdlib).
+
+The css styles were taken from the [HoTTEST summer school](https://github.com/martinescardo/HoTTEST-Summer-School) repo.
