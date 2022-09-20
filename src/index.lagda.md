@@ -94,3 +94,10 @@ open import Chapter10.Exercises public
 open import Chapter11.Book public
 open import Chapter11.Exercises public
 ```
+
+### Acknowledgments
+
+A lot of my code is taken from Escardo's [notes](https://www.cs.bham.ac.uk/~mhe/HoTT-UF-in-Agda-Lecture-Notes/HoTT-UF-Agda.html).
+Other references I used where [agda-unimath](https://unimath.github.io/agda-unimath/), Rijke's [formalization](https://github.com/HoTT-Intro/Agda) of his book, the [HoTT-Agda](https://github.com/HoTT/HoTT-Agda) library, and of course Agda's [standard library](https://github.com/agda/agda-stdlib).
+
+The css styles were taken from the [HoTTEST summer school](https://github.com/martinescardo/HoTTEST-Summer-School) repo.
