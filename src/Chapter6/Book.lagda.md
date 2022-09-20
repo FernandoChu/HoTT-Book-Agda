@@ -119,126 +119,15 @@ postulate
    p                               ∎
 
 -- Lemma 6.2.9.
--- 𝕊¹→-≃ : {A : 𝒰 𝒾}
---       → is-univalent 𝒾
---       → has-funext lzero 𝒾
---       → has-funext 𝒾 𝒾
---       → has-funext 𝒾 (𝒾 ⁺)
---       → (𝕊¹ → A) ≃ (Σ x ꞉ A , x ≡ x)
--- 𝕊¹→-≃ {𝒾} {A} u fe1 fe2 fe3 =
---   φ , ishae→biinv φ (contrMap→hae u fe2 fe3 φ contrFib)
---  where
---   φ : (𝕊¹ → A) → (Σ x ꞉ A , x ≡ x)
---   φ g = g base , ap g loop
-
---   contrFib : (y : codomain φ) → isContr (fib φ y)
---   contrFib y@(b , l) = pointed-props-are-contr (fib φ y) (fibφ , fibeq)
---    where
---     f' = 𝕊¹-rec A b l
---     eqf' = pair⁼(refl b , 𝕊¹-rec-comp A b l)
---     fibφ = (f' , eqf')
-
---     fibeq : ((f , eqf) (g , eqg) : fib φ (b , l)) → (f , eqf) ≡ (g , eqg)
---     fibeq (f , eqf) (g , eqg) = pair⁼(f≡g , eqf≡eqg)
---      where
---       f≡g-lemma : tr (λ x → x ≡ x) (ap pr₁ eqf ∙ (ap pr₁ eqg)⁻¹)
---                     (ap f loop) ≡ ap g loop
---       f≡g-lemma = begin
---         tr (λ x → x ≡ x) (ap pr₁ eqf ∙ (ap pr₁ eqg)⁻¹) (ap f loop) ≡˘⟨ i ⟩
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---           (tr (λ x → x ≡ x) (ap pr₁ eqf) (ap f loop))              ≡˘⟨ ii ⟩
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---           (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqf)) (ap f loop))       ≡⟨ iii ⟩
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) l ≡⟨ iv ⟩
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---           (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqg)) (ap g loop))       ≡⟨ v ⟩
---         tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---           (tr (λ x → x ≡ x) (ap pr₁ eqg) (ap g loop))              ≡⟨ vi ⟩
---         tr (λ x → x ≡ x) (ap pr₁ eqg ∙ (ap pr₁ eqg)⁻¹) (ap g loop) ≡⟨ vii ⟩
---         ap g loop ∎
---        where
---         i = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqf) ((ap pr₁ eqg)⁻¹)) (ap f loop)
---         ii = ap (λ - → tr (λ x → x ≡ x)
---                ((ap pr₁ eqg)⁻¹) (tr (λ x → x ≡ x) - (ap f loop)))
---                (pr₁pair⁼⁻¹-is-ap eqf)
---         iii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -) (pr₂ (pair⁼⁻¹ eqf))
---         iv = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -)
---                  ((pr₂ (pair⁼⁻¹ eqg))⁻¹)
---         v = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
---                   (tr (λ x → x ≡ x) - (ap g loop))) (pr₁pair⁼⁻¹-is-ap eqg)
---         vi = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqg) ((ap pr₁ eqg)⁻¹))
---                      (ap g loop)
---         vii = ap (λ - → tr (λ x → x ≡ x) - (ap g loop)) (⁻¹-right∙ (ap pr₁ eqg))
-
---       f≡g = funext fe1
---               (𝕊¹-ind-uniq f g ((ap pr₁ eqf ∙ (ap pr₁ eqg)⁻¹)) f≡g-lemma)
-
---       eqf≡eqg : tr (λ x → φ x ≡ b , l) f≡g eqf ≡ eqg
---       eqf≡eqg = begin
---         tr (λ x → φ x ≡ b , l) f≡g eqf              ≡⟨ i ⟩
---         (ap φ f≡g)⁻¹ ∙ eqf ∙ (ap (λ _ → b , l) f≡g) ≡⟨ ii ⟩
---         (ap φ f≡g)⁻¹ ∙ eqf ∙ refl _                 ≡⟨ iii ⟩
---         (ap φ f≡g)⁻¹ ∙ (eqf ∙ refl _)               ≡⟨ iv ⟩
---         (ap φ f≡g)⁻¹ ∙ eqf                          ≡⟨ v eqf eqg ⟩
---         eqg ∎
---        where
---         i = tr-fx≡gx φ (λ _ → (b , l)) f≡g eqf
---         ii = ap ((ap φ f≡g)⁻¹ ∙ eqf ∙_) (ap-const f≡g (b , l))
---         iii = ∙-assoc ((ap φ f≡g)⁻¹)
---         iv = ap ((ap φ f≡g)⁻¹ ∙_) refl-right
---         v : (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) → (ap φ f≡g)⁻¹ ∙ eqf ≡ eqg
---         v (refl _) eqg = refl-right ∙ arst
---           where
---             arst : (ap φ (funext fe1 _))⁻¹ ≡ eqg
---             arst = _
---         v' : (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) → (ap φ f≡g)⁻¹ ∙ eqf ≡ eqg
---         v' eqf eqg = arst
---           where
---             arst : {!ap φ f≡g ⁻¹ ∙ eqf ≡ eqg!}
---             arst = _
-        -- v (refl _) eqg (refl h) = refl-left ∙ {!!}
-
-    -- fibeq : ((g , eqg) : fib φ (b , l)) → (f , eqf) ≡ (g , eqg)
-    -- fibeq (g , eqg) = pair⁼(f≡g , eqf≡eqg)
-    --  where
-    --   f≡g-lemma : tr (λ x → x ≡ x) (ap pr₁ eqg ⁻¹) (ap f loop) ≡ ap g loop
-    --   f≡g-lemma = begin
-    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) (ap f loop)              ≡⟨ i ⟩
-    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) l                        ≡⟨ ii ⟩
-    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
-    --       (tr (λ x → x ≡ x) (pr₁ (pair⁼⁻¹ eqg)) (ap g loop))       ≡⟨ iii ⟩
-    --     tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
-    --       (tr (λ x → x ≡ x) (ap pr₁ eqg) (ap g loop))              ≡⟨ iv ⟩
-    --     tr (λ x → x ≡ x) (ap pr₁ eqg ∙ (ap pr₁ eqg)⁻¹) (ap g loop) ≡⟨ v ⟩
-    --     ap g loop ∎
-    --    where
-    --     i = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -) (𝕊¹-rec-comp A b l)
-    --     ii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹) -)
-    --              ((pr₂ (pair⁼⁻¹ eqg))⁻¹)
-    --     Σ-lemma : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w₁ w₂ : Σ B} (p : w₁ ≡ w₂)
-    --             → pr₁ (pair⁼⁻¹ p) ≡ ap pr₁ p
-    --     Σ-lemma (refl _) = refl _
-    --     iii = ap (λ - → tr (λ x → x ≡ x) ((ap pr₁ eqg)⁻¹)
-    --               (tr (λ x → x ≡ x) - (ap g loop))) (Σ-lemma eqg)
-    --     iv = happly (tr-∘ (λ x → x ≡ x) (ap pr₁ eqg) ((ap pr₁ eqg)⁻¹))
-    --                  (ap g loop)
-    --     v = ap (λ - → tr (λ x → x ≡ x) - (ap g loop)) (⁻¹-right∙ (ap pr₁ eqg))
-    --   f≡g = funext fe1 (𝕊¹-ind-uniq f g ((ap pr₁ eqg)⁻¹) f≡g-lemma)
-    --   eqf≡eqg : tr (λ x → φ x ≡ b , l) f≡g eqf ≡ eqg
-    --   eqf≡eqg = begin
-    --     tr (λ x → φ x ≡ b , l) f≡g eqf              ≡⟨ i ⟩
-    --     (ap φ f≡g)⁻¹ ∙ eqf ∙ (ap (λ _ → b , l) f≡g) ≡⟨ ii ⟩
-    --     (ap φ f≡g)⁻¹ ∙ eqf ∙ refl _                 ≡⟨ iii ⟩
-    --     (ap φ f≡g)⁻¹ ∙ (eqf ∙ refl _)               ≡⟨ iv ⟩
-    --     (ap φ f≡g)⁻¹ ∙ eqf                          ≡⟨ v eqf eqg f≡g ⟩
-    --     eqg ∎
-    --    where
-    --     i = tr-fx≡gx φ (λ _ → (b , l)) f≡g eqf
-    --     ii = ap ((ap φ f≡g)⁻¹ ∙ eqf ∙_) (ap-const f≡g (b , l))
-    --     iii = ∙-assoc ((ap φ f≡g)⁻¹)
-    --     iv = ap ((ap φ f≡g)⁻¹ ∙_) refl-right
-    --     v : {f g : 𝕊¹ → A} (eqf : φ f ≡ b , l) (eqg : φ g ≡ b , l) (p : f ≡ g) → (ap φ p)⁻¹ ∙ eqf ≡ eqg
-    --     v (refl _) eqg (refl h) = refl-left ∙ _
+𝕊¹→-≃ : {A : 𝒰 𝒾}
+      → has-funext lzero 𝒾
+      → (𝕊¹ → A) ≃ (Σ x ꞉ A , x ≡ x)
+𝕊¹→-≃ {𝒾} {A} fe = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
+  where
+    φ = λ f → (f base , ap f loop)
+    φ⁻¹ = λ (b , l) → 𝕊¹-rec A b l
+    ε = λ (b , l) → pair⁼(refl b , 𝕊¹-rec-comp A b l)
+    η = λ f → funext fe (𝕊¹-ind-uniq _ _ (refl _) (𝕊¹-rec-comp A _ _))
 ```
 
 ## 6.3 The interval
@@ -485,39 +374,6 @@ Map₊≃ fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
 ## 6.9 Truncations
 
 ```agda
-module 0-Truncations where
-  private
-    data PT (A : 𝒰 𝒾) : 𝒰 𝒾 where
-      forget : A → PT A
-
-  ∥_∥₀ : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰 𝒾
-  ∥ A ∥₀ = PT A
-
-  ∣_∣₀ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → ∥ A ∥₀
-  ∣ a ∣₀ = forget a
-
-  postulate ∥∥₀-isSet : {X : 𝒰 𝒾} → isSet ∥ X ∥₀
-
-  ∥∥₀-ind : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
-          → ((x y : ∥ A ∥₀) (z : B x) (w : B y)
-             (p q : x ≡ y) (r : tr B p z ≡ w) (s : tr B q z ≡ w)
-             → r ≡ tr² B (∥∥₀-isSet p q) z ∙ s)
-          → (g : (a : A) → B (∣ a ∣₀))
-          → ((x : ∥ A ∥₀) → B x)
-  ∥∥₀-ind A B Bsetish g (forget x) = g x
-
-  postulate ∥∥₀-ind-comp : (A : 𝒰 𝒾) (B : ∥ A ∥₀ → 𝒰 𝒿)
-              → (Bsetish : (x y : ∥ A ∥₀) (z : B x) (w : B y)
-                 (p q : x ≡ y) (r : tr B p z ≡ w) (s : tr B q z ≡ w)
-                 → r ≡ tr² B (∥∥₀-isSet p q) z ∙ s)
-              → (g : (a : A) → B (∣ a ∣₀))
-              → (x y : ∥ A ∥₀) (z : B x) (w : B y)
-                 (p q : x ≡ y)
-              → apd² (∥∥₀-ind A B Bsetish g) (∥∥₀-isSet p q) ≡ Bsetish x y
-                 ((∥∥₀-ind A B Bsetish g) x) ((∥∥₀-ind A B Bsetish g) y) p q
-                  (apd (∥∥₀-ind A B Bsetish g) p) (apd (∥∥₀-ind A B Bsetish g) q)
-
--- open 0-Truncations public
 postulate
   ∥_∥₀ : {𝒾 : Level} → (A : 𝒰 𝒾) → 𝒰 𝒾
   ∣_∣₀ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → ∥ A ∥₀
@@ -565,41 +421,33 @@ postulate
 mereRelation : {𝒾 : Level} (A : 𝒰 𝒾) (𝒿 : Level) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
 mereRelation A 𝒿 = A × A → Prop𝒰 𝒿
 
-module SetQuotient where
-  private
-    data Q (A : 𝒰 𝒾) (R : mereRelation A 𝒿) : 𝒰 (𝒾 ⊔ (𝒿 ⁺)) where
-      proj : (a : A) → Q A R
-
+postulate
   _∕_ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
-  A ∕ R = Q A R
-  infixr 30 _∕_
-
   quot : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
        → A → (A ∕ R)
-  quot A R a = proj a
-
-  postulate quot≡ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
-                  → (a b : A) → (pr₁ (R (a , b)))
-                  → (quot A R a ≡ quot A R b)
-
-  postulate ∕-isSet : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
-                    → (x y : A ∕ R) (r s : x ≡ y)
-                    → r ≡ s
-
+  quot≡ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+        → (a b : A) → (pr₁ (R (a , b)))
+        → (quot A R a ≡ quot A R b)
+  ∕-isSet : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+          → (x y : A ∕ R) (r s : x ≡ y)
+          → r ≡ s
   ∕-rec : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) (B : 𝒰 𝓀)
         → (f : A → B)
         → ((a b : A) → (pr₁ (R (a , b))) → f a ≡ f b)
         → A ∕ R → B
-  ∕-rec A R B f _ (proj x) = f x
-
+  ∕-rec-comp : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) (B : 𝒰 𝓀)
+             → (f : A → B)
+             → (p : ((a b : A) → (pr₁ (R (a , b))) → f a ≡ f b))
+             → (a : A)
+             → ∕-rec A R B f p (quot A R a) ≡ f a
+  {-# REWRITE ∕-rec-comp #-}
   ∕-ind : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) (B : A ∕ R → 𝒰 𝓀)
         → (f : (a : A) → B (quot A R a))
         → ((a b : A) → (resp : pr₁ (R (a , b)))
            → tr B (quot≡ A R a b resp) (f a) ≡ f b)
         → ((x : A ∕ R) → B x)
-  ∕-ind A R B f _ (proj x) = f x
 
-open SetQuotient public
+infixr 30 _∕_
 
 -- Lemma 6.10.2.
 quot-isSurjec : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
@@ -612,6 +460,35 @@ quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects
                  → tr (λ z → ∥ fib (λ a₁ → quot A R a₁) z ∥)
                        (quot≡ A R a b resp) (f a) ≡ f b
     f-respects-R a b resp = ∥∥-isProp _ _
+
+-- Lemma 6.10.3.
+∕→-≃ : has-funext 𝒾 (𝒾 ⊔ 𝒿 ⊔ 𝓀)
+     → has-funext 𝒾 (𝒿 ⊔ 𝓀)
+     → has-funext 𝒿 𝓀
+     → has-funext (𝒾 ⊔ (𝒿 ⁺)) 𝓀
+     → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+       (B : 𝒰 𝓀) → isSet B
+     → (A ∕ R → B) ≃ (Σ f ꞉ (A → B) , ((a b : A) → pr₁ (R (a , b)) → f a ≡ f b))
+∕→-≃ fe1 fe2 fe3 fe4 A R B isSetB = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
+  where
+    φ = λ - → (- ∘ (quot A R) , λ a b p → ap - (quot≡ A R a b p))
+    φ⁻¹ : (Σ f ꞉ (A → B) , ((a b : A) → pr₁ (R (a , b)) → f a ≡ f b))
+        → (A ∕ R → B)
+    φ⁻¹ (f , p) = ∕-rec A R B f p
+    ε : φ ∘ φ⁻¹ ∼ id
+    ε (f , p) =
+      pair⁼(refl _ , funext fe1 (λ a → funext fe2
+                                       (λ b → funext fe3 (λ r → isSetB _ _))))
+    η = λ g → funext fe4
+                (λ x → ∥∥-rec (fib (quot A R) x)
+                (φ⁻¹ (φ g) x ≡ g x)
+                (isSetB)
+                (λ (a , p) → begin
+                  φ⁻¹ (φ g) x ≡˘⟨ ap (φ⁻¹ (φ g)) p ⟩
+                  φ⁻¹ (φ g) (quot A R a) ≡⟨ refl _ ⟩
+                  g (quot A R a) ≡⟨ ap g p ⟩
+                  g x ∎)
+                (quot-isSurjec A R x))
 
 reflexive
  symmetric
@@ -634,11 +511,17 @@ P isEquivalenceClassOf R =
   ∥ Σ a ꞉ (domain P) ,
     ((b : (domain P)) → pr₁ (R (a , b)) ≃ pr₁ (P b)) ∥
 
--- Definition 6.10.4.
+-- Definition 6.10.5.
 _⃫_ : {𝒾 𝒿 𝓀 : Level}
       (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
     → 𝒰 (𝒾 ⊔ 𝒿 ⊔ (𝓀 ⁺))
 (_⃫_) {𝒾} {𝒿} {𝓀} A R = Σ P ꞉ (A → Prop𝒰 𝓀) , P isEquivalenceClassOf R
+
+-- Theorem 6.10.6.
+-- ⃫≃∕ : {𝒾 𝒿 𝓀 : Level}
+--       (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+--     → (_⃫_ {𝓀 = 𝓀} A R) ≃ (A ∕ R)
+-- ⃫≃∕ A R = _
 
 
 -- Definitions and lemmas for definition of ℤ

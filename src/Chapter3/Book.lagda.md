@@ -145,6 +145,9 @@ has-decidable-equality X = (x y : X) → isDecidable (x ≡ y)
 ## 3.5 Subsets and propositional resizing
 
 ```agda
+Set𝒰 : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
+Set𝒰 𝒾 = Σ A ꞉ (𝒰 𝒾) , isSet(A)
+
 Prop𝒰 : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
 Prop𝒰 𝒾 = Σ A ꞉ (𝒰 𝒾) , isProp(A)
 
