@@ -513,6 +513,49 @@ isSurjec : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
          → 𝒰 (𝒾 ⊔ 𝒿)
 isSurjec f = (b : codomain f) → ∥ fib f b ∥
 
+isEmbedding : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+            → (f : A → B)
+            → 𝒰 (𝒾 ⊔ 𝒿)
+isEmbedding f = (x y : domain f) → is-equiv (ap f {x} {y})
+
+isInjective : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+            → (f : A → B)
+            → 𝒰 (𝒾 ⊔ 𝒿)
+isInjective f = (x y : domain f) → (f x ≡ f y) → x ≡ y
+
+isEmbedding→isInjective :
+         {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+       → (f : A → B)
+       → isEmbedding f
+       → isInjective f
+isEmbedding→isInjective f e x y = ≃-← (ap f , e x y)
+
+sets-isInjective→isEmbedding :
+             {A : 𝒰 𝒾} {B : 𝒰 𝒾}
+           → isSet A → isSet B
+           → (f : A → B)
+           → isInjective f
+           → isEmbedding f
+sets-isInjective→isEmbedding p q f i x y =
+  pr₂ (isProp-LogEq→Eq (x ≡ y) (f x ≡ f y) p q (ap f) (i x y))
+
+-- Theorem 4.6.3.
+isEquiv→isSurjAndEmbedding :
+             {A : 𝒰 𝒾} {B : 𝒰 𝒾}
+           → (f : A → B)
+           → is-equiv f
+           → (isEmbedding f × isSurjec f)
+isEquiv→isSurjAndEmbedding f e =
+  _
+
+isSurjAndEmbedding→isEquiv :
+             {A : 𝒰 𝒾} {B : 𝒰 𝒾}
+           → (f : A → B)
+           → isSurjec f
+           → isEmbedding f
+           → is-equiv f
+isSurjAndEmbedding→isEquiv f s e = _
+
 isSurjec-isProp : has-funext 𝒿 (𝒾 ⊔ 𝒿)
                 → {A : 𝒰 𝒾} {B : 𝒰 𝒿}
                 → (f : A → B)

@@ -190,6 +190,13 @@ tr-∘ : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y z : A}
        (p : x ≡ y) (q : y ≡ z)
      → (tr P q) ∘ (tr P p) ≡ tr P (p ∙ q)
 tr-∘ P (refl x) (refl x) = refl id
+
+-- Lemma 2.3.10.
+tr-f : {A : 𝒰 𝒾} (B : A → 𝒰 𝒿) (f : A → A)
+       {x y : A} (p : x ≡ y)
+     → tr B (ap f p) ≡ tr (B ∘ f) p
+tr-f B f (refl _) = refl _
+
 ```
 
 ## Section 2.4 Homotopies and equivalences
@@ -473,10 +480,22 @@ funext fe {f} {g} htpy =
   let (funext , η , ε ) = qinv-fe fe f g
    in (ε p)⁻¹
 
-tr-f : (X : 𝒰 𝒾) (A : X → 𝒰 𝒿) (B : X → 𝒰 𝓀)
-      (x₁ x₂ : X) (p : x₁ ≡ x₂) (f : A x₁ → B x₁)
-    → tr (λ x → (A x → B x)) p f ≡ (λ x → tr B p (f (tr A (p ⁻¹) x)))
-tr-f X A B x₁ x₂ (refl x₁) f = refl f
+PathsOver-→ : (X : 𝒰 𝒾) (A : X → 𝒰 𝒿) (B : X → 𝒰 𝓀)
+              (x₁ x₂ : X) (p : x₁ ≡ x₂) (f : A x₁ → B x₁)
+            → tr (λ x → (A x → B x)) p f ≡ (λ x → tr B p (f (tr A (p ⁻¹) x)))
+PathsOver-→ X A B x₁ x₂ (refl x₁) f = refl f
+
+PathOver-Π : {X : 𝒰 𝒾}
+             {A : X → 𝒰 𝓀}
+             {B : (x : X) → A x → 𝒰 𝒿}
+             {x₁ x₂ : X} {p : x₁ ≡ x₂}
+             {f : (a : A x₁) → B x₁ a}
+             (a : A x₂)
+           → (tr (λ (x : X) → ((a : A x) → B x a)) p f a) ≡
+               (tr (λ (w : Σ A) → B (pr₁ w) (pr₂ w)) (pair⁼( (p ⁻¹) , refl _ ) ⁻¹) (f (tr A (p ⁻¹) a)))
+PathOver-Π {A = A} {B} {p = refl _} {f = f} a
+  = refl _
+
 ```
 
 ## 2.10 Universes and the univalence axiom
@@ -655,6 +674,109 @@ Univalence = ∀ i → is-univalent i
 
 ```agda
 -- Lemma 2.11.2.
+isEquiv-f→isEquiv-apf :
+             {A : 𝒰 𝒾} {B : 𝒰 𝒾}
+           → (f : A → B)
+           → is-equiv f
+           → {a a' : A}
+           → is-equiv (ap f {a} {a'})
+isEquiv-f→isEquiv-apf f e {a} {a'} =
+  invs-are-equivs (ap f) (inv-apf , ε , η )
+ where
+  f⁻¹ = pr₁ (equivs-are-invs f e)
+  α = pr₁ (pr₂ (equivs-are-invs f e))
+  β = pr₂ (pr₂ (equivs-are-invs f e))
+  inv-apf : (f a ≡ f a') → (a ≡ a')
+  inv-apf p = (β a)⁻¹ ∙ (ap f⁻¹ p) ∙ β a'
+  η = λ p → begin
+    (β a)⁻¹ ∙ (ap f⁻¹ (ap f p)) ∙ β a'  ≡˘⟨ ap (λ - → (β a)⁻¹ ∙ - ∙ β a')
+                                               (ap-∘ f f⁻¹ p) ⟩
+    (β a)⁻¹ ∙ (ap (f⁻¹ ∘ f) p) ∙ β a'   ≡⟨ ∙-assoc ((β a)⁻¹) ⟩
+    (β a)⁻¹ ∙ ((ap (f⁻¹ ∘ f) p) ∙ β a') ≡˘⟨ ap ((β a)⁻¹ ∙_) (∼-naturality _ _ β) ⟩
+    (β a)⁻¹ ∙ (β a ∙ ap id p)           ≡˘⟨ ∙-assoc ((β a)⁻¹) ⟩
+    ((β a)⁻¹ ∙ β a) ∙ ap id p           ≡⟨ ap (_∙ ap id p) (⁻¹-left∙ (β a)) ⟩
+    refl _ ∙ ap id p                    ≡⟨ refl-left ⟩
+    ap id p                             ≡⟨ ap-id p ⟩
+    p ∎
+  ε : (ap f) ∘ (inv-apf) ∼ id
+  ε q = begin
+    ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')                                ≡˘⟨ i ⟩
+    refl _ ∙ ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')                       ≡˘⟨ ii ⟩
+    (α (f a))⁻¹ ∙ α (f a) ∙ ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')        ≡⟨ iii ⟩
+    (α (f a))⁻¹ ∙ (α (f a) ∙ ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a'))      ≡˘⟨ iv ⟩
+    (α (f a))⁻¹ ∙
+      (α (f a) ∙ ap id (ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')))          ≡⟨ v ⟩
+    (α (f a))⁻¹ ∙
+      (ap (f ∘ f⁻¹) (ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')) ∙ α (f a'))  ≡⟨ vi ⟩
+    (α (f a))⁻¹ ∙
+      (ap f (ap f⁻¹ (ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a'))) ∙ α (f a')) ≡˘⟨ vii ⟩
+    (α (f a))⁻¹ ∙
+      (ap f (ap (f⁻¹ ∘ f) ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')) ∙ α (f a'))  ≡˘⟨ viii ⟩
+    (α (f a))⁻¹ ∙ (ap f (ap (f⁻¹ ∘ f)
+      ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a') ∙ refl _) ∙ α (f a'))             ≡˘⟨ ix ⟩
+    (α (f a))⁻¹ ∙ (ap f (ap (f⁻¹ ∘ f) ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')
+      ∙ (β a' ∙ ((β a')⁻¹))) ∙ α (f a'))                              ≡˘⟨ x ⟩
+    (α (f a))⁻¹ ∙ (ap f ((ap (f⁻¹ ∘ f) ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')
+      ∙ β a') ∙ ((β a')⁻¹)) ∙ α (f a'))                               ≡˘⟨ xi ⟩
+    (α (f a))⁻¹ ∙ (ap f (β a ∙ ap id ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')
+      ∙ ((β a')⁻¹)) ∙ α (f a'))                                       ≡⟨ xii ⟩
+    (α (f a))⁻¹ ∙ (ap f (β a ∙ ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a')
+      ∙ ((β a')⁻¹)) ∙ α (f a'))                                       ≡˘⟨ xiii ⟩
+    (α (f a))⁻¹ ∙ (ap f (β a ∙ ((β a)⁻¹ ∙ (ap f⁻¹ q)) ∙ β a'
+      ∙ ((β a')⁻¹)) ∙ α (f a'))                                       ≡˘⟨ xiv ⟩
+    (α (f a))⁻¹ ∙ (ap f (β a ∙ (β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a'
+      ∙ ((β a')⁻¹)) ∙ α (f a'))                                       ≡⟨ xv ⟩
+    (α (f a))⁻¹ ∙
+      (ap f (refl _ ∙ (ap f⁻¹ q) ∙ β a' ∙ ((β a')⁻¹)) ∙ α (f a'))     ≡⟨ xvi ⟩
+    (α (f a))⁻¹ ∙ (ap f ((ap f⁻¹ q) ∙ β a' ∙ ((β a')⁻¹)) ∙ α (f a'))  ≡⟨ xvii ⟩
+    (α (f a))⁻¹ ∙
+      (ap f ((ap f⁻¹ q) ∙ (β a' ∙ ((β a')⁻¹))) ∙ α (f a'))            ≡⟨ xviii ⟩
+    (α (f a))⁻¹ ∙ (ap f ((ap f⁻¹ q) ∙ refl _) ∙ α (f a'))             ≡⟨ xix ⟩
+    (α (f a))⁻¹ ∙ (ap f (ap f⁻¹ q) ∙ α (f a'))                        ≡˘⟨ xx ⟩
+    (α (f a))⁻¹ ∙ (ap (f ∘ f⁻¹) q ∙ α (f a'))                         ≡˘⟨ xxi ⟩
+    (α (f a))⁻¹ ∙ (α (f a ) ∙ ap id q)                                ≡⟨ xxii ⟩
+    (α (f a))⁻¹ ∙ (α (f a ) ∙ q)                                      ≡˘⟨ xxiii ⟩
+    (α (f a))⁻¹ ∙ α (f a ) ∙ q                                        ≡⟨ xxiv ⟩
+    refl _ ∙ q                                                        ≡⟨ xxv ⟩
+    q                                                                 ∎
+     where
+      i     = refl-left
+      ii    = ap (λ - → - ∙ ap f ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a'))
+                 (⁻¹-left∙ (α (f a)))
+      iii   = ∙-assoc ((α (f a))⁻¹)
+      iv    = ap (λ - → (α (f a))⁻¹ ∙ (α (f a) ∙ -)) (ap-id _)
+      v     = ap ((α (f a))⁻¹ ∙_) (∼-naturality (f ∘ f⁻¹) id α)
+      vi    = ap (λ - → (α (f a))⁻¹ ∙ (- ∙ α (f a'))) (ap-∘ f⁻¹ f _)
+      vii   = ap (λ - → (α (f a))⁻¹ ∙ (ap f - ∙ α (f a'))) (ap-∘ f f⁻¹ _)
+      viii  = ap (λ - → (α (f a))⁻¹ ∙ (ap f - ∙ α (f a'))) refl-right
+      ix    = ap (λ - → (α (f a))⁻¹ ∙ (ap f (ap (f⁻¹ ∘ f)
+                 ((β a)⁻¹ ∙ (ap f⁻¹ q) ∙ β a') ∙ -) ∙ α (f a')))
+                 (⁻¹-right∙ (β a'))
+      x     = ap (λ - → (α (f a))⁻¹ ∙ (ap f - ∙ α (f a'))) (∙-assoc _)
+      xi    = ap (λ - → (α (f a))⁻¹ ∙ (ap f (- ∙ ((β a')⁻¹)) ∙ α (f a')))
+                 (∼-naturality _ _ β)
+      xii   = ap (λ - → (α (f a))⁻¹ ∙
+                 (ap f (β a ∙ - ∙ ((β a')⁻¹)) ∙ α (f a'))) (ap-id _)
+      xiii  = ap (λ - → (α (f a))⁻¹ ∙
+                 (ap f (- ∙ ((β a')⁻¹)) ∙ α (f a'))) (∙-assoc (β a))
+      xiv   = ap (λ - → (α (f a))⁻¹ ∙
+                 (ap f (- ∙ β a' ∙ ((β a')⁻¹)) ∙ α (f a'))) (∙-assoc (β a))
+      xv    = ap (λ - → (α (f a))⁻¹ ∙ (ap f (- ∙ (ap f⁻¹ q) ∙ β a' ∙ ((β a')⁻¹))
+                 ∙ α (f a'))) (⁻¹-right∙ (β a))
+      xvi   = ap (λ - → (α (f a))⁻¹ ∙ (ap f (- ∙ β a' ∙ ((β a')⁻¹)) ∙ α (f a')))
+                 refl-left
+      xvii  = ap (λ - → (α (f a))⁻¹ ∙ (ap f - ∙ α (f a'))) (∙-assoc _)
+      xviii = ap (λ - → (α (f a))⁻¹ ∙ (ap f ((ap f⁻¹ q) ∙ -) ∙ α (f a')))
+                 (⁻¹-right∙ (β a'))
+      xix   = ap (λ - → (α (f a))⁻¹ ∙ (ap f - ∙ α (f a'))) (refl-right)
+      xx    = ap (λ - → (α (f a))⁻¹ ∙ (- ∙ α (f a'))) (ap-∘ _ _ q)
+      xxi   = ap ((α (f a))⁻¹ ∙_) (∼-naturality (f ∘ f⁻¹) id α)
+      xxii  = ap (λ - → (α (f a))⁻¹ ∙ (α (f a ) ∙ -)) (ap-id q)
+      xxiii = ∙-assoc _
+      xxiv  = ap (_∙ q) (⁻¹-left∙ (α (f a)))
+      xxv   = refl-left
+
+-- Lemma 2.11.2.
 trHomc- : {A : 𝒰 𝒾} (a : A) {x₁ x₂ : A} (p : x₁ ≡ x₂) (q : a ≡ x₁)
           → tr (λ x → a ≡ x) p q ≡ q ∙ p
 trHomc- a (refl _) (refl _) = refl-right ⁻¹
@@ -736,6 +858,62 @@ tr-x≡x-≃ {𝒾} {A} {a} {a'} (refl a) q r =
   f ₁ = 𝟙
   q : 𝟙 ≡ 𝟘
   q = ap f p
+```
+
+# 2.13 Naturals
+
+```agda
+code-ℕ : ℕ → ℕ → 𝒰₀
+code-ℕ 0 0               = 𝟙
+code-ℕ (succ m) 0        = 𝟘
+code-ℕ 0 (succ m)        = 𝟘
+code-ℕ (succ m) (succ n) = code-ℕ m n
+
+r-ℕ : (n : ℕ) → code-ℕ n n
+r-ℕ 0        = ⋆
+r-ℕ (succ n) = r-ℕ n
+
+-- Theorem 2.13.1.
+encode-ℕ : (m n : ℕ) → (m ≡ n) → code-ℕ m n
+encode-ℕ m n p = tr (code-ℕ m) p (r-ℕ m)
+
+decode-ℕ : (m n : ℕ) → code-ℕ m n → (m ≡ n)
+decode-ℕ 0 0 f = refl 0
+decode-ℕ (succ m) 0 f = !𝟘 (succ m ≡ 0) f
+decode-ℕ 0 (succ n) f = !𝟘 (0 ≡ succ n) f
+decode-ℕ (succ m) (succ n) f = ap succ (decode-ℕ m n f)
+
+decode∘encode-ℕ∼id : (m n : ℕ) → (decode-ℕ m n) ∘ (encode-ℕ m n) ∼ id
+decode∘encode-ℕ∼id m n (refl n) = lema n
+  where
+    lema : (n : ℕ) → decode-ℕ n n (r-ℕ n) ≡ refl n
+    lema 0 = refl _
+    lema (succ n) = ap (ap succ) (lema n)
+
+encode∘decode-ℕ∼id : (m n : ℕ) → (encode-ℕ m n) ∘ (decode-ℕ m n) ∼ id
+encode∘decode-ℕ∼id 0 0 ⋆               = refl ⋆
+encode∘decode-ℕ∼id (succ m) 0 c        = !𝟘 _ c
+encode∘decode-ℕ∼id 0 (succ n) c        = !𝟘 _ c
+encode∘decode-ℕ∼id (succ m) (succ n) c = begin
+  encode-ℕ (succ m) (succ n) (decode-ℕ (succ m) (succ n) c)           ≡⟨⟩
+  encode-ℕ (succ m) (succ n) (ap succ (decode-ℕ m n c))               ≡⟨⟩
+  tr (code-ℕ (succ m)) (ap succ (decode-ℕ m n c)) (r-ℕ (succ m))      ≡⟨ i ⟩
+  tr (λ - → code-ℕ (succ m) (succ -)) (decode-ℕ m n c) (r-ℕ (succ m)) ≡⟨⟩
+  tr (λ - → code-ℕ (succ m) (succ -)) (decode-ℕ m n c) (r-ℕ m)        ≡⟨⟩
+  tr (code-ℕ m) (decode-ℕ m n c) (r-ℕ m)                              ≡⟨⟩
+  encode-ℕ m n (decode-ℕ m n c)                                       ≡⟨ ii ⟩
+  c ∎
+ where
+  i = happly (tr-f (code-ℕ (succ m)) succ ((decode-ℕ m n c))) (r-ℕ (succ m))
+  ii = encode∘decode-ℕ∼id m n c
+
+ℕ-≡-≃ : (m n : ℕ) → (m ≡ n) ≃ code-ℕ m n
+ℕ-≡-≃ m n =
+  encode-ℕ m n , invs-are-equivs (encode-ℕ m n)
+    (decode-ℕ m n , encode∘decode-ℕ∼id m n , decode∘encode-ℕ∼id m n)
+
+sm≡sn→m≡n : {m n : ℕ} → (succ m ≡ succ n) → (m ≡ n)
+sm≡sn→m≡n {m} {n} p = decode-ℕ m n (encode-ℕ (succ m) (succ n) p)
 ```
 
 ## 2.15 Universal properties

@@ -195,7 +195,7 @@ isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) f
       jₛ (f (g x))                          ≡⟨ vi ⟩
       jₛ x                                  ∎
      where
-      i = happly (tr-f (𝒰 𝒾) id id cI cJ cI≡cJ iₛ) x
+      i = happly (PathsOver-→ (𝒰 𝒾) id id cI cJ cI≡cJ iₛ) x
       ii = ≡u-comp u cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
       iii = ap (λ - → f (iₛ (tr id - x))) (ua⁻¹ fe u cI≃cJ)
       iv = ap (λ - → f (iₛ -)) (≡u-comp u (≃-sym cI≃cJ) x)
