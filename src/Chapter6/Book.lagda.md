@@ -120,14 +120,13 @@ postulate
 
 -- Lemma 6.2.9.
 𝕊¹→-≃ : {A : 𝒰 𝒾}
-      → has-funext lzero 𝒾
       → (𝕊¹ → A) ≃ (Σ x ꞉ A , x ≡ x)
-𝕊¹→-≃ {𝒾} {A} fe = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
+𝕊¹→-≃ {𝒾} {A} = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
   where
     φ = λ f → (f base , ap f loop)
     φ⁻¹ = λ (b , l) → 𝕊¹-rec A b l
     ε = λ (b , l) → pair⁼(refl b , 𝕊¹-rec-comp A b l)
-    η = λ f → funext fe (𝕊¹-ind-uniq _ _ (refl _) (𝕊¹-rec-comp A _ _))
+    η = λ f → funext (𝕊¹-ind-uniq _ _ (refl _) (𝕊¹-rec-comp A _ _))
 ```
 
 ## 6.3 The interval
@@ -147,9 +146,8 @@ postulate
 
 ```agda
 -- Lemma 6.4.1.
-loop≢refl : (is-univalent lzero)
-          → loop ≢ refl base
-loop≢refl u eq = 𝒰₀-is-not-set u (A-is-set 𝒰₀)
+loop≢refl : loop ≢ refl base
+loop≢refl eq = 𝒰₀-is-not-set (A-is-set 𝒰₀)
  where
   A-is-set : (A : 𝒰 𝒾) → isSet A
   A-is-set A {x} {y} p (refl x) = p≡refl
@@ -328,10 +326,9 @@ _₊ : (A : 𝒰 𝒾) → 𝒰∙ 𝒾
 A ₊ = (A ⊎ 𝟙) , inr ⋆
 
 -- Lemma 6.5.3.
-Map₊≃ : has-funext 𝒾 𝒿
-      → (A : 𝒰 𝒾) → ((B , b₀) : 𝒰∙ 𝒿)
+Map₊≃ : (A : 𝒰 𝒾) → ((B , b₀) : 𝒰∙ 𝒿)
       → Map* (A ₊) (B , b₀) ≃ (A → B)
-Map₊≃ fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
+Map₊≃ A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
  where
   map = λ (f , eq) → f ∘ inl
   map⁻¹ = λ g → ⊎-rec B g (λ - → b₀) , refl b₀
@@ -349,7 +346,7 @@ Map₊≃ fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
       helper ⋆ = eq ⁻¹
 
     f'≡f : f' ≡ f
-    f'≡f = funext fe f'∼f
+    f'≡f = funext f'∼f
 
     eqtr : tr (λ f → (f (inr ⋆)) ≡ b₀) f'≡f (refl b₀) ≡ eq
     eqtr = begin
@@ -367,7 +364,7 @@ Map₊≃ fe A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
       ii  = ap (_∙ ap (λ - → b₀) f'≡f) refl-right
       iii = ap ((ap (λ - → - (inr ⋆)) f'≡f)⁻¹ ∙_) (ap-const f'≡f b₀)
       iv  = refl-right
-      v   = ap (λ - → (- (inr ⋆))⁻¹) (≡fe-comp fe f'∼f)
+      v   = ap (λ - → (- (inr ⋆))⁻¹) (≡fe-comp f'∼f)
       vi  = ⁻¹-involutive eq
 ```
 
@@ -461,14 +458,10 @@ quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects
     f-respects-R a b resp = ∥∥-isProp _ _
 
 -- Lemma 6.10.3.
-∕→-≃ : has-funext 𝒾 (𝒾 ⊔ 𝒿 ⊔ 𝓀)
-     → has-funext 𝒾 (𝒿 ⊔ 𝓀)
-     → has-funext 𝒿 𝓀
-     → has-funext (𝒾 ⊔ (𝒿 ⁺)) 𝓀
-     → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+∕→-≃ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
        (B : 𝒰 𝓀) → isSet B
      → (A ∕ R → B) ≃ (Σ f ꞉ (A → B) , ((a b : A) → pr₁ (R (a , b)) → f a ≡ f b))
-∕→-≃ fe1 fe2 fe3 fe4 A R B isSetB = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
+∕→-≃ A R B isSetB = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
   where
     φ = λ - → (- ∘ (quot A R) , λ a b p → ap - (quot≡ A R a b p))
     φ⁻¹ : (Σ f ꞉ (A → B) , ((a b : A) → pr₁ (R (a , b)) → f a ≡ f b))
@@ -476,9 +469,9 @@ quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects
     φ⁻¹ (f , p) = ∕-rec A R B f p
     ε : φ ∘ φ⁻¹ ∼ id
     ε (f , p) =
-      pair⁼(refl _ , funext fe1 (λ a → funext fe2
-                                       (λ b → funext fe3 (λ r → isSetB _ _))))
-    η = λ g → funext fe4
+      pair⁼(refl _ , funext (λ a → funext
+                                       (λ b → funext (λ r → isSetB _ _))))
+    η = λ g → funext
                 (λ x → ∥∥-rec (fib (quot A R) x)
                 (φ⁻¹ (φ g) x ≡ g x)
                 (isSetB)
@@ -522,25 +515,22 @@ quot' : {𝒾 𝒿 : Level}
 quot' A R a = (λ b → R(a , b)) , ∣ a , (λ b → ≃-refl _) ∣
 
 quot'-isSurjec : {𝒾 𝒿 : Level}
-      → is-univalent 𝒿
-      → has-funext 𝒾 (𝒿 ⁺)
-      → has-funext 𝒿 𝒿
       → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
       → isSurjec (quot' A R)
-quot'-isSurjec u fe1 fe2 A R P = ∥∥-rec _ _ ∥∥-isProp fibInh (pr₂ P)
+quot'-isSurjec A R P = ∥∥-rec _ _ ∥∥-isProp fibInh (pr₂ P)
  where
   fibInh : -Σ A (λ a → (b : A) → pr₁ (R (a , b)) ≃ pr₁ (pr₁ P b)) →
            ∥ Σ x ꞉ A , (quot' A R) x ≡ P ∥
   fibInh (a , f) =
    ∣ a ,
      pair⁼(
-       funext fe1 (λ b →
+       funext (λ b →
          pair⁼(
-           ua u (isProp-LogEq→Eq _ _ (pr₂ (R (a , b))) (pr₂ (pr₁ P b))
+           ua (isProp-LogEq→Eq _ _ (pr₂ (R (a , b))) (pr₂ (pr₁ P b))
                 (≃-→ (f b))
                 (≃-← (f b)))
-         , funext fe2
-             (λ x → funext fe2 (λ y → props-are-sets (pr₂ (pr₁ P b)) _ _))))
+         , funext
+             (λ x → funext (λ y → props-are-sets (pr₂ (pr₁ P b)) _ _))))
      , ∥∥-isProp _ _) ∣
 
 -- This can be proven, but has not been done so in the book, so I won't either.
@@ -550,17 +540,11 @@ postulate
 
 -- Theorem 6.10.6.
 ∕∕≃∕ : {𝒾 𝒿 : Level}
-     → is-univalent 𝒿
-     → is-univalent (𝒾 ⊔ (𝒿 ⁺))
-     → has-funext 𝒾 (𝒿 ⁺)
-     → has-funext 𝒿 𝒿
-     → has-funext (𝒾 ⊔ (𝒿 ⁺)) (𝒾 ⊔ (𝒿 ⁺))
-     → has-funext (𝒾 ⊔ (𝒿 ⁺)) ((𝒾 ⁺) ⊔ ((𝒿 ⁺) ⁺))
      → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
      → (equivalenceRelation (λ a b → pr₁ (R (a , b))))
      → (A ∕ R) ≃ (A ∕∕ R)
-∕∕≃∕ u1 u2 fe1 fe2 fe3 fe4 A R eR =
-  f , isSurjAndEmbedding→isEquiv u2 fe3 fe4 f isSurjecf isEmbeddingf
+∕∕≃∕ A R eR =
+  f , isSurjAndEmbedding→isEquiv f isSurjecf isEmbeddingf
  where
   f : A ∕ R → A ∕∕ R
   f = ∕-rec A R (A ∕∕ R) (quot' A R) quot'-preserves-R
@@ -571,18 +555,17 @@ postulate
                       → (quot' A R a) ≡ (quot' A R b)
     quot'-preserves-R a b aRb  =
      pair⁼(
-      funext fe1 (λ c → (pair⁼(
-        ua u1 (isProp-LogEq→Eq _ _ (pr₂ (R (a , c))) (pr₂ (R (b , c)))
-               (λ aRc → lemma a b c aRb aRc)
-               (λ bRc → lemma b a c (pr₁ (pr₂ eR) a b aRb) bRc))
-        , funext fe2 (λ x → funext fe2
-                              (λ y → props-are-sets (pr₂ (R(b , c))) _ _)))))
+      funext (λ c → (pair⁼(
+        ua (isProp-LogEq→Eq _ _ (pr₂ (R (a , c))) (pr₂ (R (b , c)))
+             (λ aRc → lemma a b c aRb aRc)
+             (λ bRc → lemma b a c (pr₁ (pr₂ eR) a b aRb) bRc))
+        , funext (λ x → funext (λ y → props-are-sets (pr₂ (R(b , c))) _ _)))))
       , ∥∥-isProp _ _)
   isSurjecf : (b : (A ∕∕ R)) → ∥ fib f b ∥
   isSurjecf (P , PeR) =
     ∥∥-rec _ _ ∥∥-isProp
       (λ (a , p) → ∣ quot A R a , p ∣)
-      (quot'-isSurjec u1 fe1 fe2 A R (P , PeR))
+      (quot'-isSurjec A R (P , PeR))
   isInjecf : isInjective f
   isInjecf x y fx≡fy =
     ∥∥-rec _ _ (∕-isSet A R)
@@ -612,11 +595,7 @@ idempotent : {A : 𝒰 𝒾}
 idempotent r = r ∘ r ≡ r
 
 -- Lemma 6.10.8.
-quot∕∼-UP : has-funext 𝒾 𝓀
-          → has-funext 𝒾 (𝒾 ⊔ 𝓀 ⊔ 𝒿)
-          → has-funext 𝒾 (𝓀 ⊔ 𝒿)
-          → has-funext 𝒿 𝓀
-          → (A : 𝒰 𝒾)
+quot∕∼-UP : (A : 𝒰 𝒾)
           → isSet A
           → (∼ : mereRelation A 𝒿)
             (r : A → A)
@@ -626,7 +605,7 @@ quot∕∼-UP : has-funext 𝒾 𝓀
           → isSet B
           → ((Σ x ꞉ A , r x ≡ x) → B) ≃
               (Σ g ꞉ (A → B) , ((x y : A) → pr₁ (∼ (x , y)) → g x ≡ g y))
-quot∕∼-UP fe1 fe2 fe3 fe4 A isSetA ∼ r i r-reflects-~ B isSetB =
+quot∕∼-UP A isSetA ∼ r i r-reflects-~ B isSetB =
   e , invs-are-equivs e (e' , ε , η)
  where
   𝓆 : A → (Σ x ꞉ A , r x ≡ x)
@@ -634,14 +613,12 @@ quot∕∼-UP fe1 fe2 fe3 fe4 A isSetA ∼ r i r-reflects-~ B isSetB =
   e = λ f → (f ∘ 𝓆 , λ x y p →
          ap f (pair⁼(≃-← (r-reflects-~ x y) p , isSetA _ _)))
   e' = λ (g , s) → λ (x , p) → g x
-  η = λ f → funext fe1 (λ (x , p) → ap f (pair⁼(p , isSetA _ _)))
+  η = λ f → funext (λ (x , p) → ap f (pair⁼(p , isSetA _ _)))
   ε = λ (g , s) →
     pair⁼(
-      funext fe1 (λ x → s (r x) x (≃-→ (r-reflects-~ (r x) x) (happly i x))) ,
-      funext fe2 λ - → funext fe3 (λ - → funext fe4 (λ - → isSetB _ _)))
+      funext (λ x → s (r x) x (≃-→ (r-reflects-~ (r x) x) (happly i x))) ,
+      funext λ - → funext (λ - → funext (λ - → isSetB _ _)))
 
--- mereRelation : {𝒾 : Level} (A : 𝒰 𝒾) (𝒿 : Level) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
--- mereRelation A 𝒿 = A × A → Prop𝒰 𝒿
 -- Definitions and lemmas for definition of ℤ
 data _≤_ : ℕ → ℕ → 𝒰₀ where
   z≤n : {n : ℕ} → zero ≤ n

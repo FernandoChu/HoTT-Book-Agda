@@ -63,17 +63,17 @@ e₀-is-not-e₁ p = ₁-is-not-₀ r
   r = ap (λ - → - ₁) q
 
 -- Example 3.1.9
-𝒰₀-is-not-set : (is-univalent lzero) → (¬ (isSet 𝒰₀))
-𝒰₀-is-not-set u is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
+𝒰₀-is-not-set : ¬ (isSet 𝒰₀)
+𝒰₀-is-not-set is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
   where
     p : 𝟚 ≡ 𝟚
-    p = ua u e₁
+    p = ua e₁
     assumption : p ≡ refl 𝟚
     assumption = is-set-𝒰₀ {𝟚} {𝟚} p (refl 𝟚)
     p≡refl : e₁ ≡ idtoeqv (refl 𝟚)
     p≡refl = begin
-      e₁                ≡⟨ id∼idtoeqv∘ua u e₁ ⟩
-      idtoeqv (ua u e₁) ≡⟨ ap (idtoeqv) assumption ⟩
+      e₁                ≡⟨ id∼idtoeqv∘ua e₁ ⟩
+      idtoeqv (ua e₁)   ≡⟨ ap (idtoeqv) assumption ⟩
       idtoeqv (refl 𝟚)  ∎
     swap₂≡id : swap₂ ≡ 𝑖𝑑 𝟚
     swap₂≡id = ap pr₁ p≡refl
@@ -170,10 +170,10 @@ PropositionalResizing = ∀ 𝒾 → is-propres 𝒾
 
 ```agda
 -- Example 3.6.2
-Π-preserves-props : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
+Π-preserves-props : {𝒾 𝒿 : Level}
                     {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} →
                     ((x : A) → isProp (B x)) → isProp ((x : A) → B x)
-Π-preserves-props fe p f g = pr₁ (pr₁ (fe f g)) (λ x → p x (f x) (g x))
+Π-preserves-props p f g = funext (λ x → p x (f x) (g x))
 ```
 
 ## 3.7 Propositional truncation
@@ -243,8 +243,8 @@ isContr→≃𝟙 A ap =
    in pointed-props-are-contr A (a , p)
 
 -- Lemma 3.11.4
-isContr-isProp : {𝒾 : Level} → has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isProp(isContr A)
-isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
+isContr-isProp : {𝒾 : Level} → (A : 𝒰 𝒾) → isProp(isContr A)
+isContr-isProp A (a , p) (a' , p') = pair⁼ (q , q')
   where
     q : a ≡ a'
     q = p a'
@@ -252,19 +252,19 @@ isContr-isProp fe A (a , p) (a' , p') = pair⁼ (q , q')
     a≡x-isProp x r s =
       props-are-sets (pr₂ (contr-are-pointed-props A (a , p))) r s
     q' : tr (λ - → (x : A) → - ≡ x) q p ≡ p'
-    q' = Π-preserves-props fe a≡x-isProp
+    q' = Π-preserves-props a≡x-isProp
            (tr (λ - → (x : A) → - ≡ x) q p) p'
 
 -- Corollary 3.11.5
-isContr-isContr : has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isContr A → isContr (isContr A)
-isContr-isContr fe A c =
-  pointed-props-are-contr (isContr A) (c , isContr-isProp fe A)
+isContr-isContr : (A : 𝒰 𝒾) → isContr A → isContr (isContr A)
+isContr-isContr A c =
+  pointed-props-are-contr (isContr A) (c , isContr-isProp A)
 
 -- Lemma 3.11.6
-Π-preserves-contr : {𝒾 𝒿 : Level} → has-funext 𝒾 𝒿 →
+Π-preserves-contr : {𝒾 𝒿 : Level} →
                     {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} →
                     ((x : A) → isContr (B x)) → isContr ((x : A) → B x)
-Π-preserves-contr fe {A} {B} p =
+Π-preserves-contr {A = A} {B = B} p =
   pointed-props-are-contr ((x : A) → B x) (f , Π-isProp)
   where
     f : (x : A) → B x
@@ -272,7 +272,7 @@ isContr-isContr fe A c =
     Bx-isProp : (x : A) → isProp (B x)
     Bx-isProp x = pr₂ (contr-are-pointed-props (B x) (p x))
     Π-isProp : isProp ((x : A) → B x)
-    Π-isProp = Π-preserves-props fe Bx-isProp
+    Π-isProp = Π-preserves-props Bx-isProp
 
 has-section : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
 has-section r = Σ s ꞉ (codomain r → domain r), r ∘ s ∼ id

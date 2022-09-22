@@ -14,8 +14,7 @@ open import Chapter4.Exercises public
 
 ```agda
 -- Theorem 5.1.1
-ℕ-uniqueness : has-funext lzero 𝒾 →
-               (E : ℕ → 𝒰 𝒾)
+ℕ-uniqueness : (E : ℕ → 𝒰 𝒾)
                (f g : (x : ℕ) → E x)
                (ez : E 0)
                (eₛ : (n : ℕ) → (E n) → (E (succ n)))
@@ -23,8 +22,8 @@ open import Chapter4.Exercises public
              → ((n : ℕ) → f (succ n) ≡ eₛ n (f n))
              → ((n : ℕ) → g (succ n) ≡ eₛ n (g n))
              → f ≡ g
-ℕ-uniqueness fe E f g ez eₛ f0 g0 fs gs
-  = funext fe f∼g
+ℕ-uniqueness E f g ez eₛ f0 g0 fs gs
+  = funext f∼g
     where
       f∼g : f ∼ g
       f∼g 0 = f0 ∙ (g0 ⁻¹)
@@ -127,14 +126,10 @@ isHinit-ℕ 𝒾 I = (C : ℕAlg 𝒾) → isContr (ℕHom 𝒾 𝒾 I C)
 
 -- Theorem 5.4.4
 isHinit-ℕ-isProp : (𝒾 : Level)
-                 → (is-univalent 𝒾)
-                 → has-funext 𝒾 𝒾
-                 → has-funext (𝒾 ⁺) 𝒾
-                 → has-funext (𝒾 ⁺) (𝒾 ⁺)
                  → (I J : ℕAlg 𝒾)
                  → (isHinit-ℕ 𝒾 I) → (isHinit-ℕ 𝒾 J)
                  → I ≡ J
-isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
+isHinit-ℕ-isProp 𝒾 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
  pair⁼ (cI≡cJ , ≡-signature)
  where
   F : ℕHom 𝒾 𝒾 I J
@@ -165,14 +160,14 @@ isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) f
     q-qinv-f = (g , happly f∘g≡id , happly g∘f≡id)
 
   cI≡cJ : cI ≡ cJ
-  cI≡cJ = ua u cI≃cJ
+  cI≡cJ = ua cI≃cJ
 
   ≡-signature : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡ (j₀ , jₛ)
   ≡-signature = begin
     tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡⟨ tr× ⟩
     (tr (λ C → C) cI≡cJ i₀ ,
       tr (λ C → (C → C)) cI≡cJ iₛ)         ≡⟨ pair×⁼ (tr-i₀≡j₀ ,
-                                               funext fe tr-iₛx≡jₛx) ⟩
+                                               funext tr-iₛx≡jₛx) ⟩
     (j₀ , jₛ) ∎
    where
     tr× : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡
@@ -181,7 +176,7 @@ isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) f
 
     tr-i₀≡j₀ : tr (λ C → C) (cI≡cJ) i₀ ≡ j₀
     tr-i₀≡j₀ = begin
-      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡u-comp u cI≃cJ i₀ ⟩
+      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡u-comp cI≃cJ i₀ ⟩
       f i₀                    ≡⟨ pr₁ (pr₂ F) ⟩
       j₀                      ∎
 
@@ -190,15 +185,15 @@ isHinit-ℕ-isProp 𝒾 u fe fe1 fe2 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) f
       tr (λ C → (C → C)) cI≡cJ iₛ x         ≡⟨ i ⟩
       tr id cI≡cJ (iₛ (tr id (cI≡cJ ⁻¹) x)) ≡⟨ ii ⟩
       f (iₛ (tr id (cI≡cJ ⁻¹) x))           ≡⟨ iii ⟩
-      f (iₛ (tr id (ua u (≃-sym cI≃cJ)) x)) ≡⟨ iv ⟩
+      f (iₛ (tr id (ua (≃-sym cI≃cJ)) x)) ≡⟨ iv ⟩
       f (iₛ (g x))                          ≡⟨ v ⟩
       jₛ (f (g x))                          ≡⟨ vi ⟩
       jₛ x                                  ∎
      where
       i = happly (PathsOver-→ (𝒰 𝒾) id id cI cJ cI≡cJ iₛ) x
-      ii = ≡u-comp u cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
-      iii = ap (λ - → f (iₛ (tr id - x))) (ua⁻¹ fe u cI≃cJ)
-      iv = ap (λ - → f (iₛ -)) (≡u-comp u (≃-sym cI≃cJ) x)
+      ii = ≡u-comp cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
+      iii = ap (λ - → f (iₛ (tr id - x))) (ua⁻¹ cI≃cJ)
+      iv = ap (λ - → f (iₛ -)) (≡u-comp (≃-sym cI≃cJ) x)
       v = pr₂ (pr₂ F) (g x)
       vi = ap jₛ (happly f∘g≡id x)
 ```

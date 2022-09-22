@@ -10,11 +10,11 @@ module Chapter3.Exercises where
 open import Chapter3.Book public
 
 -- Exercise 3.4
-prop-if-endo-are-contr : has-funext 𝒾 𝒾 → (A : 𝒰 𝒾) → isProp A → isContr (A → A)
-prop-if-endo-are-contr fe A h = (id , p)
+prop-if-endo-are-contr : (A : 𝒰 𝒾) → isProp A → isContr (A → A)
+prop-if-endo-are-contr A h = (id , p)
   where
     p : (g : A → A) → id ≡ g
-    p g = (pr₁ (pr₁ (fe id g))) (λ x → h x (g x))
+    p g = funext (λ x → h x (g x))
 
 contr-endo-implies-prop : (A : 𝒰 𝒾) → isContr (A → A) → isProp A
 contr-endo-implies-prop A h x y = happly (A→A-isProp f g) x
@@ -37,30 +37,28 @@ point→isContr-implies-isProp g x y =
   pr₂ (contr-are-pointed-props (domain g) (g x)) x y
 
 isProp≃point→isContr : {A : 𝒰 𝒾}
-    → has-funext 𝒾 𝒾
     → isProp A ≃ (A → isContr A)
-isProp≃point→isContr {𝒾} {A} fe = (isProp-implies-point→isContr ,
+isProp≃point→isContr {𝒾} {A} = (isProp-implies-point→isContr ,
   invs-are-equivs isProp-implies-point→isContr
     (point→isContr-implies-isProp , ε , η))
  where
   ε : (isProp-implies-point→isContr ∘ point→isContr-implies-isProp)
         ∼ id
-  ε g = funext fe (λ x → isContr-isProp fe A _ _)
+  ε g = funext (λ x → isContr-isProp _ _ _)
   η : (point→isContr-implies-isProp ∘ isProp-implies-point→isContr)
         ∼ id
-  η fp = funext fe (λ x → funext fe (λ y → props-are-sets fp _ _))
+  η fp = funext (λ x → funext (λ y → props-are-sets fp _ _))
 
 -- Exercise 3.6
-isProp→isDecidible-isProp : has-funext 𝒾 lzero
-                          → (A : 𝒰 𝒾) → isProp A
+isProp→isDecidible-isProp : (A : 𝒰 𝒾) → isProp A
                           → isProp (A ⊎ (¬ A))
-isProp→isDecidible-isProp fe A f (inl x) (inl y) = ap inl (f x y)
-isProp→isDecidible-isProp fe A f (inl x) (inr c) = !𝟘 (inl x ≡ inr c) (c x)
-isProp→isDecidible-isProp fe A f (inr c) (inl x) = !𝟘 (inr c ≡ inl x) (c x)
-isProp→isDecidible-isProp fe A f (inr c) (inr d) = ap inr p
+isProp→isDecidible-isProp A f (inl x) (inl y) = ap inl (f x y)
+isProp→isDecidible-isProp A f (inl x) (inr c) = !𝟘 (inl x ≡ inr c) (c x)
+isProp→isDecidible-isProp A f (inr c) (inl x) = !𝟘 (inr c ≡ inl x) (c x)
+isProp→isDecidible-isProp A f (inr c) (inr d) = ap inr p
   where
     p : c ≡ d
-    p = funext fe (λ x → !𝟘 (c x ≡ d x) (c x))
+    p = funext (λ x → !𝟘 (c x ≡ d x) (c x))
 
 -- Exercise 3.7
 isProp→isDecidible-isProp' : (A : 𝒰 𝒾) → (B : 𝒰 𝒿)
