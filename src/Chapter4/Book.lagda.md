@@ -541,20 +541,51 @@ sets-isInjective→isEmbedding p q f i x y =
 
 -- Theorem 4.6.3.
 isEquiv→isSurjAndEmbedding :
-             {A : 𝒰 𝒾} {B : 𝒰 𝒾}
+             is-univalent 𝒾
+           → has-funext 𝒾 (𝒾 ⁺)
+           → {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → (f : A → B)
            → is-equiv f
            → (isEmbedding f × isSurjec f)
-isEquiv→isSurjAndEmbedding f e =
-  _
+isEquiv→isSurjAndEmbedding u fe f e =
+  (isEquiv-f→isEquiv-apf f e , fibEl)
+ where
+  fibEl = λ b → ∣ pr₁ (ishae→contr-fib≡-≃ u fe f
+                  (invertibles-are-haes f (equivs-are-invs f e)) b) ∣
+
+tr-fx≡x : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) {a b : A} {y : B}
+          (r : a ≡ b) (p : f a ≡ y) (q : f b ≡ y)
+         → ap f r ≡ p ∙ (q ⁻¹) → tr (λ x → f x ≡ y) r p ≡ q
+tr-fx≡x f (refl a) (refl _) q lem = begin
+  refl (f a)              ≡˘⟨ ⁻¹-left∙ q ⟩
+  q ⁻¹ ∙ q                ≡˘⟨ refl-left ⟩
+  refl (f a) ∙ (q ⁻¹ ∙ q) ≡˘⟨ ∙-assoc (refl (f a)) ⟩
+  refl (f a) ∙ q ⁻¹ ∙ q   ≡˘⟨ ap (_∙ q) lem ⟩
+  refl (f a) ∙ q          ≡⟨ refl-left ⟩
+  q                       ∎
 
 isSurjAndEmbedding→isEquiv :
-             {A : 𝒰 𝒾} {B : 𝒰 𝒾}
+             is-univalent 𝒾
+           → has-funext 𝒾 𝒾
+           → has-funext 𝒾 (𝒾 ⁺)
+           → {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → (f : A → B)
            → isSurjec f
            → isEmbedding f
            → is-equiv f
-isSurjAndEmbedding→isEquiv f s e = _
+isSurjAndEmbedding→isEquiv u fe1 fe2 f s e =
+  invs-are-equivs f (ishae→qinv f (contrMap→hae u fe1 fe2 f isContrMapf))
+ where
+  isContrMapf : (y : _) → isContr (fib f y)
+  isContrMapf y = ∥∥-rec (fib f y) (isContr (fib f y))
+                   (isContr-isProp fe1 (fib f y))
+                   (λ - → pointed-props-are-contr _ (- , fib-isProp)) (s y)
+   where
+    fib-isProp : isProp (fib f y)
+    fib-isProp (a , p) (b , q) =
+      pair⁼(r , tr-fx≡x f r p q (≃-ε (ap f , e a b) _))
+     where
+      r = ≃-← (ap f , e a b) (p ∙ (q ⁻¹))
 
 isSurjec-isProp : has-funext 𝒿 (𝒾 ⊔ 𝒿)
                 → {A : 𝒰 𝒾} {B : 𝒰 𝒿}

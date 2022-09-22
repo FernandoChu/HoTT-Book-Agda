@@ -678,9 +678,9 @@ isEquiv-f→isEquiv-apf :
              {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → (f : A → B)
            → is-equiv f
-           → {a a' : A}
+           → (a a' : A)
            → is-equiv (ap f {a} {a'})
-isEquiv-f→isEquiv-apf f e {a} {a'} =
+isEquiv-f→isEquiv-apf f e a a' =
   invs-are-equivs (ap f) (inv-apf , ε , η )
  where
   f⁻¹ = pr₁ (equivs-are-invs f e)

@@ -429,8 +429,7 @@ postulate
         → (a b : A) → (pr₁ (R (a , b)))
         → (quot A R a ≡ quot A R b)
   ∕-isSet : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
-          → (x y : A ∕ R) (r s : x ≡ y)
-          → r ≡ s
+          → isSet (A ∕ R)
   ∕-rec : (A : 𝒰 𝒾) (R : mereRelation A 𝒿) (B : 𝒰 𝓀)
         → (f : A → B)
         → ((a b : A) → (pr₁ (R (a , b))) → f a ≡ f b)
@@ -512,18 +511,137 @@ P isEquivalenceClassOf R =
     ((b : (domain P)) → pr₁ (R (a , b)) ≃ pr₁ (P b)) ∥
 
 -- Definition 6.10.5.
-_⃫_ : {𝒾 𝒿 𝓀 : Level}
-      (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
-    → 𝒰 (𝒾 ⊔ 𝒿 ⊔ (𝓀 ⁺))
-(_⃫_) {𝒾} {𝒿} {𝓀} A R = Σ P ꞉ (A → Prop𝒰 𝓀) , P isEquivalenceClassOf R
+_∕∕_ : {𝒾 𝒿 : Level}
+       (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+     → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
+(_∕∕_) {𝒾} {𝒿} A R = Σ P ꞉ (A → Prop𝒰 𝒿) , P isEquivalenceClassOf R
+
+quot' : {𝒾 𝒿 : Level}
+        (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+      → A → (A ∕∕ R)
+quot' A R a = (λ b → R(a , b)) , ∣ a , (λ b → ≃-refl _) ∣
+
+quot'-isSurjec : {𝒾 𝒿 : Level}
+      → is-univalent 𝒿
+      → has-funext 𝒾 (𝒿 ⁺)
+      → has-funext 𝒿 𝒿
+      → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+      → isSurjec (quot' A R)
+quot'-isSurjec u fe1 fe2 A R P = ∥∥-rec _ _ ∥∥-isProp fibInh (pr₂ P)
+ where
+  fibInh : -Σ A (λ a → (b : A) → pr₁ (R (a , b)) ≃ pr₁ (pr₁ P b)) →
+           ∥ Σ x ꞉ A , (quot' A R) x ≡ P ∥
+  fibInh (a , f) =
+   ∣ a ,
+     pair⁼(
+       funext fe1 (λ b →
+         pair⁼(
+           ua u (isProp-LogEq→Eq _ _ (pr₂ (R (a , b))) (pr₂ (pr₁ P b))
+                (≃-→ (f b))
+                (≃-← (f b)))
+         , funext fe2
+             (λ x → funext fe2 (λ y → props-are-sets (pr₂ (pr₁ P b)) _ _))))
+     , ∥∥-isProp _ _) ∣
+
+-- This can be proven, but has not been done so in the book, so I won't either.
+postulate
+  ∕∕-isSet : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+           → isSet (A ∕∕ R)
 
 -- Theorem 6.10.6.
--- ⃫≃∕ : {𝒾 𝒿 𝓀 : Level}
---       (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
---     → (_⃫_ {𝓀 = 𝓀} A R) ≃ (A ∕ R)
--- ⃫≃∕ A R = _
+∕∕≃∕ : {𝒾 𝒿 : Level}
+     → is-univalent 𝒿
+     → is-univalent (𝒾 ⊔ (𝒿 ⁺))
+     → has-funext 𝒾 (𝒿 ⁺)
+     → has-funext 𝒿 𝒿
+     → has-funext (𝒾 ⊔ (𝒿 ⁺)) (𝒾 ⊔ (𝒿 ⁺))
+     → has-funext (𝒾 ⊔ (𝒿 ⁺)) ((𝒾 ⁺) ⊔ ((𝒿 ⁺) ⁺))
+     → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+     → (equivalenceRelation (λ a b → pr₁ (R (a , b))))
+     → (A ∕ R) ≃ (A ∕∕ R)
+∕∕≃∕ u1 u2 fe1 fe2 fe3 fe4 A R eR =
+  f , isSurjAndEmbedding→isEquiv u2 fe3 fe4 f isSurjecf isEmbeddingf
+ where
+  f : A ∕ R → A ∕∕ R
+  f = ∕-rec A R (A ∕∕ R) (quot' A R) quot'-preserves-R
+   where
+    lemma : (a b c : A) → pr₁ (R(a , b)) → pr₁ (R(a , c)) → pr₁ (R(b , c))
+    lemma a b c aRb aRc =  pr₂ (pr₂ eR) b a c (pr₁ (pr₂ eR) a b aRb) aRc
+    quot'-preserves-R : (a b : A) (r : pr₁ (R (a , b)))
+                      → (quot' A R a) ≡ (quot' A R b)
+    quot'-preserves-R a b aRb  =
+     pair⁼(
+      funext fe1 (λ c → (pair⁼(
+        ua u1 (isProp-LogEq→Eq _ _ (pr₂ (R (a , c))) (pr₂ (R (b , c)))
+               (λ aRc → lemma a b c aRb aRc)
+               (λ bRc → lemma b a c (pr₁ (pr₂ eR) a b aRb) bRc))
+        , funext fe2 (λ x → funext fe2
+                              (λ y → props-are-sets (pr₂ (R(b , c))) _ _)))))
+      , ∥∥-isProp _ _)
+  isSurjecf : (b : (A ∕∕ R)) → ∥ fib f b ∥
+  isSurjecf (P , PeR) =
+    ∥∥-rec _ _ ∥∥-isProp
+      (λ (a , p) → ∣ quot A R a , p ∣)
+      (quot'-isSurjec u1 fe1 fe2 A R (P , PeR))
+  isInjecf : isInjective f
+  isInjecf x y fx≡fy =
+    ∥∥-rec _ _ (∕-isSet A R)
+      (λ (a , p) →
+        ∥∥-rec _ _ (∕-isSet A R)
+          (λ (b , q) →
+            p ⁻¹ ∙
+              quot≡ A R a b
+                (tr id (ap pr₁
+                          (happly (ap pr₁ ((ap f p)
+                            ∙ fx≡fy
+                            ∙ (ap f (q ⁻¹)))) b)⁻¹)
+                       (pr₁ eR b)) ∙
+              q )
+          (quot-isSurjec A R y))
+      (quot-isSurjec A R x)
+   where
+    arst : ∥ fib (quot A R) x ∥
+    arst = quot-isSurjec A R x
+  isEmbeddingf : isEmbedding f
+  isEmbeddingf =
+    sets-isInjective→isEmbedding (∕-isSet A R) (∕∕-isSet A R) f isInjecf
 
+idempotent : {A : 𝒰 𝒾}
+             (r : A → A)
+           → 𝒰 𝒾
+idempotent r = r ∘ r ≡ r
 
+-- Lemma 6.10.8.
+quot∕∼-UP : has-funext 𝒾 𝓀
+          → has-funext 𝒾 (𝒾 ⊔ 𝓀 ⊔ 𝒿)
+          → has-funext 𝒾 (𝓀 ⊔ 𝒿)
+          → has-funext 𝒿 𝓀
+          → (A : 𝒰 𝒾)
+          → isSet A
+          → (∼ : mereRelation A 𝒿)
+            (r : A → A)
+          → idempotent r
+          → ((x y : A) → (r x ≡ r y) ≃ pr₁ (∼ (x , y)))
+          → (B : 𝒰 𝓀)
+          → isSet B
+          → ((Σ x ꞉ A , r x ≡ x) → B) ≃
+              (Σ g ꞉ (A → B) , ((x y : A) → pr₁ (∼ (x , y)) → g x ≡ g y))
+quot∕∼-UP fe1 fe2 fe3 fe4 A isSetA ∼ r i r-reflects-~ B isSetB =
+  e , invs-are-equivs e (e' , ε , η)
+ where
+  𝓆 : A → (Σ x ꞉ A , r x ≡ x)
+  𝓆 x = (r x , happly i x)
+  e = λ f → (f ∘ 𝓆 , λ x y p →
+         ap f (pair⁼(≃-← (r-reflects-~ x y) p , isSetA _ _)))
+  e' = λ (g , s) → λ (x , p) → g x
+  η = λ f → funext fe1 (λ (x , p) → ap f (pair⁼(p , isSetA _ _)))
+  ε = λ (g , s) →
+    pair⁼(
+      funext fe1 (λ x → s (r x) x (≃-→ (r-reflects-~ (r x) x) (happly i x))) ,
+      funext fe2 λ - → funext fe3 (λ - → funext fe4 (λ - → isSetB _ _)))
+
+-- mereRelation : {𝒾 : Level} (A : 𝒰 𝒾) (𝒿 : Level) → 𝒰 (𝒾 ⊔ (𝒿 ⁺))
+-- mereRelation A 𝒿 = A × A → Prop𝒰 𝒿
 -- Definitions and lemmas for definition of ℤ
 data _≤_ : ℕ → ℕ → 𝒰₀ where
   z≤n : {n : ℕ} → zero ≤ n
