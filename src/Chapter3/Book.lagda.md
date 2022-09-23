@@ -20,7 +20,7 @@ isSet X = {x y : X} (p q : x ≡ y) → (p ≡ q)
 -- Example 3.1.2
 𝟙-isSet : isSet 𝟙
 𝟙-isSet {x} {y} p q =
-  let (f , ((g , f-g) , (h , h-f))) = 𝟙-≡-≃ x y
+  let (f , ((g , f-g) , (h , h-f))) = ≡-𝟙-≃ x y
       hfp≡hfq : h (f p) ≡ h (f q)
       hfp≡hfq = ap h (𝟙-isProp (f p) (f q))
   in  begin
@@ -33,7 +33,74 @@ isSet X = {x y : X} (p q : x ≡ y) → (p ≡ q)
 𝟘-isSet : isSet 𝟘
 𝟘-isSet {x} {y} p q = !𝟘 (p ≡ q) x
 
--- 3.1.9
+𝟘-isProp : (x y : 𝟘) → x ≡ y
+𝟘-isProp x y = !𝟘 (x ≡ y) x
+
+-- Example 3.1.4.
+isSet-ℕ : isSet ℕ
+isSet-ℕ {m} {n} p q =
+  p                             ≡˘⟨ ≃-η (≡-ℕ-≃ m n) p ⟩
+  decode-ℕ m n (encode-ℕ m n p) ≡⟨ ap (decode-ℕ m n) (lema m n _ _) ⟩
+  decode-ℕ m n (encode-ℕ m n q) ≡⟨ ≃-η (≡-ℕ-≃ m n) q ⟩
+  q ∎
+  where
+    lema : (m n : ℕ) (p q : code-ℕ m n) → p ≡ q
+    lema zero zero p q         = 𝟙-isProp p q
+    lema (succ m) zero p q     = 𝟘-isProp p q
+    lema zero (succ n) p q     = 𝟘-isProp p q
+    lema (succ m) (succ n) p q = lema m n p q
+
+-- Example 3.1.5.
+×-isSet : {A : 𝒰 𝒾}
+        → {B : 𝒰 𝒿}
+        → isSet A
+        → isSet B
+        → isSet (A × B)
+×-isSet f g p q = begin
+  p                           ≡⟨ ≡-×-uniq p ⟩
+  pair×⁼(ap pr₁ p , ap pr₂ p) ≡⟨ ap (λ - → pair×⁼(- , ap pr₂ p)) (f _ _) ⟩
+  pair×⁼(ap pr₁ q , ap pr₂ p) ≡⟨ ap (λ - → pair×⁼(ap pr₁ q , -)) (g _ _) ⟩
+  pair×⁼(ap pr₁ q , ap pr₂ q) ≡˘⟨ ≡-×-uniq q ⟩
+  q                           ∎
+
+Σ-isSet : {A : 𝒰 𝒾}
+        → {B : A → 𝒰 𝒿}
+        → isSet A
+        → ((x : A) → isSet (B x))
+        → isSet (Σ B)
+Σ-isSet f g {w} {w'} p q = begin
+  p                     ≡˘⟨ ≃-η ≡-Σ-≃ p ⟩
+  ≃-← ≡-Σ-≃ (≃-→ ≡-Σ-≃ p) ≡⟨ ap (≃-← ≡-Σ-≃) (pair⁼(f _ _ , g _ _ _)) ⟩
+  ≃-← ≡-Σ-≃ (≃-→ ≡-Σ-≃ q) ≡⟨ ≃-η ≡-Σ-≃ q ⟩
+  q ∎
+
+-- Definition 3.1.7
+is1type : (A : 𝒰 𝒾) → 𝒰 𝒾
+is1type A = {x y : A} {p q : x ≡ y}
+            → (r s : p ≡ q)
+            → r ≡ s
+
+-- Lemma 3.1.8
+isSet→is1type : {A : 𝒰 𝒾}
+              → isSet A
+              → is1type A
+isSet→is1type f {x} {y} {p} {q} r s = begin
+  r ≡˘⟨ refl-left ⟩
+  refl _ ∙ r          ≡˘⟨ ap (_∙ r) (⁻¹-left∙ (g p)) ⟩
+  (g p)⁻¹ ∙ g p ∙ r   ≡⟨ ∙-assoc (g p ⁻¹) ⟩
+  (g p)⁻¹ ∙ (g p ∙ r) ≡⟨ ap (_ ∙_) (lemma p q r) ⟩
+  (g p)⁻¹ ∙ g q       ≡˘⟨ ap (_ ∙_) (lemma p q s) ⟩
+  (g p)⁻¹ ∙ (g p ∙ s) ≡˘⟨ ∙-assoc (g p ⁻¹) ⟩
+  (g p)⁻¹ ∙ g p ∙ s   ≡⟨ ap (_∙ s) (⁻¹-left∙ (g p)) ⟩
+  refl _ ∙ s          ≡⟨ refl-left ⟩
+  s ∎
+ where
+  g : (q : x ≡ y) → p ≡ q
+  g q = f p q
+  lemma : (q q' : x ≡ y) (r : q ≡ q') → g q ∙ r ≡ g q'
+  lemma q q' r = (trHomc- p r _)⁻¹ ∙ apd g r
+
+-- Example 3.1.9
 swap₂ : 𝟚 → 𝟚
 swap₂ ₀ = ₁
 swap₂ ₁ = ₀
@@ -62,7 +129,6 @@ e₀-is-not-e₁ p = ₁-is-not-₀ r
   r : ₁ ≡ ₀
   r = ap (λ - → - ₁) q
 
--- Example 3.1.9
 𝒰₀-is-not-set : ¬ (isSet 𝒰₀)
 𝒰₀-is-not-set is-set-𝒰₀ = swap₂-is-not-id swap₂≡id
   where

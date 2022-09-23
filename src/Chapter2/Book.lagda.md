@@ -362,9 +362,9 @@ pair×⁼ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
 pair×⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl (w1 , w2)
 
 -- Theorem 2.6.2
-×-≡-≃ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
+≡-×-≃ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {w w' : X × Y}
       → (w ≡ w') ≃ ((pr₁ w ≡ pr₁ w') × (pr₂ w ≡ pr₂ w'))
-×-≡-≃ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} =
+≡-×-≃ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} =
   pair×⁼⁻¹ , invs-are-equivs pair×⁼⁻¹ (pair×⁼ , α , β)
     where
       α : (pq : (w1 ≡ w'1) × (w2 ≡ w'2))
@@ -378,6 +378,20 @@ pair×⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl
        → z ≡ (pr₁ z , pr₂ z)
 ×-uniq {𝒾} {𝒿} {X} {Y} {z} = pair×⁼ (refl (pr₁ z) , refl (pr₂ z))
 
+≡-×-uniq : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {x y : X × Y}
+                 → (r : x ≡ y)
+                 → r ≡ pair×⁼(ap pr₁ r , ap pr₂ r)
+≡-×-uniq (refl x) = refl _
+
+≡-×-∙ : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} {x₁ y₁ z₁ : X} {x₂ y₂ z₂ : Y}
+      → (p : x₁ ≡ y₁)
+      → (q : y₁ ≡ z₁)
+      → (p' : x₂ ≡ y₂)
+      → (q' : y₂ ≡ z₂)
+      → pair×⁼((p ∙ q) , (p' ∙ q')) ≡ pair×⁼(p , p') ∙ pair×⁼(q , q')
+≡-×-∙ (refl _) (refl _) (refl _) (refl _) = refl _
+
+-- Theorem 2.6.4.
 trA×B : (Z : 𝒰 𝒾) (A : Z → 𝒰 𝒿) (B : Z → 𝒰 𝓀)
         (z w : Z) (p : z ≡ w) (x : A z × B z)
       → tr (λ - → A - × B -) p x ≡ (tr A p (pr₁ x) , tr B p (pr₂ x))
@@ -396,9 +410,9 @@ pair⁼ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
         → (Σ p ꞉ (pr₁ w ≡ pr₁ w') , tr Y p (pr₂ w) ≡ (pr₂ w')) → (w ≡ w')
 pair⁼ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} (refl w1 , refl w2) = refl (w1 , w2)
 
-Σ-≡-≃ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
+≡-Σ-≃ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {w w' : Σ Y}
       → (w ≡ w') ≃ (Σ p ꞉ (pr₁ w ≡ pr₁ w') , tr Y p (pr₂ w) ≡ (pr₂ w'))
-Σ-≡-≃ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} =
+≡-Σ-≃ {𝒾} {𝒿} {X} {Y} {w1 , w2} {w'1 , w'2} =
   pair⁼⁻¹ , invs-are-equivs pair⁼⁻¹ (pair⁼ , α , β)
     where
       α : (pq : (Σ p ꞉ w1 ≡ w'1 , tr Y p w2 ≡ w'2))
@@ -418,13 +432,24 @@ pr₁pair⁼⁻¹-is-ap (refl w) = refl (pr₁ (pair⁼⁻¹ (refl w)))
 Σ-uniq : {X : 𝒰 𝒾} {P : X → 𝒰 𝒿} (z : Σ P)
        → z ≡ (pr₁ z , pr₂ z)
 Σ-uniq z = pair⁼ (refl _ , refl _)
+
+-- Slightly modified version of apd to match the uniqueness principle
+apd-pr₂ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {x y : Σ Y}
+        → (r : x ≡ y)
+        → tr Y (ap pr₁ r) (pr₂ x) ≡ pr₂ y
+apd-pr₂ (refl x) = refl _
+
+≡-Σ-uniq : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {x y : Σ Y}
+                 → (r : x ≡ y)
+                 → r ≡ pair⁼(ap pr₁ r , apd-pr₂ r)
+≡-Σ-uniq (refl x) = refl _
 ```
 
 ## 2.8 The unit type
 
 ```agda
-𝟙-≡-≃ : (x y : 𝟙) → (x ≡ y) ≃ 𝟙
-𝟙-≡-≃ ⋆ ⋆ = f , invs-are-equivs f (g , α , β)
+≡-𝟙-≃ : (x y : 𝟙) → (x ≡ y) ≃ 𝟙
+≡-𝟙-≃ ⋆ ⋆ = f , invs-are-equivs f (g , α , β)
   where
     f : ⋆ ≡ ⋆ → 𝟙
     f p = ⋆
@@ -437,7 +462,7 @@ pr₁pair⁼⁻¹-is-ap (refl w) = refl (pr₁ (pair⁼⁻¹ (refl w)))
 
 𝟙-isProp : (x y : 𝟙) → (x ≡ y)
 𝟙-isProp x y =
-  let (f , ((g , f-g) , (h , h-f))) = 𝟙-≡-≃ x y
+  let (f , ((g , f-g) , (h , h-f))) = ≡-𝟙-≃ x y
    in h ⋆
 ```
 
@@ -902,8 +927,8 @@ encode∘decode-ℕ∼id (succ m) (succ n) c = begin
   i = happly (tr-f (code-ℕ (succ m)) succ ((decode-ℕ m n c))) (r-ℕ (succ m))
   ii = encode∘decode-ℕ∼id m n c
 
-ℕ-≡-≃ : (m n : ℕ) → (m ≡ n) ≃ code-ℕ m n
-ℕ-≡-≃ m n =
+≡-ℕ-≃ : (m n : ℕ) → (m ≡ n) ≃ code-ℕ m n
+≡-ℕ-≃ m n =
   encode-ℕ m n , invs-are-equivs (encode-ℕ m n)
     (decode-ℕ m n , encode∘decode-ℕ∼id m n , decode∘encode-ℕ∼id m n)
 

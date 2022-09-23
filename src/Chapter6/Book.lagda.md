@@ -582,9 +582,6 @@ postulate
               q )
           (quot-isSurjec A R y))
       (quot-isSurjec A R x)
-   where
-    arst : ∥ fib (quot A R) x ∥
-    arst = quot-isSurjec A R x
   isEmbeddingf : isEmbedding f
   isEmbeddingf =
     sets-isInjective→isEmbedding (∕-isSet A R) (∕∕-isSet A R) f isInjecf
@@ -627,8 +624,16 @@ infix 4 _≤_
 
 ¬s≤z : ∀ {m : ℕ} → ¬ (succ m ≤ zero)
 ¬s≤z ()
+
 ¬s≤s : ∀ {m n : ℕ} → ¬ (m ≤ n) → ¬ (succ m ≤ succ n)
 ¬s≤s ¬m≤n (s≤s m≤n) = ¬m≤n m≤n
+
+sn≤sm→n≤m : {m n : ℕ} → (succ m ≤ succ n) → (m ≤ n)
+sn≤sm→n≤m (s≤s p) = p
+
+n≤z→n≡0 : (n : ℕ) → n ≤ 0 → n ≡ 0
+n≤z→n≡0 zero e = refl zero
+n≤z→n≡0 (succ n) e = !𝟘 _ (¬s≤z e)
 
 ≤-isDecidable : (n m : ℕ) → isDecidable (n ≤ m)
 ≤-isDecidable zero m = inl z≤n
@@ -654,6 +659,170 @@ rℕ (a , b) =
     (λ _ → (0 , (b ∸ a)))
     (≤-isDecidable b a)
 
+rℕ-succ : (n m : ℕ) → rℕ (n , m) ≡ rℕ (succ n , succ m)
+rℕ-succ a b =
+  ⊎-ind (λ - → (
+    ⊎-rec (ℕ × ℕ)
+      (λ _ → ((a ∸ b) , 0))
+      (λ _ → (0 , (b ∸ a))) -) ≡ rℕ (succ a , succ b))
+    (λ p →
+       ⊎-ind (λ - → ((a ∸ b) , 0) ≡ (
+         ⊎-rec (ℕ × ℕ)
+           (λ _ → ((succ a ∸ succ b) , 0))
+           (λ _ → (0 , (succ b ∸ succ a))) -))
+         (λ - → refl _)
+         (λ - → !𝟘 _ (- (s≤s p)))
+         (≤-isDecidable (succ b) (succ a)))
+    (λ p →
+       ⊎-ind (λ - → (0 , (b ∸ a)) ≡
+         ⊎-rec (ℕ × ℕ)
+           (λ _ → ((succ a ∸ succ b) , 0))
+           (λ _ → (0 , (succ b ∸ succ a))) -)
+         (λ - → !𝟘 _ (p (sn≤sm→n≤m -)))
+         (λ - → refl (zero , (b ∸ a)))
+         (≤-isDecidable (succ b) (succ a)))
+    (≤-isDecidable b a)
+
+rℕ-left-0 : (n : ℕ) → rℕ (0 , n) ≡ (0 , n)
+rℕ-left-0 n =
+  ⊎-ind (λ - → (
+    ⊎-rec (ℕ × ℕ)
+      (λ _ → ((0 ∸ n) , 0))
+      (λ _ → (0 , (n ∸ 0))) -) ≡ (0 , n))
+    (λ e → tr (λ - → (0 ∸ -) , 0 ≡ 0 , -) (n≤z→n≡0 n e ⁻¹) (refl _))
+    (λ _ → refl _)
+    (≤-isDecidable n 0)
+
+rℕ-right-0 : (n : ℕ) → rℕ (n , 0) ≡ (n , 0)
+rℕ-right-0 n =
+  ⊎-ind (λ - → (
+    ⊎-rec (ℕ × ℕ)
+      (λ _ → ((n ∸ 0) , 0))
+      (λ _ → (0 , (0 ∸ n))) -) ≡ (n , 0))
+    (λ _ → refl _)
+    (λ e → !𝟘 _ (e z≤n))
+    (≤-isDecidable 0 n)
+
+idempotent-rℕ : idempotent rℕ
+idempotent-rℕ = funext lemma
+ where
+  lemma : rℕ ∘ rℕ ∼ rℕ
+  lemma (a , b) =
+   ⊎-ind (λ - → rℕ ((
+    ⊎-rec (ℕ × ℕ)
+      (λ _ → ((a ∸ b) , 0))
+      (λ _ → (0 , (b ∸ a))) -)) ≡
+      (⊎-rec (ℕ × ℕ)
+        (λ _ → ((a ∸ b) , 0))
+        (λ _ → (0 , (b ∸ a))) -))
+     (λ - → refl ((a ∸ b) , zero))
+     (λ - → rℕ-left-0 _)
+     (≤-isDecidable b a)
+
 ℤ : 𝒰₀
 ℤ = Σ x ꞉ (ℕ × ℕ) , (rℕ x ≡ x)
+
+0ℤ : ℤ
+0ℤ = (0 , 0) , refl _
+
+ℕ-in-ℤ≥0 : ℕ → ℤ
+ℕ-in-ℤ≥0 n = (n , 0) , rℕ-right-0 n
+
+ℕ-in-ℤ≤0 : ℕ → ℤ
+ℕ-in-ℤ≤0 n = (0 , n) , rℕ-left-0 n
+
+ℕ×ℕ-isSet : isSet (ℕ × ℕ)
+ℕ×ℕ-isSet = ×-isSet isSet-ℕ isSet-ℕ
+
+ℤ-isSet : isSet ℤ
+ℤ-isSet =
+  Σ-isSet
+    ℕ×ℕ-isSet
+    (λ - → isSet→is1type (Σ-isSet isSet-ℕ λ - → isSet-ℕ ))
+
+ℤ-ind-complete : (P : ℤ → 𝒰 𝒾)
+                 (d₀ : P 0ℤ)
+                 (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
+                 (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
+               → Σ f ꞉ ((z : ℤ ) → P z) ,
+                  (f 0ℤ ≡ d₀) ×
+                  ((n : ℕ) → f (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ n (f (ℕ-in-ℤ≥0 n))) ×
+                  ((n : ℕ) → f (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ n (f (ℕ-in-ℤ≤0 n)))
+ℤ-ind-complete P d₀ d₊ d₋ = (f , f0 , fn⁺ , fn⁻)
+ where
+  𝓆 : (ℕ × ℕ) → ℤ
+  𝓆 x = (rℕ x , happly idempotent-rℕ x)
+  Q : ℕ × ℕ → 𝒰 _
+  Q = P ∘ 𝓆
+
+  d₀'-path : 0ℤ ≡ 𝓆 (0 , 0)
+  d₀'-path = pair⁼(refl _ , ℕ×ℕ-isSet _ _)
+  d₀' : Q (0 , 0)
+  d₀' = tr P d₀'-path d₀
+
+  d₊'-path1 : (n : ℕ) → ℕ-in-ℤ≥0 (succ n) ≡ 𝓆 (succ n , 0)
+  d₊'-path1 n = pair⁼(refl _ , (ℕ×ℕ-isSet _ _))
+  d₊'-path2 : (n : ℕ) → 𝓆 (n , 0) ≡ ℕ-in-ℤ≥0 n
+  d₊'-path2 n = pair⁼(refl _ , (ℕ×ℕ-isSet _ (rℕ-right-0 n)))
+  d₊' : (n : ℕ) → Q (n , 0) → Q (succ n , 0)
+  d₊' n p = tr P (d₊'-path1 n) (d₊ n (tr P (d₊'-path2 n) p))
+
+  d₋'-path1 : (n : ℕ) → ℕ-in-ℤ≤0 (succ n) ≡ 𝓆 (0 , succ n)
+  d₋'-path1 n = pair⁼(rℕ-left-0 (succ n) , ℕ×ℕ-isSet _ _)⁻¹
+  d₋'-path2 : (n : ℕ) → 𝓆 (0 , n) ≡ ℕ-in-ℤ≤0 n
+  d₋'-path2 n = pair⁼(rℕ-left-0 n , ℕ×ℕ-isSet _ _)
+  d₋' : (n : ℕ) → Q (0 , n) → Q (0 , succ n)
+  d₋' n p = tr P (d₋'-path1 n) (d₋ n (tr P (d₋'-path2 n) p))
+
+  𝓆-succ : (n m : ℕ) → 𝓆 (n , m) ≡ 𝓆 (succ n , succ m)
+  𝓆-succ n m = pair⁼(rℕ-succ n m  , ℕ×ℕ-isSet _ _)
+  g : (x : ℕ × ℕ) → Q x
+  g (zero , zero) = d₀'
+  g (succ n , zero) = d₊' n (g (n , 0))
+  g (zero , succ m) = d₋' m (g (0 , m))
+  g (succ n , succ m) = tr id (ap P (𝓆-succ n m)) (g (n , m))
+
+  f-path : (z : ℤ) → 𝓆 (pr₁ z) ≡ z
+  f-path z = pair⁼(pr₂ z , ℕ×ℕ-isSet _ _)
+  f : (z : ℤ) → P z
+  f z = tr P (f-path z) (g (pr₁ z))
+
+  f0 : f 0ℤ ≡ d₀
+  f0 = begin
+    tr P (f-path 0ℤ) (tr P d₀'-path d₀) ≡⟨ i ⟩
+    tr P (d₀'-path ∙ f-path 0ℤ) d₀      ≡⟨ ii ⟩
+    d₀ ∎
+   where
+    i = happly (tr-∘ P d₀'-path (f-path 0ℤ)) d₀
+    ii = ap (λ - → tr P - d₀) (ℤ-isSet (d₀'-path ∙ f-path 0ℤ) (refl _))
+
+  fn⁻ : (n : ℕ) → f (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ n (f (ℕ-in-ℤ≤0 n))
+  fn⁻ n = begin
+     tr P (f-path (ℕ-in-ℤ≤0 (succ n)))
+        (tr P (d₋'-path1 n)
+          (d₋ n (tr P (d₋'-path2 n) (g (0 , n)))))  ≡⟨ i ⟩
+     tr P ((d₋'-path1 n)
+             ∙ (f-path (ℕ-in-ℤ≤0 (succ n))))
+          (d₋ n (tr P (d₋'-path2 n) (g (0 , n))))  ≡⟨ ii ⟩
+      d₋ n (tr P (d₋'-path2 n) (g (0 , n)))   ∎
+   where
+    i = happly (tr-∘ P (d₋'-path1 n) (f-path (ℕ-in-ℤ≤0 (succ n))))
+         (d₋ n (tr P (d₋'-path2 n) (g (0 , n))))
+    ii = ap (λ - → tr P - (d₋ n (tr P (d₋'-path2 n) (g (0 , n)))))
+            (ℤ-isSet ((d₋'-path1 n) ∙ (f-path (ℕ-in-ℤ≤0 (succ n)))) (refl _))
+
+  fn⁺ : (n : ℕ) → f (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ n (f (ℕ-in-ℤ≥0 n))
+  fn⁺ n = begin
+     tr P (f-path (ℕ-in-ℤ≥0 (succ n)))
+        (tr P (d₊'-path1 n)
+          (d₊ n (tr P (d₊'-path2 n) (g (n , 0)))))  ≡⟨ i ⟩
+     tr P ((d₊'-path1 n)
+             ∙ (f-path (ℕ-in-ℤ≥0 (succ n))))
+          (d₊ n (tr P (d₊'-path2 n) (g (n , 0))))   ≡⟨ ii ⟩
+      d₊ n (tr P (d₊'-path2 n) (g (n , 0)))   ∎
+   where
+    i = happly (tr-∘ P (d₊'-path1 n) (f-path (ℕ-in-ℤ≥0 (succ n))))
+         (d₊ n (tr P (d₊'-path2 n) (g (n , 0))))
+    ii = ap (λ - → tr P - (d₊ n (tr P (d₊'-path2 n) (g (n , 0)))))
+            (ℤ-isSet ((d₊'-path1 n) ∙ (f-path (ℕ-in-ℤ≥0 (succ n)))) (refl _))
 ```
