@@ -1,15 +1,14 @@
-# Formalization of [HoTT Book](https://github.com/HoTT/book) in Agda.
+# Formalization of the [HoTT Book](https://github.com/HoTT/book) in Agda.
 
-A formalization of the Homotopy Type Theory Book in agda.
+A formalization of the Homotopy Type Theory Book in Agda.
 
 The code can be explored in our [github page](https://shiranaiyo.github.io/HoTT-Book-Agda/index.html).
 
 I've tried to keep the Agda as simple as possible, while using similar naming conventions to the HoTT book.
 Some workarounds have to be done sometimes to please agda, I've tried to mention them somehow when the need arises.
 
-Following Escardo, two deliberate differences from the book are
-1. I don't assume any of the axioms (univalence, rezising, etc), and instead only assume them when they are needed.
-2. I take careful track of the universe indices.
+Like the book, function extensionality and univalence are assumed, as well as the existence of HITs.
+Unlike it, I take careful track of the universe indices (mainly to please agda).
 
 ### Acknowledgments
 

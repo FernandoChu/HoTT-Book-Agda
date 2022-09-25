@@ -15,8 +15,8 @@ ind𝟚 E (e₀ , e₁) ₀ = e₀
 ind𝟚 E (e₀ , e₁) ₁ = e₁
 
 𝟚-ind-isequiv : (E : 𝟚 → 𝒰 𝒾)
-              → is-equiv (ind𝟚 E)
-𝟚-ind-isequiv E = invs-are-equivs (ind𝟚 E) (map⁻¹ , ε , η)
+              → isEquiv (ind𝟚 E)
+𝟚-ind-isequiv E = invs⇒equivs (ind𝟚 E) (map⁻¹ , ε , η)
  where
   map⁻¹ = λ f → (f ₀ , f ₁)
   ε : (ind𝟚 E) ∘ map⁻¹ ∼ id

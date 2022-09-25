@@ -11,8 +11,8 @@ module index where
 
 # Homotopy Type Theory
 
-A formalization of the Homotopy Type Theory Book in agda.
-Made by Fernando Chu.
+A formalization of the Homotopy Type Theory Book in agda, made by Fernando Chu.
+The source code can be found at the following [github repo](https://github.com/shiranaiyo/HoTT-Book-Agda).
 
 ## Part I - Foundations
 

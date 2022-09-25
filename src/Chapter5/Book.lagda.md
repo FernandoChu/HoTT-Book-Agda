@@ -145,19 +145,19 @@ isHinit-ℕ-isProp 𝒾 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
   g∘f≡id = ap pr₁ (endoI-isProp (∘-ℕHom I J I F G) (id-ℕHom I))
    where
     endoI-isProp : isProp (ℕHom 𝒾 𝒾 I I)
-    endoI-isProp = pr₂ (contr-are-pointed-props (ℕHom 𝒾 𝒾 I I) (fI I))
+    endoI-isProp = pr₂ (isContr⇒isPointedProp (ℕHom 𝒾 𝒾 I I) (fI I))
 
   f∘g≡id : f ∘ g ≡ id
   f∘g≡id = ap pr₁ (endoJ-isProp (∘-ℕHom J I J G F) (id-ℕHom J))
    where
     endoJ-isProp : isProp (ℕHom 𝒾 𝒾 J J)
-    endoJ-isProp = pr₂ (contr-are-pointed-props (ℕHom 𝒾 𝒾 J J) (gJ J))
+    endoJ-isProp = pr₂ (isContr⇒isPointedProp (ℕHom 𝒾 𝒾 J J) (gJ J))
 
   cI≃cJ : cI ≃ cJ
-  cI≃cJ = (f , invs-are-equivs f q-qinv-f)
+  cI≃cJ = (f , invs⇒equivs f q-isQinv-f)
    where
-    q-qinv-f : qinv f
-    q-qinv-f = (g , happly f∘g≡id , happly g∘f≡id)
+    q-isQinv-f : isQinv f
+    q-isQinv-f = (g , happly f∘g≡id , happly g∘f≡id)
 
   cI≡cJ : cI ≡ cJ
   cI≡cJ = ua cI≃cJ
@@ -172,11 +172,11 @@ isHinit-ℕ-isProp 𝒾 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
    where
     tr× : tr (λ C → C × (C → C)) cI≡cJ (i₀ , iₛ) ≡
           (tr (λ C → C) cI≡cJ i₀ , tr (λ C → (C → C)) cI≡cJ iₛ)
-    tr× = trA×B (𝒰 𝒾) (λ C → C) (λ C → C → C) cI cJ cI≡cJ (i₀ , iₛ)
+    tr× = tr-× (𝒰 𝒾) (λ C → C) (λ C → C → C) cI cJ cI≡cJ (i₀ , iₛ)
 
     tr-i₀≡j₀ : tr (λ C → C) (cI≡cJ) i₀ ≡ j₀
     tr-i₀≡j₀ = begin
-      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡u-comp cI≃cJ i₀ ⟩
+      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡-≡-comp cI≃cJ i₀ ⟩
       f i₀                    ≡⟨ pr₁ (pr₂ F) ⟩
       j₀                      ∎
 
@@ -185,15 +185,15 @@ isHinit-ℕ-isProp 𝒾 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
       tr (λ C → (C → C)) cI≡cJ iₛ x         ≡⟨ i ⟩
       tr id cI≡cJ (iₛ (tr id (cI≡cJ ⁻¹) x)) ≡⟨ ii ⟩
       f (iₛ (tr id (cI≡cJ ⁻¹) x))           ≡⟨ iii ⟩
-      f (iₛ (tr id (ua (≃-sym cI≃cJ)) x)) ≡⟨ iv ⟩
+      f (iₛ (tr id (ua (≃-sym cI≃cJ)) x))   ≡⟨ iv ⟩
       f (iₛ (g x))                          ≡⟨ v ⟩
       jₛ (f (g x))                          ≡⟨ vi ⟩
       jₛ x                                  ∎
      where
-      i = happly (PathsOver-→ (𝒰 𝒾) id id cI cJ cI≡cJ iₛ) x
-      ii = ≡u-comp cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
+      i = happly (tr-→ cI≡cJ iₛ) x
+      ii = ≡-≡-comp cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
       iii = ap (λ - → f (iₛ (tr id - x))) (ua⁻¹ cI≃cJ)
-      iv = ap (λ - → f (iₛ -)) (≡u-comp (≃-sym cI≃cJ) x)
+      iv = ap (λ - → f (iₛ -)) (≡-≡-comp (≃-sym cI≃cJ) x)
       v = pr₂ (pr₂ F) (g x)
       vi = ap jₛ (happly f∘g≡id x)
 ```

@@ -121,7 +121,7 @@ postulate
 -- Lemma 6.2.9.
 𝕊¹→-≃ : {A : 𝒰 𝒾}
       → (𝕊¹ → A) ≃ (Σ x ꞉ A , x ≡ x)
-𝕊¹→-≃ {𝒾} {A} = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
+𝕊¹→-≃ {𝒾} {A} = φ , invs⇒equivs φ (φ⁻¹ , ε , η)
   where
     φ = λ f → (f base , ap f loop)
     φ⁻¹ = λ (b , l) → 𝕊¹-rec A b l
@@ -136,10 +136,10 @@ postulate
 𝕀-isContr = (1ᵢ , λ x → (contr x)⁻¹)
  where
   contr : (x : 𝕀) → (x ≡ 1ᵢ)
-  contr = 𝕀-ind (λ x → x ≡ 1ᵢ) seg (refl 1ᵢ) treq
+  contr = 𝕀-ind (λ x → x ≡ 1ᵢ) seg (refl 1ᵢ) tr-eq
    where
-    treq : tr (λ x → x ≡ 1ᵢ) seg seg ≡ refl 1ᵢ
-    treq = (trHom-c 1ᵢ seg seg) ∙ (⁻¹-left∙ seg)
+    tr-eq : tr (λ x → x ≡ 1ᵢ) seg seg ≡ refl 1ᵢ
+    tr-eq = (tr-Hom─c 1ᵢ seg seg) ∙ (⁻¹-left∙ seg)
 ```
 
 ## 6.4 Circles and spheres
@@ -147,7 +147,7 @@ postulate
 ```agda
 -- Lemma 6.4.1.
 loop≢refl : loop ≢ refl base
-loop≢refl eq = 𝒰₀-is-not-set (A-is-set 𝒰₀)
+loop≢refl eq = ¬-isSet-𝒰₀ (A-is-set 𝒰₀)
  where
   A-is-set : (A : 𝒰 𝒾) → isSet A
   A-is-set A {x} {y} p (refl x) = p≡refl
@@ -222,7 +222,7 @@ postulate
 
 
 𝝨𝟚≃𝕊¹ : 𝝨 𝟚 ≃ 𝕊¹
-𝝨𝟚≃𝕊¹ = f , invs-are-equivs f (g , ε , η)
+𝝨𝟚≃𝕊¹ = f , invs⇒equivs f (g , ε , η)
  where
   f = 𝝨-rec 𝟚 𝕊¹ base base (𝟚-rec (base ≡ base) loop (refl base))
   g = 𝕊¹-rec (𝝨 𝟚) (N 𝟚) (merid 𝟚 ₀ ∙ (merid 𝟚 ₁)⁻¹)
@@ -312,7 +312,7 @@ postulate
       VII  = ap (λ - → (- ∙ ap f ((merid 𝟚 ₁)⁻¹))⁻¹ ∙ loop)
                  (𝝨-rec-comp 𝟚 𝕊¹ base base
                   (𝟚-rec (base ≡ base) loop (refl base)) ₀)
-      VIII = ap (λ - → (loop ∙ -)⁻¹ ∙ loop) (ap⁻¹ f (merid 𝟚 ₁))⁻¹
+      VIII = ap (λ - → (loop ∙ -)⁻¹ ∙ loop) (ap-⁻¹ f (merid 𝟚 ₁))⁻¹
       IX   = ap (λ - → (loop ∙ (-)⁻¹)⁻¹ ∙ loop)
                  (𝝨-rec-comp 𝟚 𝕊¹ base base
                   (𝟚-rec (base ≡ base) loop (refl base)) ₁)
@@ -328,7 +328,7 @@ A ₊ = (A ⊎ 𝟙) , inr ⋆
 -- Lemma 6.5.3.
 Map₊≃ : (A : 𝒰 𝒾) → ((B , b₀) : 𝒰∙ 𝒿)
       → Map* (A ₊) (B , b₀) ≃ (A → B)
-Map₊≃ A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
+Map₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
  where
   map = λ (f , eq) → f ∘ inl
   map⁻¹ = λ g → ⊎-rec B g (λ - → b₀) , refl b₀
@@ -364,7 +364,7 @@ Map₊≃ A (B , b₀) = map , invs-are-equivs map (map⁻¹ , ε , η)
       ii  = ap (_∙ ap (λ - → b₀) f'≡f) refl-right
       iii = ap ((ap (λ - → - (inr ⋆)) f'≡f)⁻¹ ∙_) (ap-const f'≡f b₀)
       iv  = refl-right
-      v   = ap (λ - → (- (inr ⋆))⁻¹) (≡fe-comp f'∼f)
+      v   = ap (λ - → (- (inr ⋆))⁻¹) (≡-Π-comp f'∼f)
       vi  = ⁻¹-involutive eq
 ```
 
@@ -446,9 +446,9 @@ postulate
 infixr 30 _∕_
 
 -- Lemma 6.10.2.
-quot-isSurjec : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
-               → isSurjec (quot A R)
-quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects-R
+isSurjec-quot : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
+              → isSurjec (quot A R)
+isSurjec-quot A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects-R
   where
     f : (a : A) → ∥ fib (quot A R) (quot A R a) ∥
     f a = ∣ a , refl (quot A R a) ∣
@@ -461,7 +461,7 @@ quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects
 ∕→-≃ : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
        (B : 𝒰 𝓀) → isSet B
      → (A ∕ R → B) ≃ (Σ f ꞉ (A → B) , ((a b : A) → pr₁ (R (a , b)) → f a ≡ f b))
-∕→-≃ A R B isSetB = φ , invs-are-equivs φ (φ⁻¹ , ε , η)
+∕→-≃ A R B isSet-B = φ , invs⇒equivs φ (φ⁻¹ , ε , η)
   where
     φ = λ - → (- ∘ (quot A R) , λ a b p → ap - (quot≡ A R a b p))
     φ⁻¹ : (Σ f ꞉ (A → B) , ((a b : A) → pr₁ (R (a , b)) → f a ≡ f b))
@@ -470,17 +470,17 @@ quot-isSurjec A R = ∕-ind A R (λ z → ∥ fib (quot A R) z ∥) f f-respects
     ε : φ ∘ φ⁻¹ ∼ id
     ε (f , p) =
       pair⁼(refl _ , funext (λ a → funext
-                                       (λ b → funext (λ r → isSetB _ _))))
+                                       (λ b → funext (λ r → isSet-B _ _))))
     η = λ g → funext
                 (λ x → ∥∥-rec (fib (quot A R) x)
                 (φ⁻¹ (φ g) x ≡ g x)
-                (isSetB)
+                (isSet-B)
                 (λ (a , p) → begin
                   φ⁻¹ (φ g) x ≡˘⟨ ap (φ⁻¹ (φ g)) p ⟩
                   φ⁻¹ (φ g) (quot A R a) ≡⟨ refl _ ⟩
                   g (quot A R a) ≡⟨ ap g p ⟩
                   g x ∎)
-                (quot-isSurjec A R x))
+                (isSurjec-quot A R x))
 
 reflexive
  symmetric
@@ -526,11 +526,11 @@ quot'-isSurjec A R P = ∥∥-rec _ _ ∥∥-isProp fibInh (pr₂ P)
      pair⁼(
        funext (λ b →
          pair⁼(
-           ua (isProp-LogEq→Eq _ _ (pr₂ (R (a , b))) (pr₂ (pr₁ P b))
+           ua (isProp-areLogEq⇒Eq _ _ (pr₂ (R (a , b))) (pr₂ (pr₁ P b))
                 (≃-→ (f b))
                 (≃-← (f b)))
          , funext
-             (λ x → funext (λ y → props-are-sets (pr₂ (pr₁ P b)) _ _))))
+             (λ x → funext (λ y → isProp⇒isSet (pr₂ (pr₁ P b)) _ _))))
      , ∥∥-isProp _ _) ∣
 
 -- This can be proven, but has not been done so in the book, so I won't either.
@@ -544,7 +544,7 @@ postulate
      → (equivalenceRelation (λ a b → pr₁ (R (a , b))))
      → (A ∕ R) ≃ (A ∕∕ R)
 ∕∕≃∕ A R eR =
-  f , isSurjAndEmbedding→isEquiv f isSurjecf isEmbeddingf
+  f , isSurj-isEmbedding⇒isEquiv f isSurjec-f isEmbedding-f
  where
   f : A ∕ R → A ∕∕ R
   f = ∕-rec A R (A ∕∕ R) (quot' A R) quot'-preserves-R
@@ -556,18 +556,18 @@ postulate
     quot'-preserves-R a b aRb  =
      pair⁼(
       funext (λ c → (pair⁼(
-        ua (isProp-LogEq→Eq _ _ (pr₂ (R (a , c))) (pr₂ (R (b , c)))
+        ua (isProp-areLogEq⇒Eq _ _ (pr₂ (R (a , c))) (pr₂ (R (b , c)))
              (λ aRc → lemma a b c aRb aRc)
              (λ bRc → lemma b a c (pr₁ (pr₂ eR) a b aRb) bRc))
-        , funext (λ x → funext (λ y → props-are-sets (pr₂ (R(b , c))) _ _)))))
+        , funext (λ x → funext (λ y → isProp⇒isSet (pr₂ (R(b , c))) _ _)))))
       , ∥∥-isProp _ _)
-  isSurjecf : (b : (A ∕∕ R)) → ∥ fib f b ∥
-  isSurjecf (P , PeR) =
+  isSurjec-f : (b : (A ∕∕ R)) → ∥ fib f b ∥
+  isSurjec-f (P , PeR) =
     ∥∥-rec _ _ ∥∥-isProp
       (λ (a , p) → ∣ quot A R a , p ∣)
       (quot'-isSurjec A R (P , PeR))
-  isInjecf : isInjective f
-  isInjecf x y fx≡fy =
+  isInjec-f : isInjective f
+  isInjec-f x y fx≡fy =
     ∥∥-rec _ _ (∕-isSet A R)
       (λ (a , p) →
         ∥∥-rec _ _ (∕-isSet A R)
@@ -580,11 +580,11 @@ postulate
                             ∙ (ap f (q ⁻¹)))) b)⁻¹)
                        (pr₁ eR b)) ∙
               q )
-          (quot-isSurjec A R y))
-      (quot-isSurjec A R x)
-  isEmbeddingf : isEmbedding f
-  isEmbeddingf =
-    sets-isInjective→isEmbedding (∕-isSet A R) (∕∕-isSet A R) f isInjecf
+          (isSurjec-quot A R y))
+      (isSurjec-quot A R x)
+  isEmbedding-f : isEmbedding f
+  isEmbedding-f =
+    isSet-isInjective⇒isEmbedding (∕-isSet A R) (∕∕-isSet A R) f isInjec-f
 
 idempotent : {A : 𝒰 𝒾}
              (r : A → A)
@@ -592,29 +592,29 @@ idempotent : {A : 𝒰 𝒾}
 idempotent r = r ∘ r ≡ r
 
 -- Lemma 6.10.8.
-quot∕∼-UP : (A : 𝒰 𝒾)
-          → isSet A
-          → (∼ : mereRelation A 𝒿)
-            (r : A → A)
-          → idempotent r
-          → ((x y : A) → (r x ≡ r y) ≃ pr₁ (∼ (x , y)))
-          → (B : 𝒰 𝓀)
-          → isSet B
-          → ((Σ x ꞉ A , r x ≡ x) → B) ≃
-              (Σ g ꞉ (A → B) , ((x y : A) → pr₁ (∼ (x , y)) → g x ≡ g y))
-quot∕∼-UP A isSetA ∼ r i r-reflects-~ B isSetB =
-  e , invs-are-equivs e (e' , ε , η)
+∕∼→-≃ : (A : 𝒰 𝒾)
+      → isSet A
+      → (∼ : mereRelation A 𝒿)
+        (r : A → A)
+      → idempotent r
+      → ((x y : A) → (r x ≡ r y) ≃ pr₁ (∼ (x , y)))
+      → (B : 𝒰 𝓀)
+      → isSet B
+      → ((Σ x ꞉ A , r x ≡ x) → B) ≃
+          (Σ g ꞉ (A → B) , ((x y : A) → pr₁ (∼ (x , y)) → g x ≡ g y))
+∕∼→-≃ A isSet-A ∼ r i r-reflects-~ B isSet-B =
+  e , invs⇒equivs e (e' , ε , η)
  where
   𝓆 : A → (Σ x ꞉ A , r x ≡ x)
   𝓆 x = (r x , happly i x)
   e = λ f → (f ∘ 𝓆 , λ x y p →
-         ap f (pair⁼(≃-← (r-reflects-~ x y) p , isSetA _ _)))
+         ap f (pair⁼(≃-← (r-reflects-~ x y) p , isSet-A _ _)))
   e' = λ (g , s) → λ (x , p) → g x
-  η = λ f → funext (λ (x , p) → ap f (pair⁼(p , isSetA _ _)))
+  η = λ f → funext (λ (x , p) → ap f (pair⁼(p , isSet-A _ _)))
   ε = λ (g , s) →
     pair⁼(
       funext (λ x → s (r x) x (≃-→ (r-reflects-~ (r x) x) (happly i x))) ,
-      funext λ - → funext (λ - → funext (λ - → isSetB _ _)))
+      funext λ - → funext (λ - → funext (λ - → isSet-B _ _)))
 
 -- Definitions and lemmas for definition of ℤ
 data _≤_ : ℕ → ℕ → 𝒰₀ where
@@ -628,21 +628,21 @@ infix 4 _≤_
 ¬s≤s : ∀ {m n : ℕ} → ¬ (m ≤ n) → ¬ (succ m ≤ succ n)
 ¬s≤s ¬m≤n (s≤s m≤n) = ¬m≤n m≤n
 
-sn≤sm→n≤m : {m n : ℕ} → (succ m ≤ succ n) → (m ≤ n)
-sn≤sm→n≤m (s≤s p) = p
+sn≤sm⇒n≤m : {m n : ℕ} → (succ m ≤ succ n) → (m ≤ n)
+sn≤sm⇒n≤m (s≤s p) = p
 
 n≤z→n≡0 : (n : ℕ) → n ≤ 0 → n ≡ 0
 n≤z→n≡0 zero e = refl zero
 n≤z→n≡0 (succ n) e = !𝟘 _ (¬s≤z e)
 
-≤-isDecidable : (n m : ℕ) → isDecidable (n ≤ m)
-≤-isDecidable zero m = inl z≤n
-≤-isDecidable (succ n) zero = inr ¬s≤z
-≤-isDecidable (succ n) (succ m) =
+isDecidable-≤ : (n m : ℕ) → isDecidable (n ≤ m)
+isDecidable-≤ zero m = inl z≤n
+isDecidable-≤ (succ n) zero = inr ¬s≤z
+isDecidable-≤ (succ n) (succ m) =
   ⊎-rec (isDecidable (succ n ≤ succ m))
     (λ - → inl (s≤s -))
     (λ - → inr (¬s≤s -))
-    (≤-isDecidable n m)
+    (isDecidable-≤ n m)
 
 _∸_ : ℕ → ℕ → ℕ
 n      ∸ zero = n
@@ -657,7 +657,7 @@ rℕ (a , b) =
   ⊎-rec (ℕ × ℕ)
     (λ _ → ((a ∸ b) , 0))
     (λ _ → (0 , (b ∸ a)))
-    (≤-isDecidable b a)
+    (isDecidable-≤ b a)
 
 rℕ-succ : (n m : ℕ) → rℕ (n , m) ≡ rℕ (succ n , succ m)
 rℕ-succ a b =
@@ -672,16 +672,16 @@ rℕ-succ a b =
            (λ _ → (0 , (succ b ∸ succ a))) -))
          (λ - → refl _)
          (λ - → !𝟘 _ (- (s≤s p)))
-         (≤-isDecidable (succ b) (succ a)))
+         (isDecidable-≤ (succ b) (succ a)))
     (λ p →
        ⊎-ind (λ - → (0 , (b ∸ a)) ≡
          ⊎-rec (ℕ × ℕ)
            (λ _ → ((succ a ∸ succ b) , 0))
            (λ _ → (0 , (succ b ∸ succ a))) -)
-         (λ - → !𝟘 _ (p (sn≤sm→n≤m -)))
+         (λ - → !𝟘 _ (p (sn≤sm⇒n≤m -)))
          (λ - → refl (zero , (b ∸ a)))
-         (≤-isDecidable (succ b) (succ a)))
-    (≤-isDecidable b a)
+         (isDecidable-≤ (succ b) (succ a)))
+    (isDecidable-≤ b a)
 
 rℕ-left-0 : (n : ℕ) → rℕ (0 , n) ≡ (0 , n)
 rℕ-left-0 n =
@@ -691,7 +691,7 @@ rℕ-left-0 n =
       (λ _ → (0 , (n ∸ 0))) -) ≡ (0 , n))
     (λ e → tr (λ - → (0 ∸ -) , 0 ≡ 0 , -) (n≤z→n≡0 n e ⁻¹) (refl _))
     (λ _ → refl _)
-    (≤-isDecidable n 0)
+    (isDecidable-≤ n 0)
 
 rℕ-right-0 : (n : ℕ) → rℕ (n , 0) ≡ (n , 0)
 rℕ-right-0 n =
@@ -701,7 +701,7 @@ rℕ-right-0 n =
       (λ _ → (0 , (0 ∸ n))) -) ≡ (n , 0))
     (λ _ → refl _)
     (λ e → !𝟘 _ (e z≤n))
-    (≤-isDecidable 0 n)
+    (isDecidable-≤ 0 n)
 
 idempotent-rℕ : idempotent rℕ
 idempotent-rℕ = funext lemma
@@ -717,7 +717,7 @@ idempotent-rℕ = funext lemma
         (λ _ → (0 , (b ∸ a))) -))
      (λ - → refl ((a ∸ b) , zero))
      (λ - → rℕ-left-0 _)
-     (≤-isDecidable b a)
+     (isDecidable-≤ b a)
 
 ℤ : 𝒰₀
 ℤ = Σ x ꞉ (ℕ × ℕ) , (rℕ x ≡ x)
@@ -731,24 +731,24 @@ idempotent-rℕ = funext lemma
 ℕ-in-ℤ≤0 : ℕ → ℤ
 ℕ-in-ℤ≤0 n = (0 , n) , rℕ-left-0 n
 
-ℕ×ℕ-isSet : isSet (ℕ × ℕ)
-ℕ×ℕ-isSet = ×-isSet isSet-ℕ isSet-ℕ
+isSet-ℕ×ℕ : isSet (ℕ × ℕ)
+isSet-ℕ×ℕ = isSet-× isSet-ℕ isSet-ℕ
 
-ℤ-isSet : isSet ℤ
-ℤ-isSet =
-  Σ-isSet
-    ℕ×ℕ-isSet
-    (λ - → isSet→is1type (Σ-isSet isSet-ℕ λ - → isSet-ℕ ))
+isSet-ℤ : isSet ℤ
+isSet-ℤ =
+  isSet-Σ
+    isSet-ℕ×ℕ
+    (λ - → isSet⇒is1Type (isSet-Σ isSet-ℕ λ - → isSet-ℕ ))
 
-ℤ-ind-complete : (P : ℤ → 𝒰 𝒾)
-                 (d₀ : P 0ℤ)
-                 (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
-                 (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
-               → Σ f ꞉ ((z : ℤ ) → P z) ,
-                  (f 0ℤ ≡ d₀) ×
-                  ((n : ℕ) → f (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ n (f (ℕ-in-ℤ≥0 n))) ×
-                  ((n : ℕ) → f (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ n (f (ℕ-in-ℤ≤0 n)))
-ℤ-ind-complete P d₀ d₊ d₋ = (f , f0 , fn⁺ , fn⁻)
+ℤ-ind-full : (P : ℤ → 𝒰 𝒾)
+             (d₀ : P 0ℤ)
+             (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
+             (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
+           → Σ f ꞉ ((z : ℤ ) → P z) ,
+              (f 0ℤ ≡ d₀) ×
+              ((n : ℕ) → f (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ n (f (ℕ-in-ℤ≥0 n))) ×
+              ((n : ℕ) → f (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ n (f (ℕ-in-ℤ≤0 n)))
+ℤ-ind-full P d₀ d₊ d₋ = (f , f0 , fn⁺ , fn⁻)
  where
   𝓆 : (ℕ × ℕ) → ℤ
   𝓆 x = (rℕ x , happly idempotent-rℕ x)
@@ -756,26 +756,26 @@ idempotent-rℕ = funext lemma
   Q = P ∘ 𝓆
 
   d₀'-path : 0ℤ ≡ 𝓆 (0 , 0)
-  d₀'-path = pair⁼(refl _ , ℕ×ℕ-isSet _ _)
+  d₀'-path = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
   d₀' : Q (0 , 0)
   d₀' = tr P d₀'-path d₀
 
   d₊'-path1 : (n : ℕ) → ℕ-in-ℤ≥0 (succ n) ≡ 𝓆 (succ n , 0)
-  d₊'-path1 n = pair⁼(refl _ , (ℕ×ℕ-isSet _ _))
+  d₊'-path1 n = pair⁼(refl _ , (isSet-ℕ×ℕ _ _))
   d₊'-path2 : (n : ℕ) → 𝓆 (n , 0) ≡ ℕ-in-ℤ≥0 n
-  d₊'-path2 n = pair⁼(refl _ , (ℕ×ℕ-isSet _ (rℕ-right-0 n)))
+  d₊'-path2 n = pair⁼(refl _ , (isSet-ℕ×ℕ _ (rℕ-right-0 n)))
   d₊' : (n : ℕ) → Q (n , 0) → Q (succ n , 0)
   d₊' n p = tr P (d₊'-path1 n) (d₊ n (tr P (d₊'-path2 n) p))
 
   d₋'-path1 : (n : ℕ) → ℕ-in-ℤ≤0 (succ n) ≡ 𝓆 (0 , succ n)
-  d₋'-path1 n = pair⁼(rℕ-left-0 (succ n) , ℕ×ℕ-isSet _ _)⁻¹
+  d₋'-path1 n = pair⁼(rℕ-left-0 (succ n) , isSet-ℕ×ℕ _ _)⁻¹
   d₋'-path2 : (n : ℕ) → 𝓆 (0 , n) ≡ ℕ-in-ℤ≤0 n
-  d₋'-path2 n = pair⁼(rℕ-left-0 n , ℕ×ℕ-isSet _ _)
+  d₋'-path2 n = pair⁼(rℕ-left-0 n , isSet-ℕ×ℕ _ _)
   d₋' : (n : ℕ) → Q (0 , n) → Q (0 , succ n)
   d₋' n p = tr P (d₋'-path1 n) (d₋ n (tr P (d₋'-path2 n) p))
 
   𝓆-succ : (n m : ℕ) → 𝓆 (n , m) ≡ 𝓆 (succ n , succ m)
-  𝓆-succ n m = pair⁼(rℕ-succ n m  , ℕ×ℕ-isSet _ _)
+  𝓆-succ n m = pair⁼(rℕ-succ n m  , isSet-ℕ×ℕ _ _)
   g : (x : ℕ × ℕ) → Q x
   g (zero , zero) = d₀'
   g (succ n , zero) = d₊' n (g (n , 0))
@@ -783,7 +783,7 @@ idempotent-rℕ = funext lemma
   g (succ n , succ m) = tr id (ap P (𝓆-succ n m)) (g (n , m))
 
   f-path : (z : ℤ) → 𝓆 (pr₁ z) ≡ z
-  f-path z = pair⁼(pr₂ z , ℕ×ℕ-isSet _ _)
+  f-path z = pair⁼(pr₂ z , isSet-ℕ×ℕ _ _)
   f : (z : ℤ) → P z
   f z = tr P (f-path z) (g (pr₁ z))
 
@@ -794,7 +794,7 @@ idempotent-rℕ = funext lemma
     d₀ ∎
    where
     i = happly (tr-∘ P d₀'-path (f-path 0ℤ)) d₀
-    ii = ap (λ - → tr P - d₀) (ℤ-isSet (d₀'-path ∙ f-path 0ℤ) (refl _))
+    ii = ap (λ - → tr P - d₀) (isSet-ℤ (d₀'-path ∙ f-path 0ℤ) (refl _))
 
   fn⁻ : (n : ℕ) → f (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ n (f (ℕ-in-ℤ≤0 n))
   fn⁻ n = begin
@@ -809,7 +809,7 @@ idempotent-rℕ = funext lemma
     i = happly (tr-∘ P (d₋'-path1 n) (f-path (ℕ-in-ℤ≤0 (succ n))))
          (d₋ n (tr P (d₋'-path2 n) (g (0 , n))))
     ii = ap (λ - → tr P - (d₋ n (tr P (d₋'-path2 n) (g (0 , n)))))
-            (ℤ-isSet ((d₋'-path1 n) ∙ (f-path (ℕ-in-ℤ≤0 (succ n)))) (refl _))
+            (isSet-ℤ ((d₋'-path1 n) ∙ (f-path (ℕ-in-ℤ≤0 (succ n)))) (refl _))
 
   fn⁺ : (n : ℕ) → f (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ n (f (ℕ-in-ℤ≥0 n))
   fn⁺ n = begin
@@ -824,5 +824,44 @@ idempotent-rℕ = funext lemma
     i = happly (tr-∘ P (d₊'-path1 n) (f-path (ℕ-in-ℤ≥0 (succ n))))
          (d₊ n (tr P (d₊'-path2 n) (g (n , 0))))
     ii = ap (λ - → tr P - (d₊ n (tr P (d₊'-path2 n) (g (n , 0)))))
-            (ℤ-isSet ((d₊'-path1 n) ∙ (f-path (ℕ-in-ℤ≥0 (succ n)))) (refl _))
+            (isSet-ℤ ((d₊'-path1 n) ∙ (f-path (ℕ-in-ℤ≥0 (succ n)))) (refl _))
+
+ℤ-ind : (P : ℤ → 𝒰 𝒾)
+        (d₀ : P 0ℤ)
+        (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
+        (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
+      → (z : ℤ ) → P z
+ℤ-ind P d₀ d₊ d₋ =
+  let (f , f0 , fn⁺ , fn⁻) = ℤ-ind-full P d₀ d₊ d₋
+   in f
+
+ℤ-ind-comp-0ℤ :
+        (P : ℤ → 𝒰 𝒾)
+        (d₀ : P 0ℤ)
+        (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
+        (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
+      → ℤ-ind P d₀ d₊ d₋ 0ℤ ≡ d₀
+ℤ-ind-comp-0ℤ P d₀ d₊ d₋ =
+  let (f , f0 , fn⁺ , fn⁻) = ℤ-ind-full P d₀ d₊ d₋
+   in f0
+
+ℤ-ind-comp-ℤ≥0 :
+        (P : ℤ → 𝒰 𝒾)
+        (d₀ : P 0ℤ)
+        (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
+        (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
+      → ((n : ℕ) → ℤ-ind P d₀ d₊ d₋ (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ n (ℤ-ind P d₀ d₊ d₋ (ℕ-in-ℤ≥0 n)))
+ℤ-ind-comp-ℤ≥0 P d₀ d₊ d₋ =
+  let (f , f0 , fn⁺ , fn⁻) = ℤ-ind-full P d₀ d₊ d₋
+   in fn⁺
+
+ℤ-ind-comp-ℤ≤0 :
+        (P : ℤ → 𝒰 𝒾)
+        (d₀ : P 0ℤ)
+        (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
+        (d₋ : (n : ℕ) → P (ℕ-in-ℤ≤0 n) → P (ℕ-in-ℤ≤0 (succ n)))
+      → ((n : ℕ) → ℤ-ind P d₀ d₊ d₋ (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ n (ℤ-ind P d₀ d₊ d₋ (ℕ-in-ℤ≤0 n)))
+ℤ-ind-comp-ℤ≤0 P d₀ d₊ d₋ =
+  let (f , f0 , fn⁺ , fn⁻) = ℤ-ind-full P d₀ d₊ d₋
+   in fn⁻
 ```

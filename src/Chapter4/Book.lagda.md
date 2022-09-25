@@ -20,21 +20,21 @@ open import Chapter3.Exercises public
 
 ```agda
 -- Definition 4.2.1.
-ishae : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
-ishae f = Σ g ꞉ (codomain f → domain f)
+isHae : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
+isHae f = Σ g ꞉ (codomain f → domain f)
          , Σ η ꞉ g ∘ f ∼ id
          , Σ ε ꞉ f ∘ g ∼ id
          , ((x : domain f) → ap f (η x) ≡ ε (f x))
 
 -- Helper
-ishae→qinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y)
-           → ishae f → qinv f
-ishae→qinv f (g , η , ε , τ) = g , ε , η
+isHae⇒isQinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y)
+           → isHae f → isQinv f
+isHae⇒isQinv f (g , η , ε , τ) = g , ε , η
 
 -- Theorem 4.2.3.
-invertibles-are-haes : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y)
-                     → qinv f → ishae f
-invertibles-are-haes f (g , ε , η) = g , η , ε' , τ
+isQinv⇒isHae : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y)
+                     → isQinv f → isHae f
+isQinv⇒isHae f (g , ε , η) = g , η , ε' , τ
  where
   ε' = λ y → begin f (g y)   ≡⟨ (ε (f (g y)))⁻¹ ⟩
              f (g (f (g y))) ≡⟨ ap f (η (g y))  ⟩
@@ -61,7 +61,7 @@ invertibles-are-haes f (g , ε , η) = g , η , ε' , τ
        refl (f (g (f x)))                     ∙ ap f (η x)  ≡⟨ by-⁻¹-left∙  ⟩
        (ε (f (g (f x))))⁻¹ ∙  ε (f (g (f x))) ∙ ap f (η x)  ≡⟨ by-∙assoc    ⟩
        (ε (f (g (f x))))⁻¹ ∙ (ε (f (g (f x))) ∙ ap f (η x)) ≡⟨ by-q         ⟩
-       (ε (f (g (f x))))⁻¹ ∙ (ap f (η (g (f x))) ∙ ε (f x)) ≡⟨ refl _       ⟩
+       (ε (f (g (f x))))⁻¹ ∙ (ap f (η (g (f x))) ∙ ε (f x)) ≡⟨⟩
        ε' (f x)                                             ∎
     where
      by-⁻¹-left∙ = ap (_∙ ap f (η x)) ((⁻¹-left∙ (ε (f (g (f x)))))⁻¹)
@@ -78,7 +78,7 @@ fib f y = Σ x ꞉ domain f , f x ≡ y
 ≡-comm p q = ua eqv
   where
     eqv : (p ≡ q) ≃ (q ≡ p)
-    eqv = (_⁻¹) , invs-are-equivs (_⁻¹)
+    eqv = (_⁻¹) , invs⇒equivs (_⁻¹)
                    ((_⁻¹) , ⁻¹-involutive , ⁻¹-involutive)
 
 -- Lemma 4.2.5.
@@ -87,16 +87,16 @@ fib-≡-≃ : {𝒾 𝒿 : Level} {A : 𝒰 𝒾} {B : 𝒰 𝒿}
           ((x , p) (x' , p') : fib f y)
         → ((x , p) ≡ (x' , p')) ≃ (Σ γ ꞉ (x ≡ x') , ap f γ ∙ p' ≡ p)
 fib-≡-≃ f y (x , p) (x' , p') =
-  tr (λ - → ((x , p) ≡ (x' , p')) ≃ -) ≡fams ≡-Σ-≃
+  tr (λ - → ((x , p) ≡ (x' , p')) ≃ -) ≡fams (≡-Σ-≃ _ _)
  where
   const-y = λ _ → y
 
   ∼fams : (λ γ → tr (λ - → f - ≡ y) γ p ≡ p') ∼ (λ γ → ap f γ ∙ p' ≡ p)
   ∼fams γ = begin
-   (tr (λ - → f - ≡ y) γ p ≡ p')      ≡⟨ by-tr-γ⁻¹ γ ⟩
-   (p ≡ tr (λ - → f - ≡ y) (γ ⁻¹) p') ≡⟨ ap (p ≡_) tr-lemma ⟩
-   (p ≡ ap f γ ∙ p')                  ≡⟨ ≡-comm p (ap f γ ∙ p') ⟩
-   (ap f γ ∙ p' ≡ p)                  ∎
+    (tr (λ - → f - ≡ y) γ p ≡ p')      ≡⟨ by-tr-γ⁻¹ γ ⟩
+    (p ≡ tr (λ - → f - ≡ y) (γ ⁻¹) p') ≡⟨ ap (p ≡_) tr-lemma ⟩
+    (p ≡ ap f γ ∙ p')                  ≡⟨ ≡-comm p (ap f γ ∙ p') ⟩
+    (ap f γ ∙ p' ≡ p)                  ∎
    where
     by-tr-γ⁻¹ : (γ : (x ≡ x'))
               → (tr (λ - → f - ≡ y) γ p ≡ p')
@@ -118,7 +118,7 @@ fib-≡-≃ f y (x , p) (x' , p') =
        ii = ap (λ - → (ap f (γ ⁻¹))⁻¹ ∙ p' ∙ -) (ap-const (γ ⁻¹) y)
        iii = ∙-assoc ((ap f (γ ⁻¹))⁻¹)
        iv = ap ((ap f (γ ⁻¹))⁻¹ ∙_) refl-right
-       v = ap (_∙ p') (ap⁻¹ f (γ ⁻¹))
+       v = ap (_∙ p') (ap-⁻¹ f (γ ⁻¹))
        vi = ap (λ - → ap f - ∙ p') (⁻¹-involutive γ)
 
   ≡fams : (Σ (λ γ → tr (λ - → f - ≡ y) γ p ≡ p')) ≡ (Σ (λ γ → ap f γ ∙ p' ≡ p))
@@ -126,10 +126,10 @@ fib-≡-≃ f y (x , p) (x' , p') =
 
 
 -- Theorem 4.2.6.
-ishae→contr-fib≡-≃ : {𝒾 𝒿 : Level} {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-                   → (f : A → B) → (ishae f) → (y : B)
-                   → isContr (fib f y)
-ishae→contr-fib≡-≃ f (g , η , ε , τ) y = center , contraction
+isHae⇒isContr-fib : {𝒾 𝒿 : Level} {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+                  → (f : A → B) → (isHae f) → (y : B)
+                  → isContr (fib f y)
+isHae⇒isContr-fib f (g , η , ε , τ) y = center , contraction
  where
   center = (g y , ε y)
   contraction : (xp : fib f y) → center ≡ xp
@@ -158,7 +158,7 @@ ishae→contr-fib≡-≃ f (g , η , ε , τ) y = center , contraction
       iii  = ∙-assoc (ap f ((ap g p)⁻¹))
       iv   = ap (λ - → ap f ((ap g p)⁻¹) ∙ (ε (f x) ∙ -)) ((ap-id p)⁻¹)
       v    = ap (ap f ((ap g p)⁻¹) ∙_) (∼-naturality (f ∘ g) id ε)
-      vi   = ap (λ - → ap f - ∙ (ap (f ∘ g) p ∙ ε y)) (ap⁻¹ g p)
+      vi   = ap (λ - → ap f - ∙ (ap (f ∘ g) p ∙ ε y)) (ap-⁻¹ g p)
       vii  = ap (_∙ (ap (f ∘ g) p ∙ ε y)) ((ap-∘ g f (p ⁻¹))⁻¹)
       viii = (∙-assoc (ap (f ∘ g) (p ⁻¹)))⁻¹
       ix   = ap (_∙ ε y) ((ap-∙ (f ∘ g) (p ⁻¹) p)⁻¹)
@@ -166,17 +166,17 @@ ishae→contr-fib≡-≃ f (g , η , ε , τ) y = center , contraction
       xi   = refl-left
 
 -- Definition 4.2.7.
-linv : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) → 𝒰 (𝒾 ⊔ 𝒿)
-linv {𝒾} {𝒿} {A} {B} f = Σ g ꞉ (B → A) , (g ∘ f) ∼ id
+isLinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) → 𝒰 (𝒾 ⊔ 𝒿)
+isLinv {𝒾} {𝒿} {A} {B} f = Σ g ꞉ (B → A) , (g ∘ f) ∼ id
 
-rinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) → 𝒰 (𝒾 ⊔ 𝒿)
-rinv {𝒾} {𝒿} {A} {B} f = Σ g ꞉ (B → A) , (f ∘ g) ∼ id
+isRinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) → 𝒰 (𝒾 ⊔ 𝒿)
+isRinv {𝒾} {𝒿} {A} {B} f = Σ g ꞉ (B → A) , (f ∘ g) ∼ id
 
 -- Lemma 4.2.8.
-qinv→f∘- : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+isQinv⇒isQinv-f∘─ : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
          → (f : A → B)
-         → qinv f → (qinv (λ (- : C → A) → f ∘ -))
-qinv→f∘- f (g , f∘g , g∘f) =
+         → isQinv f → (isQinv (λ (- : C → A) → f ∘ -))
+isQinv⇒isQinv-f∘─ f (g , f∘g , g∘f) =
   ((g ∘_) , ∼₁ , ∼₂)
  where
   ∼₁ : (f ∘_) ∘ (g ∘_) ∼ id
@@ -184,10 +184,10 @@ qinv→f∘- f (g , f∘g , g∘f) =
   ∼₂ : (g ∘_) ∘ (f ∘_) ∼ id
   ∼₂ β = funext (λ x → g∘f (β x))
 
-qinv→-∘f : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+isQinv⇒isQinv-─∘f : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
          → (f : A → B)
-         → qinv f → (qinv (λ (- : B → C) → - ∘ f))
-qinv→-∘f f (g , f∘g , g∘f) =
+         → isQinv f → (isQinv (λ (- : B → C) → - ∘ f))
+isQinv⇒isQinv-─∘f f (g , f∘g , g∘f) =
   ((_∘ g) , ∼₁ , ∼₂)
  where
   ∼₁ : (_∘ f) ∘ (_∘ g) ∼ id
@@ -201,64 +201,64 @@ qinv→-∘f f (g , f∘g , g∘f) =
                   → isContr A
                   → isContr B
 ≃-preserves-contr {𝒾} {𝒿} {A} {B} equiv isContrA =
-  ≃𝟙→isContr B i
+  ≃𝟙⇒isContr B i
   where
     i : B ≃ 𝟙
-    i = ≃-trans (≃-sym equiv) (isContr→≃𝟙 A isContrA)
+    i = ≃-trans (≃-sym equiv) (isContr⇒≃𝟙 A isContrA)
 
 -- Lemma 4.2.9.
-qinv→linv-isContr : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+isQinv⇒isContr-isLinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
          → (f : A → B)
-         → qinv f → isContr (linv f)
-qinv→linv-isContr f qinvf =
+         → isQinv f → isContr (isLinv f)
+isQinv⇒isContr-isLinv f isQinv-f =
   ≃-preserves-contr (≃-sym i) iv
  where
-  i : linv f ≃ (Σ g ꞉ (codomain f → domain f) , g ∘ f ≡ id)
-  i = map , invs-are-equivs map (map⁻¹ , ε , η)
+  i : isLinv f ≃ (Σ g ꞉ (codomain f → domain f) , g ∘ f ≡ id)
+  i = map , invs⇒equivs map (map⁻¹ , ε , η)
    where
     map = λ (g , η) → (g , funext η)
     map⁻¹ = λ (g , p) → (g , happly p)
-    ε = λ (g , p) → pair⁼ (refl g , ((≡fe-uniq p)⁻¹))
-    η = λ (g , η) → pair⁼ (refl g , (≡fe-comp η))
-  ii : qinv (_∘ f)
-  ii = qinv→-∘f f qinvf
-  iii : ishae (_∘ f)
-  iii = invertibles-are-haes (_∘ f) ii
+    ε = λ (g , p) → pair⁼ (refl g , ((≡-Π-uniq p)⁻¹))
+    η = λ (g , η) → pair⁼ (refl g , (≡-Π-comp η))
+  ii : isQinv (_∘ f)
+  ii = isQinv⇒isQinv-─∘f f isQinv-f
+  iii : isHae (_∘ f)
+  iii = isQinv⇒isHae (_∘ f) ii
   iv : isContr (fib (_∘ f) id)
-  iv  = ishae→contr-fib≡-≃ (_∘ f) iii id
+  iv  = isHae⇒isContr-fib (_∘ f) iii id
 
-qinv→rinv-isContr : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+isQinv⇒isContr-isRinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
          → (f : A → B)
-         → qinv f → isContr (rinv f)
-qinv→rinv-isContr f qinvf =
+         → isQinv f → isContr (isRinv f)
+isQinv⇒isContr-isRinv f isQinv-f =
   ≃-preserves-contr (≃-sym i) iv
  where
-  i : rinv f ≃ (Σ g ꞉ (codomain f → domain f) , f ∘ g ≡ id)
-  i = map , invs-are-equivs map (map⁻¹ , ε , η)
+  i : isRinv f ≃ (Σ g ꞉ (codomain f → domain f) , f ∘ g ≡ id)
+  i = map , invs⇒equivs map (map⁻¹ , ε , η)
    where
     map = λ (g , ε) → (g , funext ε)
     map⁻¹ = λ (g , p) → (g , happly p)
-    ε = λ (g , p) → pair⁼ (refl g , ((≡fe-uniq p)⁻¹))
-    η = λ (g , ε) → pair⁼ (refl g , (≡fe-comp ε))
-  ii : qinv (f ∘_)
-  ii = qinv→f∘- f qinvf
-  iii : ishae (f ∘_)
-  iii = invertibles-are-haes (f ∘_) ii
+    ε = λ (g , p) → pair⁼ (refl g , ((≡-Π-uniq p)⁻¹))
+    η = λ (g , ε) → pair⁼ (refl g , (≡-Π-comp ε))
+  ii : isQinv (f ∘_)
+  ii = isQinv⇒isQinv-f∘─ f isQinv-f
+  iii : isHae (f ∘_)
+  iii = isQinv⇒isHae (f ∘_) ii
   iv : isContr (fib (f ∘_) id)
-  iv  = ishae→contr-fib≡-≃ (f ∘_) iii id
+  iv  = isHae⇒isContr-fib (f ∘_) iii id
 
 -- Definition 4.2.10.
-lcoh : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) ((g , η) : linv f) → 𝒰 (𝒾 ⊔ 𝒿)
+lcoh : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) ((g , η) : isLinv f) → 𝒰 (𝒾 ⊔ 𝒿)
 lcoh f (g , η) = Σ ε ꞉ (f ∘ g ∼ id) , ((y : codomain f) → ap g (ε y) ≡ η (g y))
 
-rcoh : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) ((g , ε) : rinv f) → 𝒰 (𝒾 ⊔ 𝒿)
+rcoh : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) ((g , ε) : isRinv f) → 𝒰 (𝒾 ⊔ 𝒿)
 rcoh f (g , ε) = Σ η ꞉ (g ∘ f ∼ id) , ((x : domain f) → ap f (η x) ≡ ε (f x))
 
 -- Helper for next lemmas
 Π-distributes-≃ : {X : 𝒰 𝒾} {P : X → 𝒰 𝒿} {Q : X → 𝒰 𝒿}
                 → ((x : X) → P x ≃ Q x)
                 → ((x : X) → P x) ≃ ((x : X) → Q x)
-Π-distributes-≃ h = map , invs-are-equivs map (map⁻¹ , ε , η)
+Π-distributes-≃ h = map , invs⇒equivs map (map⁻¹ , ε , η)
  where
   map = λ f → (λ x → (≃-→ (h x)) (f x))
   map⁻¹ = λ g → (λ x → (≃-← (h x) (g x)))
@@ -267,7 +267,7 @@ rcoh f (g , ε) = Σ η ꞉ (g ∘ f ∼ id) , ((x : domain f) → ap f (η x) �
 
 -- Lemma 4.2.11.
 lcoh≃ : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-      → (f : A → B) ((g , η) : linv f)
+      → (f : A → B) ((g , η) : isLinv f)
       → lcoh f (g , η) ≃
          ((y : B) → Id (fib g (g y)) (f (g y) , η (g y)) (y , refl (g y)))
 lcoh≃ f (g , η) = ≃-trans (≃-trans i ii') iii'
@@ -287,7 +287,7 @@ lcoh≃ f (g , η) = ≃-trans (≃-trans i ii') iii'
   iii' = Π-distributes-≃ iii
 
 rcoh≃ : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-      → (f : A → B) ((g , ε) : rinv f)
+      → (f : A → B) ((g , ε) : isRinv f)
       → rcoh f (g , ε) ≃
          ((x : A) → Id (fib f (f x)) (g (f x) , ε (f x)) (x , refl (f x)))
 rcoh≃ f (g , ε) = ≃-trans (≃-trans i ii') iii'
@@ -307,27 +307,27 @@ rcoh≃ f (g , ε) = ≃-trans (≃-trans i ii') iii'
   iii' = Π-distributes-≃ iii
 
 -- Lemma 4.2.12.
-ishae-rinv-implies-rcoh-isContr : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-    → (f : A → B) → ishae f → ((g , ε) : rinv f)
+isHae-isRinv⇒isContr-rcoh : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+    → (f : A → B) → isHae f → ((g , ε) : isRinv f)
     → isContr (rcoh f (g , ε))
-ishae-rinv-implies-rcoh-isContr f haef (g , ε) =
+isHae-isRinv⇒isContr-rcoh f haef (g , ε) =
   ≃-preserves-contr (≃-sym (rcoh≃ f (g , ε))) Πpath-space-isContr
  where
   path-space-isContr : (x : domain f) →
     isContr (Id (fib f (f x)) (g (f x) , ε (f x)) (x , refl (f x)))
-  path-space-isContr x = props-have-contr-Id
+  path-space-isContr x = isProp⇒isContr-≡
     fib-isProp (g (f x) , ε (f x)) (x , refl (f x))
    where
-    fib-isContr = ishae→contr-fib≡-≃ f haef (f x)
-    fib-isProp = pr₂ (contr-are-pointed-props (fib f (f x)) fib-isContr)
-  Πpath-space-isContr = Π-preserves-contr path-space-isContr
+    fib-isContr = isHae⇒isContr-fib f haef (f x)
+    fib-isProp = pr₂ (isContr⇒isPointedProp (fib f (f x)) fib-isContr)
+  Πpath-space-isContr = isContr-Π path-space-isContr
 
 -- Helpers for the next theorem
 Σ-weak-comm : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
             → {P : A → B → 𝒰 𝓀}
             → (Σ a ꞉ A , (Σ b ꞉ B , P a b))
                ≃ (Σ b ꞉ B , (Σ a ꞉ A , P a b))
-Σ-weak-comm = map , invs-are-equivs map (map⁻¹ , ε , η)
+Σ-weak-comm = map , invs⇒equivs map (map⁻¹ , ε , η)
  where
   map = λ (a , b , c) → (b , a , c)
   map⁻¹ = λ (b , a , c) → (a , b , c)
@@ -339,7 +339,7 @@ ishae-rinv-implies-rcoh-isContr f haef (g , ε) =
             → {Q : A → 𝒰 𝓀}
             → ((x : A) → P x ≃ Q x)
             → (Σ a ꞉ A , P a) ≃ (Σ a ꞉ A , Q a)
-≃-sections-implies-≃-Σ equiv = map , invs-are-equivs map (map⁻¹ , ε , η)
+≃-sections-implies-≃-Σ equiv = map , invs⇒equivs map (map⁻¹ , ε , η)
  where
   map = λ (a , pa) → (a , ≃-→ (equiv a) pa)
   map⁻¹ = λ (a , qa) → (a , ≃-← (equiv a) qa)
@@ -354,16 +354,16 @@ ishae-rinv-implies-rcoh-isContr f haef (g , ε) =
 Σ-preserves-contr {𝒾} {𝒿} {A} {P} isContrA f =
   ≃-preserves-contr (≃-sym ΣAP≃A) isContrA
  where
-  ΣAP≃A = Σ-over-contr-family-≃-base P f
+  ΣAP≃A = isContr-Σ⇒base P f
 
 -- Theorem 4.2.13.
-ishae-isProp : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+isProp-isHae : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
     → (f : A → B)
-    → isProp (ishae f)
-ishae-isProp f =
+    → isProp (isHae f)
+isProp-isHae f =
   point→isContr-implies-isProp iv
  where
-  i : ishae f ≃ (Σ g ꞉ (codomain f → domain f)
+  i : isHae f ≃ (Σ g ꞉ (codomain f → domain f)
                 , Σ ε ꞉ f ∘ g ∼ id
                 , Σ η ꞉ g ∘ f ∼ id
                 , ((x : domain f) → ap f (η x) ≡ ε (f x)))
@@ -372,17 +372,17 @@ ishae-isProp f =
       , Σ ε ꞉ f ∘ g ∼ id
       , Σ η ꞉ g ∘ f ∼ id
       , ((x : domain f) → ap f (η x) ≡ ε (f x)))
-        ≃ (Σ u ꞉ rinv f , rcoh f (pr₁ u , pr₂ u))
+        ≃ (Σ u ꞉ isRinv f , rcoh f (pr₁ u , pr₂ u))
   ii = Σ-assoc
-  iii : ishae f → isContr (Σ u ꞉ rinv f , rcoh f (pr₁ u , pr₂ u))
-  iii haef = Σ-preserves-contr rinv-isContr rcoh-isContr
+  iii : isHae f → isContr (Σ u ꞉ isRinv f , rcoh f (pr₁ u , pr₂ u))
+  iii haef = Σ-preserves-contr isRinv-isContr rcoh-isContr
    where
-    rinv-isContr : isContr (rinv f)
-    rinv-isContr = qinv→rinv-isContr f (ishae→qinv f haef)
-    rcoh-isContr : ((g , ε) : rinv f) → isContr (rcoh f (g , ε))
+    isRinv-isContr : isContr (isRinv f)
+    isRinv-isContr = isQinv⇒isContr-isRinv f (isHae⇒isQinv f haef)
+    rcoh-isContr : ((g , ε) : isRinv f) → isContr (rcoh f (g , ε))
     rcoh-isContr (g , ε) =
-      ishae-rinv-implies-rcoh-isContr f haef (g , ε)
-  iv : ishae f → isContr (ishae f)
+      isHae-isRinv⇒isContr-rcoh f haef (g , ε)
+  iv : isHae f → isContr (isHae f)
   iv haef = ≃-preserves-contr (≃-sym (≃-trans i ii)) (iii haef)
 ```
 
@@ -390,40 +390,40 @@ ishae-isProp f =
 
 ```agda
 -- Definition 4.3.1.
-biinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
-biinv f = rinv f × linv f
+isBiinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
+isBiinv f = isRinv f × isLinv f
 
 -- Helper for the next theorem
 ×-preserves-contr : {A : 𝒰 𝒾} → {B : 𝒰 𝒿}
                   → isContr A
                   → isContr B
                   → isContr (A × B)
-×-preserves-contr (cA , pa) (cB , pb) =
-  ((cA , cB) , λ (a , b) → pair×⁼(pa a , pb b))
+×-preserves-contr isContr-A isContr-B =
+  Σ-preserves-contr isContr-A (λ - → isContr-B)
 
 -- Theorem 4.3.2.
-biinv-isprop : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-             → (f : A → B) → isProp (biinv f)
-biinv-isprop f =
+isProp-isBiinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+             → (f : A → B) → isProp (isBiinv f)
+isProp-isBiinv f =
   point→isContr-implies-isProp v
  where
-  v : biinv f → isContr (biinv f)
-  v biinvf = ×-preserves-contr rinv-isContr linv-isContr
+  v : isBiinv f → isContr (isBiinv f)
+  v isBiinv-f = ×-preserves-contr isRinv-isContr isLinv-isContr
    where
-    qinvf : qinv f
-    qinvf = equivs-are-invs f biinvf
-    linv-isContr = qinv→linv-isContr f qinvf
-    rinv-isContr = qinv→rinv-isContr f qinvf
+    isQinv-f : isQinv f
+    isQinv-f = equivs⇒invs f isBiinv-f
+    isLinv-isContr = isQinv⇒isContr-isLinv f isQinv-f
+    isRinv-isContr = isQinv⇒isContr-isRinv f isQinv-f
 
-is-equiv-isprop : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-             → (f : A → B) → isProp (is-equiv f)
-is-equiv-isprop = biinv-isprop
+isProp-isEquiv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+             → (f : A → B) → isProp (isEquiv f)
+isProp-isEquiv = isProp-isBiinv
 
 -- Corollary 4.3.3.
-ishae→biinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-            → (f : A → B)
-            → ishae f → biinv f
-ishae→biinv f haef = invs-are-equivs f (ishae→qinv f haef)
+isHae⇒isBiinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+              → (f : A → B)
+              → isHae f → isBiinv f
+isHae⇒isBiinv f haef = invs⇒equivs f (isHae⇒isQinv f haef)
 -- TODO
 ```
 
@@ -435,10 +435,10 @@ isContrMap : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 (𝒾 ⊔ �
 isContrMap f = (y : codomain f) → isContr (fib f y)
 
 -- Theorem 4.4.3.
-contrMap→hae : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+isContrMap⇒isHae : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
              → (f : A → B)
-             → isContrMap f → ishae f
-contrMap→hae f P = g , pr₁ rcohf , ε , pr₂ rcohf
+             → isContrMap f → isHae f
+isContrMap⇒isHae f P = g , pr₁ rcohf , ε , pr₂ rcohf
  where
   g = λ y → pr₁ (pr₁ (P y))
   ε = λ y → pr₂ (pr₁ (P y))
@@ -448,11 +448,11 @@ contrMap→hae f P = g , pr₁ rcohf , ε , pr₂ rcohf
                    ∙ (pr₂ (P (f x)) (x , refl (f x))))
 
 -- Lemma 4.4.4.
-isContrMap-isProp : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+isProp-isContrMap : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
                   → (f : A → B)
                   → isProp (isContrMap f)
-isContrMap-isProp f =
-  Π-preserves-props (λ y → isContr-isProp (fib f y))
+isProp-isContrMap f =
+  isProp-Π (λ y → isProp-isContr (fib f y))
 ```
 
 ## 4.6 Surjections and embeddings
@@ -466,40 +466,40 @@ isSurjec f = (b : codomain f) → ∥ fib f b ∥
 isEmbedding : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
             → (f : A → B)
             → 𝒰 (𝒾 ⊔ 𝒿)
-isEmbedding f = (x y : domain f) → is-equiv (ap f {x} {y})
+isEmbedding f = (x y : domain f) → isEquiv (ap f {x} {y})
 
 isInjective : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
             → (f : A → B)
             → 𝒰 (𝒾 ⊔ 𝒿)
 isInjective f = (x y : domain f) → (f x ≡ f y) → x ≡ y
 
-isEmbedding→isInjective :
+isEmbedding⇒isInjective :
          {A : 𝒰 𝒾} {B : 𝒰 𝒿}
        → (f : A → B)
        → isEmbedding f
        → isInjective f
-isEmbedding→isInjective f e x y = ≃-← (ap f , e x y)
+isEmbedding⇒isInjective f e x y = ≃-← (ap f , e x y)
 
-sets-isInjective→isEmbedding :
+isSet-isInjective⇒isEmbedding :
              {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → isSet A → isSet B
            → (f : A → B)
            → isInjective f
            → isEmbedding f
-sets-isInjective→isEmbedding p q f i x y =
-  pr₂ (isProp-LogEq→Eq (x ≡ y) (f x ≡ f y) p q (ap f) (i x y))
+isSet-isInjective⇒isEmbedding p q f i x y =
+  pr₂ (isProp-areLogEq⇒Eq (x ≡ y) (f x ≡ f y) p q (ap f) (i x y))
 
 -- Theorem 4.6.3.
-isEquiv→isSurjAndEmbedding :
+isEquiv⇒isSurj-isEmbedding :
              {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → (f : A → B)
-           → is-equiv f
+           → isEquiv f
            → (isEmbedding f × isSurjec f)
-isEquiv→isSurjAndEmbedding f e =
-  (isEquiv-f→isEquiv-apf f e , fibEl)
+isEquiv⇒isSurj-isEmbedding f e =
+  (isEquiv⇒isEquiv-ap f e , fibEl)
  where
-  fibEl = λ b → ∣ pr₁ (ishae→contr-fib≡-≃ f
-                  (invertibles-are-haes f (equivs-are-invs f e)) b) ∣
+  fibEl = λ b → ∣ pr₁ (isHae⇒isContr-fib f
+                  (isQinv⇒isHae f (equivs⇒invs f e)) b) ∣
 
 tr-fx≡x : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (f : A → B) {a b : A} {y : B}
           (r : a ≡ b) (p : f a ≡ y) (q : f b ≡ y)
@@ -512,19 +512,19 @@ tr-fx≡x f (refl a) (refl _) q lem = begin
   refl (f a) ∙ q          ≡⟨ refl-left ⟩
   q                       ∎
 
-isSurjAndEmbedding→isEquiv :
+isSurj-isEmbedding⇒isEquiv :
              {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → (f : A → B)
            → isSurjec f
            → isEmbedding f
-           → is-equiv f
-isSurjAndEmbedding→isEquiv f s e =
-  invs-are-equivs f (ishae→qinv f (contrMap→hae f isContrMapf))
+           → isEquiv f
+isSurj-isEmbedding⇒isEquiv f s e =
+  invs⇒equivs f (isHae⇒isQinv f (isContrMap⇒isHae f isContrMap-f))
  where
-  isContrMapf : (y : _) → isContr (fib f y)
-  isContrMapf y = ∥∥-rec (fib f y) (isContr (fib f y))
-                   (isContr-isProp (fib f y))
-                   (λ - → pointed-props-are-contr _ (- , fib-isProp)) (s y)
+  isContrMap-f : (y : _) → isContr (fib f y)
+  isContrMap-f y = ∥∥-rec (fib f y) (isContr (fib f y))
+                    (isProp-isContr (fib f y))
+                    (λ - → isPointedProp⇒isContr _ (- , fib-isProp)) (s y)
    where
     fib-isProp : isProp (fib f y)
     fib-isProp (a , p) (b , q) =
@@ -532,8 +532,8 @@ isSurjAndEmbedding→isEquiv f s e =
      where
       r = ≃-← (ap f , e a b) (p ∙ (q ⁻¹))
 
-isSurjec-isProp : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+isProp-isSurjec : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
                 → (f : A → B)
                 → isProp (isSurjec f)
-isSurjec-isProp f = Π-preserves-props (λ - → ∥∥-isProp)
+isProp-isSurjec f = isProp-Π (λ - → ∥∥-isProp)
 ```

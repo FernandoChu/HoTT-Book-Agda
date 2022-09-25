@@ -4,16 +4,15 @@ title: Chapter 1. Type Theory
 
 # Chapter 1. Type Theory
 
-We begin with importing the Agda primitives and renaming them to match the notatio of book.
+We begin with importing the Agda primitives and renaming them to match the notation of book.
 
 ```agda
 module Chapter1.Book where
 
 open import Agda.Primitive public
-  renaming (
-            Set to Universe
-          ; lsuc to infix 1 _⁺
-          ; Setω to 𝓤ω)
+  renaming ( Set to Universe
+           ; lsuc to infix 1 _⁺
+           ; Setω to 𝓤ω)
 
 variable
   𝒾 𝒿 𝓀 : Level
@@ -26,8 +25,8 @@ variable
 _⁺⁺ : (ℓ : Level) → Level
 ℓ ⁺⁺ = (ℓ ⁺) ⁺
 
-universe-of : {ℓ : Level} (X : 𝒰 ℓ) → Level
-universe-of {ℓ} X = ℓ
+universe-of : {ℓ : Level} (A : 𝒰 ℓ) → Level
+universe-of {ℓ} A = ℓ
 ```
 
 ## Section 1.3 Dependent function types
@@ -44,30 +43,30 @@ open Lift public
 ## Section 1.4 Dependent function types
 
 ```agda
-Π : {X : 𝒰 𝒾} (Y : X → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
-Π {𝒾} {𝒿} {X} Y = (x : X) → Y x
+Π : {A : 𝒰 𝒾} (B : A → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
+Π {𝒾} {𝒿} {A} B = (x : A) → B x
 
--Π : (X : 𝒰 𝒾) (Y : X → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
--Π X Y = Π Y
+-Π : (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
+-Π A B = Π B
 infixr -1 -Π
 
 syntax -Π A (λ x → b) = Π x ꞉ A , b
 
-id : {X : 𝒰 𝒾} → X → X
+id : {A : 𝒰 𝒾} → A → A
 id a = a
 
-𝑖𝑑 : (X : 𝒰 𝒾) → X → X
-𝑖𝑑 X = id
+𝑖𝑑 : (A : 𝒰 𝒾) → A → A
+𝑖𝑑 A = id
 
 swap : Π A ꞉ 𝒰 𝒾 , Π B ꞉ 𝒰 𝒿 , Π C ꞉ 𝒰 𝓀 , ((A → B → C) → (B → A → C))
 swap A B C g b a = g a b
 
 -- Helpers
-domain : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 𝒾
-domain {𝒾} {𝒿} {X} {Y} f = X
+domain : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 𝒾
+domain {𝒾} {𝒿} {A} {B} f = A
 
-codomain : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 𝒿
-codomain {𝒾} {𝒿} {X} {Y} f = Y
+codomain : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 𝒿
+codomain {𝒾} {𝒿} {A} {B} f = B
 ```
 
 ## Section 1.5 Product types
@@ -76,41 +75,40 @@ codomain {𝒾} {𝒿} {X} {Y} f = Y
 data 𝟙 : 𝒰₀ where
   ⋆ : 𝟙
 
-𝟙-induction : (A : 𝟙 → 𝒰 𝒾) → A ⋆ → (x : 𝟙) → A x
-𝟙-induction A a ⋆ = a
+ind-𝟙 : (A : 𝟙 → 𝒰 𝒾) → A ⋆ → (x : 𝟙) → A x
+ind-𝟙 A a ⋆ = a
 ```
 
 ## Section 1.6 Dependent pairs types
 
 ```agda
-record Σ {X : 𝒰 𝒾} (Y : X → 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
+record Σ {A : 𝒰 𝒾} (B : A → 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
   constructor
     _,_
   field
-    x : X
-    y : Y x
+    x : A
+    y : B x
 infixr 50 _,_
 
--Σ : (X : 𝒰 𝒾) (Y : X → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
--Σ X Y = Σ Y
+-Σ : (A : 𝒰 𝒾) (B : A → 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
+-Σ A B = Σ B
 infixr -1 -Σ
 
-syntax -Σ X (λ x → y) = Σ x ꞉ X , y
+syntax -Σ A (λ x → y) = Σ x ꞉ A , y
 
-_×_ : (X : 𝒰 𝒾) (Y : 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
-X × Y = Σ x ꞉ X , Y
+_×_ : (A : 𝒰 𝒾) (B : 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
+A × B = Σ x ꞉ A , B
 infixr 30 _×_
 
-Σ-induction : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} {A : Σ Y → 𝒰 𝓀}
-            → ((x : X) (y : Y x) → A (x , y))
-            → ((x , y) : Σ Y) → A (x , y)
+ind-Σ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {C : Σ B → 𝒰 𝓀}
+      → ((x : A) (y : B x) → C (x , y))
+      → ((x , y) : Σ B) → C (x , y)
+ind-Σ g (x , y) = g x y
 
-Σ-induction g (x , y) = g x y
-
-pr₁ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} → Σ Y → X
+pr₁ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} → Σ B → A
 pr₁ (x , y) = x
 
-pr₂ : {X : 𝒰 𝒾} {Y : X → 𝒰 𝒿} → (z : Σ Y) → Y (pr₁ z)
+pr₂ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} → (z : Σ B) → B (pr₁ z)
 pr₂ (x , y) = y
 
 ac : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {R : A → B → 𝒰 𝓀}
@@ -122,9 +120,9 @@ ac g = ((λ x → pr₁ (g x)) , (λ x → pr₂ (g x)))
 ## Section 1.7 Coproduct types
 
 ```agda
-data _⊎_ (X : 𝒰 𝒾) (Y : 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
- inl : X → X ⊎ Y
- inr : Y → X ⊎ Y
+data _⊎_ (A : 𝒰 𝒾) (B : 𝒰 𝒿) : 𝒰 (𝒾 ⊔ 𝒿) where
+ inl : A → A ⊎ B
+ inr : B → A ⊎ B
 infixr 20 _⊎_
 
 ⊎-rec : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (C : 𝒰 𝓀)
@@ -143,12 +141,12 @@ infixr 20 _⊎_
 
 data 𝟘 : 𝒰₀ where
 
-𝟘-induction : (A : 𝟘 → 𝒰 𝒾) → (x : 𝟘) → A x
-𝟘-induction A ()
+ind-𝟘 : (A : 𝟘 → 𝒰 𝒾) → (x : 𝟘) → A x
+ind-𝟘 A ()
 
 -- Simple helper
 !𝟘 : (A : 𝒰 𝒾) → 𝟘 → A
-!𝟘 A = 𝟘-induction (λ _ → A)
+!𝟘 A = ind-𝟘 (λ _ → A)
 ```
 
 ## Section 1.8 The type of booleans
@@ -164,9 +162,9 @@ pattern ₁ = inr ⋆
 𝟚-rec C c₀ c₁ ₀ = c₀
 𝟚-rec C c₀ c₁ ₁ = c₁
 
-𝟚-induction : (A : 𝟚 → 𝒰 𝒾) → A ₀ → A ₁ → (n : 𝟚) → A n
-𝟚-induction A a₀ a₁ ₀ = a₀
-𝟚-induction A a₀ a₁ ₁ = a₁
+ind-𝟚 : (A : 𝟚 → 𝒰 𝒾) → A ₀ → A ₁ → (n : 𝟚) → A n
+ind-𝟚 A a₀ a₁ ₀ = a₀
+ind-𝟚 A a₀ a₁ ₁ = a₁
 ```
 
 ## Section 1.9 The natural numbers
@@ -177,11 +175,11 @@ data ℕ : 𝒰₀ where
   succ : ℕ → ℕ
 {-# BUILTIN NATURAL ℕ #-}
 
-ℕ-induction : (A : ℕ → 𝒰 𝒾)
+ind-ℕ : (A : ℕ → 𝒰 𝒾)
             → A 0
             → ((n : ℕ) → A n → A (succ n))
             → (n : ℕ) → A n
-ℕ-induction A a₀ f = h
+ind-ℕ A a₀ f = h
   where
     h : (n : ℕ) → A n
     h 0        = a₀
@@ -192,12 +190,12 @@ data ℕ : 𝒰₀ where
 
 ```agda
 ¬ : 𝒰 𝒾 → 𝒰 𝒾
-¬ X = X → 𝟘
+¬ A = A → 𝟘
 
--- helpers
+-- Helpers
 ¬¬ ¬¬¬ : 𝒰 𝒾 → 𝒰 𝒾
-¬¬ X = ¬ (¬ X)
-¬¬¬ X = ¬ (¬¬ X)
+¬¬ A = ¬ (¬ A)
+¬¬¬ A = ¬ (¬¬ A)
 
 de-Morgan : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
           → (¬ A × ¬ B)
@@ -214,18 +212,18 @@ de-Morgan (f , g) (inr b) = g b
 ## Section 1.12 Identity types
 
 ```agda
-data Id (X : 𝒰 𝒾) : X → X → 𝒰 𝒾 where
-  refl : (x : X) → Id X x x
+data Id (A : 𝒰 𝒾) : A → A → 𝒰 𝒾 where
+  refl : (x : A) → Id A x x
 infix   0 Id
 
-_≡_ : {X : 𝒰 𝒾} → X → X → 𝒰 𝒾
+_≡_ : {A : 𝒰 𝒾} → A → A → 𝒰 𝒾
 x ≡ y = Id _ x y
 infix   0 _≡_
 {-# BUILTIN EQUALITY _≡_ #-}
 {-# BUILTIN REWRITE _≡_ #-}
 
 -- Helper
-_≢_ : {X : 𝒰 𝒾} → X → X → 𝒰 𝒾
+_≢_ : {A : 𝒰 𝒾} → A → A → 𝒰 𝒾
 x ≢ y = ¬(x ≡ y)
 
 𝕁 : (A : 𝒰 𝒾) (D : (x y : A) → x ≡ y → 𝒰 𝒿)
