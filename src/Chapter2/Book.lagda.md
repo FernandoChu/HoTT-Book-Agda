@@ -397,11 +397,22 @@ tr-× Z A B z w (refl z) x = ×-uniq x
 
 ## 2.7 Σ-types
 
+I'm using a slightly different definition of the `f` in the following
+theorem, as it'll be useful further on.
+
 ```agda
+pair⁼⁻¹₁ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w w' : Σ B}
+         → (p : w ≡ w') → (pr₁ w) ≡ (pr₁ w')
+pair⁼⁻¹₁ p = ap pr₁ p
+
+pair⁼⁻¹₂ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w w' : Σ B}
+         → (p : w ≡ w') → tr B (ap pr₁ p) (pr₂ w) ≡ (pr₂ w')
+pair⁼⁻¹₂ (refl w) = refl _
+
 -- Theorem 2.7.2.
 pair⁼⁻¹ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w w' : Σ B}
         → (w ≡ w') → (Σ p ꞉ (pr₁ w ≡ pr₁ w') , tr B p (pr₂ w) ≡ (pr₂ w'))
-pair⁼⁻¹ (refl w) = ( refl (pr₁ w) , refl (pr₂ w) )
+pair⁼⁻¹ p = (pair⁼⁻¹₁ p , pair⁼⁻¹₂ p)
 
 pair⁼ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w w' : Σ B}
       → (Σ p ꞉ (pr₁ w ≡ pr₁ w') , tr B p (pr₂ w) ≡ (pr₂ w')) → (w ≡ w')
@@ -426,9 +437,21 @@ pair⁼ (refl w1 , refl w2) = refl (w1 , w2)
 
 -- Propositional uniqueness principle for paths in dependent sums
 ≡-Σ-uniq : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {x y : Σ B}
-                 → (r : x ≡ y)
-                 → r ≡ pair⁼(pair⁼⁻¹ r)
+         → (r : x ≡ y)
+         → r ≡ pair⁼(pair⁼⁻¹ r)
 ≡-Σ-uniq r = (≃-η (≡-Σ-≃ _ _) r)⁻¹
+
+-- Other lemmas
+≡-Σ-comp₁ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w w' : Σ B}
+            (p : pr₁ w ≡ pr₁ w') (q : tr B p (pr₂ w) ≡ pr₂ w')
+          → pair⁼⁻¹₁ (pair⁼(p , q)) ≡ p
+≡-Σ-comp₁ (refl _) (refl _) = refl _
+
+≡-Σ-comp₂ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {w w' : Σ B}
+            (p : pr₁ w ≡ pr₁ w') (q : tr B p (pr₂ w) ≡ pr₂ w')
+          → pair⁼⁻¹₂ (pair⁼(p , q)) ≡
+              ap (λ - → tr B - (pr₂ w)) (≡-Σ-comp₁ p q) ∙ q
+≡-Σ-comp₂ (refl _) (refl _) = refl _
 ```
 
 ## 2.8 The unit type

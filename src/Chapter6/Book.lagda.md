@@ -537,8 +537,26 @@ quot'-isSurjec A R P = ∥∥-rec _ _ ∥∥-isProp fibInh (pr₂ P)
 postulate
   ∕∕-isSet : (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
            → isSet (A ∕∕ R)
+  -- ∕∕-isSet A R = isSet-Σ qwfp arst
+  -- where
+  --   zxcd : (X Y : Prop𝒰 𝒿) → (X ≡ Y) ≡ (pr₁ X ≡ pr₁ Y)
+  --   zxcd X Y = ua (f , invs⇒equivs f ( g , ε , η ))
+  --    where
+  --     f = ap pr₁
+  --     g = λ - → pair⁼(- , isProp-isProp _ _)
+  --     ε = λ - → ≡-Σ-comp₁ _ _
+  --     η = λ p → begin
+  --      pair⁼(ap pr₁ p , isProp-isProp _ _) ≡⟨ ap (λ - → pair⁼(ap pr₁ p , -))
+  --                                                (isSet-Π (λ a → isSet-Π λ b
+  --                                                 → isProp⇒isSet (isProp⇒isSet (pr₂ Y))) _ _) ⟩
+  --      pair⁼(ap pr₁ p , pair⁼⁻¹₂ p)        ≡⟨ ≃-η (≡-Σ-≃ _ _) p ⟩
+  --      p ∎
+  --   qwfp : isSet (A → Prop𝒰 𝒿)
+  --   qwfp = isSet-Π (λ - → _)
+  --   arst : (P : A → Prop𝒰 _) → isSet (P isEquivalenceClassOf R)
+  --   arst _ = isProp⇒isSet ∥∥-isProp
+--
 
--- Theorem 6.10.6.
 ∕∕≃∕ : {𝒾 𝒿 : Level}
      → (A : 𝒰 𝒾) (R : mereRelation A 𝒿)
      → (equivalenceRelation (λ a b → pr₁ (R (a , b))))
