@@ -936,3 +936,17 @@ sm≡sn⇒m≡n {m} {n} p = decode-ℕ m n (encode-ℕ (succ m) (succ n) p)
     η : map⁻¹ ∘ map ∼ id
     η f = funext (λ x → (Σ-uniq (f x))⁻¹)
 ```
+
+Since we don't have cumulativity we'll use the fact that `raise` is a equivalence.
+
+```agda
+raise⁻¹ : (𝒿 : Level) (A : 𝒰 𝒾) → Raised 𝒿 A → A
+raise⁻¹ 𝒿 A (raise x) = x
+
+≡-Raised-≃ : (𝒿 : Level) (A : 𝒰 𝒾) → Raised 𝒿 A ≃ A
+≡-Raised-≃ 𝒿 A =
+  (raise⁻¹ 𝒿 A) , invs⇒equivs (raise⁻¹ 𝒿 A) (raise , refl , η)
+ where
+  η : raise ∘ (raise⁻¹ 𝒿 A) ∼ id
+  η (raise x) = refl (raise x)
+```

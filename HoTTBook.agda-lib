@@ -5,3 +5,4 @@ flags: --without-K
        --auto-inline
        --no-import-sorts
        --rewriting
+       --experimental-lossy-unification
