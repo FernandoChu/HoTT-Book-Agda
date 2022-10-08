@@ -99,8 +99,7 @@ isNType-Π : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} (n : ℕ)
           → isNType n (Π B)
 isNType-Π 0 p = isContr-Π p
 isNType-Π (succ n) p f g =
-  ≃-isNType⇒isNType n (≃-sym (≡-Π-≃ f g))
-    (isNType-Π n λ x → p x (f x) (g x))
+  ≃-isNType⇒isNType n (≃-sym (≡-Π-≃ f g)) (isNType-Π n λ x → p x (f x) (g x))
 
 -- Theorem 7.1.10.
 isProp-isNType : (n : ℕ) (A : 𝒰 𝒾)
@@ -140,29 +139,21 @@ isEmbedding-pr₁-isNType𝒰-≃ n (X , p) (X' , p') (f , equiv-f) (g , equiv-g
   ε : (ap pr₁) ∘ h ∼ id
   ε k = ≡-Σ-comp₁ k (isProp-isEquiv g (tr isEquiv k equiv-f) equiv-g)
   η : h ∘ (ap pr₁) ∼ id
-  η equiv = begin
-    pair⁼(ap pr₁ equiv , isProp-isEquiv g _ equiv-g) ≡⟨ i ⟩
-    pair⁼(ap pr₁ equiv , pair⁼⁻¹₂ equiv)             ≡⟨ ii ⟩
-    equiv ∎
-   where
-    i = ap (λ - → pair⁼(ap pr₁ equiv , -))
+  η equiv = ap (λ - → pair⁼(ap pr₁ equiv , -))
            (isProp⇒isSet (isProp-isEquiv g) _ _)
-    ii = ≃-η (≡-Σ-≃ _ _) equiv
+              ∙ ≃-η (≡-Σ-≃ _ _) equiv
+  -- η equiv = begin
+  --   pair⁼(ap pr₁ equiv , isProp-isEquiv g (tr isEquiv (ap pr₁ equiv) equiv-f) equiv-g) ≡⟨ i ⟩
+  --   pair⁼(ap pr₁ equiv , pair⁼⁻¹₂ equiv)       ≡⟨ ii ⟩
+  --   equiv ∎
+  --  where
+  --   i = ap (λ - → pair⁼(ap pr₁ equiv , -))
+  --          (isProp⇒isSet (isProp-isEquiv g) _ _)
+  --   ii = ≃-η (≡-Σ-≃ _ _) equiv
 
 -- Theorem 7.1.11.
-isNType-isNType : (n : ℕ)
-                → isNType (succ n) (NType𝒰 n 𝒾)
-isNType-isNType 0 X X' =
-   ≃-isNType⇒isNType 0 (≃-sym (≡-isNType𝒰-≃ 0 X X'))
-     (≃-isNType⇒isNType 0 (≃-sym (≡-≡-≃ (pr₁ X) (pr₁ X')))
-     {!!})
-
-     -- {!tr (λ - → isContr (- ≡ pr₁ X')) (ua (isContr⇒≃𝟙 (pr₁ X') (pr₂ X'))) ?!}
-     -- {!tr (λ - → isContr (- ≡ pr₁ X')) (ua (isContr⇒≃𝟙 (pr₁ X') (pr₂ X'))) ?!}
-isNType-isNType (succ n) X X' =
-   ≃-isNType⇒isNType (succ n) (≃-sym (≡-isNType𝒰-≃ (succ n) X X'))
-     (≃-isNType⇒isNType (succ n) (≃-sym (≡-≡-≃ (pr₁ X) (pr₁ X')))
-       (isEmbedding-isNType⇒isNType n pr₁
-         (isEmbedding-pr₁-isNType𝒰-≃ (succ n) X X')
-         (isNType-Π (succ n) λ _ → (pr₂ X')) ))
+-- isNType-isNType : (n : ℕ) (A : 𝒰 𝒾)
+--                 → isNType n (NType𝒰 n 𝒾)
+-- isNType-isNType 0 A = _
+-- isNType-isNType (succ n) A = λ X X' → _
 ```

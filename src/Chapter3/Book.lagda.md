@@ -230,15 +230,10 @@ Prop𝒰 : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
 Prop𝒰 𝒾 = Σ A ꞉ (𝒰 𝒾) , isProp(A)
 
 Prop𝒰→𝒰⁺ : (𝒾 : Level) → (Prop𝒰 𝒾) → (Prop𝒰 (𝒾 ⁺))
-Prop𝒰→𝒰⁺ 𝒾 (X , f) = Raised (𝒾 ⁺) X , isProp-Lift X f
+Prop𝒰→𝒰⁺ 𝒾 (X , f) = Lift X , isProp-Lift X f
   where
-    isProp-Lift : (A : 𝒰 𝒾) → isProp A → isProp (Raised (𝒾 ⁺) A)
-    isProp-Lift A p x y = begin
-      x ≡˘⟨ ≃-η (≡-Raised-≃ (𝒾 ⁺) A) x ⟩
-      raise (raise⁻¹ (𝒾 ⁺) A x) ≡⟨ ap raise (p (raise⁻¹ (𝒾 ⁺) A x)
-                                      (raise⁻¹ (𝒾 ⁺) A y)) ⟩
-      raise (raise⁻¹ (𝒾 ⁺) A y) ≡⟨ ≃-η (≡-Raised-≃ (𝒾 ⁺) A) y ⟩
-      y ∎
+    isProp-Lift : (A : 𝒰 𝒾) → isProp A → isProp (Lift A)
+    isProp-Lift A p x y = ap liftT (p (unlift x) (unlift y))
 
 -- Axiom 3.5.5.
 PropRes : (𝒾 : Level) → 𝒰 (𝒾 ⁺⁺)

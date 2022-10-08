@@ -33,8 +33,11 @@ universe-of {ℓ} A = ℓ
 
 ```agda
 -- Workaround to have cumulativity
-data Raised (𝒿 : Level) (A : 𝒰 𝒾) : 𝒰 (𝒾 ⊔ 𝒿) where
-  raise : A → Raised 𝒿 A
+record Lift (A : 𝒰 𝒾) : 𝒰 (𝒾 ⁺) where
+  constructor liftT
+  field unlift : A
+
+open Lift public
 ```
 
 ## Section 1.4 Dependent function types
