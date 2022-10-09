@@ -149,6 +149,9 @@ e₀≢e₁ p = ₁-is-not-₀ r
 
 ```agda
 -- Theorem 3.2.2.
+hasRAA : 𝒰 𝒾 → 𝒰 𝒾
+hasRAA A = ¬¬ A → A
+
 -- Corollary 3.27.
 ```
 
@@ -230,10 +233,15 @@ Prop𝒰 : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
 Prop𝒰 𝒾 = Σ A ꞉ (𝒰 𝒾) , isProp(A)
 
 Prop𝒰→𝒰⁺ : (𝒾 : Level) → (Prop𝒰 𝒾) → (Prop𝒰 (𝒾 ⁺))
-Prop𝒰→𝒰⁺ 𝒾 (X , f) = Lift X , isProp-Lift X f
+Prop𝒰→𝒰⁺ 𝒾 (X , f) = Raised (𝒾 ⁺) X , isProp-Lift X f
   where
-    isProp-Lift : (A : 𝒰 𝒾) → isProp A → isProp (Lift A)
-    isProp-Lift A p x y = ap liftT (p (unlift x) (unlift y))
+    isProp-Lift : (A : 𝒰 𝒾) → isProp A → isProp (Raised (𝒾 ⁺) A)
+    isProp-Lift A p x y = begin
+      x ≡˘⟨ ≃-η (≡-Raised-≃ (𝒾 ⁺) A) x ⟩
+      raise (raise⁻¹ (𝒾 ⁺) A x) ≡⟨ ap raise (p (raise⁻¹ (𝒾 ⁺) A x)
+                                      (raise⁻¹ (𝒾 ⁺) A y)) ⟩
+      raise (raise⁻¹ (𝒾 ⁺) A y) ≡⟨ ≃-η (≡-Raised-≃ (𝒾 ⁺) A) y ⟩
+      y ∎
 
 -- Axiom 3.5.5.
 PropRes : (𝒾 : Level) → 𝒰 (𝒾 ⁺⁺)
@@ -291,8 +299,11 @@ isContr : 𝒰 𝒾 → 𝒰 𝒾
 isContr A = Σ a ꞉ A , ((x : A) → a ≡ x)
 
 -- Lemma 3.11.3.
+isContr⇒isProp : (A : 𝒰 𝒾) → isContr A → isProp A
+isContr⇒isProp A (a , p) x y = (p x)⁻¹ ∙ (p y)
+
 isContr⇒isPointedProp : (A : 𝒰 𝒾) → isContr A → A × isProp A
-isContr⇒isPointedProp A (a , p) = (a , λ x y → (p x)⁻¹ ∙ (p y))
+isContr⇒isPointedProp A (a , p) = (a , isContr⇒isProp A (a , p))
 
 isPointedProp⇒isContr : (A : 𝒰 𝒾) → A × (isProp A) → isContr A
 isPointedProp⇒isContr A (a , p) = (a , λ x → p a x)

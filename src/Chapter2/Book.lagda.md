@@ -526,6 +526,17 @@ tr-Π : {X : 𝒰 𝒾}
          (tr (λ (w : Σ A) → B (pr₁ w) (pr₂ w))
              (pair⁼( (p ⁻¹) , refl _ ) ⁻¹) (f (tr A (p ⁻¹) a)))
 tr-Π (refl _) f a = refl _
+
+-- Lemma 2.9.6.
+≡-tr-Π-≃ : {X : 𝒰 𝒾}
+           {A : X → 𝒰 𝓀}
+           {B : X → 𝒰 𝒿}
+           {x y : X} (p : x ≡ y)
+           (f : A x → B x)
+           (g : A y → B y)
+         → (tr (λ z → A z → B z) p f ≡ g)
+             ≃ ((a : A x) → tr B p (f a) ≡ g (tr A p a))
+≡-tr-Π-≃ (refl x) f g = ≡-Π-≃ f g
 ```
 
 ## 2.10 Universes and the univalence axiom
@@ -539,9 +550,6 @@ idtoeqv {𝒾} {A} {B} p = tr (λ C → C) p , helper p
     helper (refl A) = invs⇒equivs (𝑖𝑑 A) (isQinv-id A)
 
 postulate ua-ax : {𝒾 : Level} → (A B : 𝒰 𝒾) → isEquiv (idtoeqv {𝒾} {A} {B})
-
-isQinv-ua : (A B : 𝒰 𝒾) → isQinv idtoeqv
-isQinv-ua A B = equivs⇒invs idtoeqv (ua-ax A B)
 
 ≡-≡-≃ : (A B : 𝒰 𝒾) → (A ≡ B) ≃ (A ≃ B)
 ≡-≡-≃ A B = idtoeqv , ua-ax A B
@@ -912,6 +920,14 @@ encode∘decode-ℕ∼id (succ m) (succ n) c = begin
   encode-ℕ m n , invs⇒equivs (encode-ℕ m n)
     (decode-ℕ m n , encode∘decode-ℕ∼id m n , decode∘encode-ℕ∼id m n)
 
+-- Equation 2.13.2.
+¬succ≡0 : (m : ℕ) → ¬(succ m ≡ 0)
+¬succ≡0 m = encode-ℕ (succ m) 0
+
+¬0≡succ : (m : ℕ) → ¬(0 ≡ succ m)
+¬0≡succ m = encode-ℕ 0 (succ m)
+
+-- Equation 2.13.3.
 sm≡sn⇒m≡n : {m n : ℕ} → (succ m ≡ succ n) → (m ≡ n)
 sm≡sn⇒m≡n {m} {n} p = decode-ℕ m n (encode-ℕ (succ m) (succ n) p)
 ```
@@ -935,4 +951,18 @@ sm≡sn⇒m≡n {m} {n} p = decode-ℕ m n (encode-ℕ (succ m) (succ n) p)
     ε (g , h) = refl _
     η : map⁻¹ ∘ map ∼ id
     η f = funext (λ x → (Σ-uniq (f x))⁻¹)
+```
+
+Since we don't have cumulativity we'll use the fact that `raise` is a equivalence.
+
+```agda
+raise⁻¹ : (𝒿 : Level) (A : 𝒰 𝒾) → Raised 𝒿 A → A
+raise⁻¹ 𝒿 A (raise x) = x
+
+≡-Raised-≃ : (𝒿 : Level) (A : 𝒰 𝒾) → Raised 𝒿 A ≃ A
+≡-Raised-≃ 𝒿 A =
+  (raise⁻¹ 𝒿 A) , invs⇒equivs (raise⁻¹ 𝒿 A) (raise , refl , η)
+ where
+  η : raise ∘ (raise⁻¹ 𝒿 A) ∼ id
+  η (raise x) = refl (raise x)
 ```
