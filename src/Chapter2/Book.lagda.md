@@ -191,7 +191,7 @@ apd-trconst : {A : 𝒰 𝒾} (B : 𝒰 𝒿) {x y : A}
 apd-trconst B f (refl x) = refl (refl (f x))
 
 -- Lemma 2.3.9.
--- (Slight generalization for the ≡-≡-∙ proof)
+-- (Slight generalization for the ≡-𝒰-∙ proof)
 tr-∘ : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y z : A}
        (p : x ≡ y) (q : y ≡ z)
      → (tr P q) ∘ (tr P p) ≡ tr P (p ∙ q)
@@ -202,6 +202,12 @@ tr-ap : {A : 𝒰 𝒾} (B : A → 𝒰 𝒿) (f : A → A)
         {x y : A} (p : x ≡ y)
       → tr B (ap f p) ≡ tr (B ∘ f) p
 tr-ap B f (refl _) = refl _
+
+-- A slight generalization of the above lemma
+tr-ap' : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (P : A → 𝒰 𝓀) (f : B → A)
+         {x y : B} (p : x ≡ y)
+       → tr P (ap f p) ≡ tr (P ∘ f) p
+tr-ap' P f (refl _) = refl _
 ```
 
 ## Section 2.4 Homotopies and equivalences
@@ -227,8 +233,8 @@ f ∼ g = ∀ x → f x ≡ g x
 ∼-trans f g h H1 H2 = λ x → (H1 x) ∙ (H2 x)
 
 -- Lemma 2.4.3.
-∼-naturality : {X : 𝒰 𝒾} {A : 𝒰 𝒿}
-               (f g : X → A) (H : f ∼ g) {x y : X} {p : x ≡ y}
+∼-naturality : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+               (f g : A → B) (H : f ∼ g) {x y : A} {p : x ≡ y}
              → H x ∙ ap g p ≡ ap f p ∙ H y
 ∼-naturality f g H {x} {_} {refl a} = refl-right ∙ refl-left ⁻¹
 
@@ -508,6 +514,7 @@ funext {f = f} {g = g} = ≃-← (≡-Π-≃ f g)
 ≡-Π-uniq : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿}
          → {f g : Π B}
          → (p : f ≡ g)
+
          → p ≡ funext (happly p)
 ≡-Π-uniq {f = f} {g = g} p = (≃-η (≡-Π-≃ f g) p)⁻¹
 
@@ -551,43 +558,43 @@ idtoeqv {𝒾} {A} {B} p = tr (λ C → C) p , helper p
 
 postulate ua-ax : {𝒾 : Level} → (A B : 𝒰 𝒾) → isEquiv (idtoeqv {𝒾} {A} {B})
 
-≡-≡-≃ : (A B : 𝒰 𝒾) → (A ≡ B) ≃ (A ≃ B)
-≡-≡-≃ A B = idtoeqv , ua-ax A B
+≡-𝒰-≃ : (A B : 𝒰 𝒾) → (A ≡ B) ≃ (A ≃ B)
+≡-𝒰-≃ A B = idtoeqv , ua-ax A B
 
 ua : {A B : 𝒰 𝒾} → A ≃ B → A ≡ B
-ua {𝒾} {A} {B} eqv = ≃-← (≡-≡-≃ A B) eqv
+ua {𝒾} {A} {B} eqv = ≃-← (≡-𝒰-≃ A B) eqv
 
-≡-≡-comp : {A B : 𝒰 𝒾} (eqv : A ≃ B) (x : A)
+≡-𝒰-comp : {A B : 𝒰 𝒾} (eqv : A ≃ B) (x : A)
         → tr id (ua eqv) x ≡ ≃-→ eqv x
-≡-≡-comp {A = A} {B = B} eqv x =
+≡-𝒰-comp {A = A} {B = B} eqv x =
  happly q x
   where
    p : idtoeqv (ua eqv) ≡ eqv
-   p = ≃-ε (≡-≡-≃ A B) eqv
+   p = ≃-ε (≡-𝒰-≃ A B) eqv
    q : tr id (ua eqv) ≡ pr₁ eqv
    q = ap pr₁ p
 
-≡-≡-uniq : {A B : 𝒰 𝒾} (p : A ≡ B)
+≡-𝒰-uniq : {A B : 𝒰 𝒾} (p : A ≡ B)
         → p ≡ ua (idtoeqv p)
-≡-≡-uniq {A = A} {B = B} p = (≃-η (≡-≡-≃ A B) p)⁻¹
+≡-𝒰-uniq {A = A} {B = B} p = (≃-η (≡-𝒰-≃ A B) p)⁻¹
 
 ua-id : {A : 𝒰 𝒾}
       → refl A ≡ ua (≃-refl A)
 ua-id {A = A} = begin
-  refl A                ≡⟨ ≡-≡-uniq (refl A) ⟩
+  refl A                ≡⟨ ≡-𝒰-uniq (refl A) ⟩
   ua (idtoeqv (refl A)) ≡⟨⟩
   ua (≃-refl A)         ∎
 
-≡-≡-∙ : {A B C : 𝒰 𝒾} (eqvf : A ≃ B) (eqvg : B ≃ C)
+≡-𝒰-∙ : {A B C : 𝒰 𝒾} (eqvf : A ≃ B) (eqvg : B ≃ C)
      → ua eqvf ∙ ua eqvg ≡ ua (≃-trans eqvf eqvg)
-≡-≡-∙ {𝒾} {A} {B} {C} eqvf eqvg = begin
-  ua eqvf ∙ ua eqvg                    ≡⟨ ≡-≡-uniq (p ∙ q)                 ⟩
+≡-𝒰-∙ {𝒾} {A} {B} {C} eqvf eqvg = begin
+  ua eqvf ∙ ua eqvg                    ≡⟨ ≡-𝒰-uniq (p ∙ q)                 ⟩
   ua (idtoeqv (p ∙ q))                 ≡˘⟨ ap (λ - → ua -) idtoeqv-∙      ⟩
   ua (≃-trans (idtoeqv p) (idtoeqv q)) ≡˘⟨ ap (λ - → ua
                                                (≃-trans (idtoeqv p) -))
-                                               ((≃-ε (≡-≡-≃ B C) eqvg)⁻¹) ⟩
+                                               ((≃-ε (≡-𝒰-≃ B C) eqvg)⁻¹) ⟩
   ua (≃-trans (idtoeqv p) eqvg)        ≡˘⟨ ap (λ - → ua (≃-trans - eqvg))
-                                              ((≃-ε (≡-≡-≃ A B) eqvf)⁻¹)  ⟩
+                                              ((≃-ε (≡-𝒰-≃ A B) eqvf)⁻¹)  ⟩
   ua (≃-trans eqvf eqvg)               ∎
  where
   p = ua eqvf
@@ -631,7 +638,7 @@ tr-_∼id {𝒾} {A} {f} h = begin
 ua⁻¹ : {A B : 𝒰 𝒾} (eqv : A ≃ B)
      → (ua eqv)⁻¹ ≡ ua (≃-sym eqv)
 ua⁻¹ {𝒾} {A} {B} eqvf@(f , e) =
-  sufficient (≡-≡-∙ eqvf⁻¹ eqvf ∙ claim2)
+  sufficient (≡-𝒰-∙ eqvf⁻¹ eqvf ∙ claim2)
  where
   p = ua eqvf
   eqvf⁻¹ = ≃-sym eqvf
@@ -675,7 +682,7 @@ ua⁻¹ {𝒾} {A} {B} eqvf@(f , e) =
       iid = tr-_∼id β
 
   claim2 : ua (≃-trans eqvf⁻¹ eqvf) ≡ refl B
-  claim2 = ap (ua) claim1 ∙ ((≡-≡-uniq (refl B))⁻¹)
+  claim2 = ap (ua) claim1 ∙ ((≡-𝒰-uniq (refl B))⁻¹)
 ```
 
 ## 2.11 Identity type
@@ -951,6 +958,22 @@ sm≡sn⇒m≡n {m} {n} p = decode-ℕ m n (encode-ℕ (succ m) (succ n) p)
     ε (g , h) = refl _
     η : map⁻¹ ∘ map ∼ id
     η f = funext (λ x → (Σ-uniq (f x))⁻¹)
+```
+
+## Additional commentaries
+
+Univalence let us prove something like path induction but for equivalences.
+```agda
+ind-≃ : (P : (A B : 𝒰 𝒾) → (A ≃ B) → 𝒰 𝒿)
+   → ((A : 𝒰 𝒾) → P A A (≃-refl A))
+   → (A B : 𝒰 𝒾) → (e : A ≃ B) → P A B e
+ind-≃ P f A B e =
+ tr (λ (C , e') → P A C e')
+    (tr (λ - → A , ≃-refl A ≡ B , -) (≃-ε (≡-𝒰-≃ A B) e) (lemma (ua e)))
+    (f A)
+  where
+    lemma : (p : A ≡ B) → (A , ≃-refl A) ≡ (B , ≃-→ (≡-𝒰-≃ A B) p)
+    lemma (refl A) = pair⁼(refl _ , refl _)
 ```
 
 Since we don't have cumulativity we'll use the fact that `raise` is a equivalence.

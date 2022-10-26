@@ -176,7 +176,7 @@ isHinit-ℕ-isProp 𝒾 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
 
     tr-i₀≡j₀ : tr (λ C → C) (cI≡cJ) i₀ ≡ j₀
     tr-i₀≡j₀ = begin
-      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡-≡-comp cI≃cJ i₀ ⟩
+      tr (λ C → C) (cI≡cJ) i₀ ≡⟨ ≡-𝒰-comp cI≃cJ i₀ ⟩
       f i₀                    ≡⟨ pr₁ (pr₂ F) ⟩
       j₀                      ∎
 
@@ -191,9 +191,9 @@ isHinit-ℕ-isProp 𝒾 I@(cI , i₀ , iₛ) J@(cJ , j₀ , jₛ) fI gJ =
       jₛ x                                  ∎
      where
       i = happly (tr-→ cI≡cJ iₛ) x
-      ii = ≡-≡-comp cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
+      ii = ≡-𝒰-comp cI≃cJ (iₛ (tr id (cI≡cJ ⁻¹) x))
       iii = ap (λ - → f (iₛ (tr id - x))) (ua⁻¹ cI≃cJ)
-      iv = ap (λ - → f (iₛ -)) (≡-≡-comp (≃-sym cI≃cJ) x)
+      iv = ap (λ - → f (iₛ -)) (≡-𝒰-comp (≃-sym cI≃cJ) x)
       v = pr₂ (pr₂ F) (g x)
       vi = ap jₛ (happly f∘g≡id x)
 ```

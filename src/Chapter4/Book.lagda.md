@@ -26,6 +26,69 @@ isHae f = Σ g ꞉ (codomain f → domain f)
          , Σ ε ꞉ f ∘ g ∼ id
          , ((x : domain f) → ap f (η x) ≡ ε (f x))
 
+isHae' : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} → (X → Y) → 𝒰 (𝒾 ⊔ 𝒿)
+isHae' f = Σ g ꞉ (codomain f → domain f)
+         , Σ η ꞉ g ∘ f ∼ id
+         , Σ ε ꞉ f ∘ g ∼ id
+         , ((y : codomain f) → ap g (ε y) ≡ η (g y))
+
+-- Lemma 4.2.2.
+isHae⇒isHae' : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+       → (f : A → B)
+       → isHae f → isHae' f
+isHae⇒isHae' f (g , η , ε , τ) = (g , η , ε , ν)
+ where
+  ν : (y : codomain f) → (ap g (ε y) ≡ η (g y))
+  ν y = ∙-left-cancel (ap (g ∘ f ∘ g) (ε y)) (square3 ⁻¹ ∙ square4)
+   where
+    square0 : ε (f (g y)) ∙ (ε y) ≡ ap (f ∘ g) (ε y) ∙ (ε y)
+    square0 = tr (λ - → ε (f (g y)) ∙ - ≡ ap (f ∘ g) (ε y) ∙ (ε y))
+                 (ap-id (ε y)) (∼-naturality (f ∘ g) id ε)
+    square1 : ap g (ε (f (g y))) ∙ ap g (ε y)
+               ≡ ap (g ∘ f ∘ g) (ε y) ∙ ap g (ε y)
+    square1 = begin
+      ap g (ε (f (g y))) ∙ ap g (ε y)      ≡˘⟨ i  ⟩
+      ap g (ε (f (g y)) ∙ (ε y))           ≡⟨ ii  ⟩
+      ap g (ap (f ∘ g) (ε y) ∙ (ε y))      ≡⟨ iii ⟩
+      ap g (ap (f ∘ g) (ε y)) ∙ ap g (ε y) ≡˘⟨ iv ⟩
+      ap (g ∘ f ∘ g) (ε y) ∙ ap g (ε y)    ∎
+     where
+      i = ap-∙ g (ε (f (g y))) (ε y)
+      ii = ap (ap g) square0
+      iii = ap-∙ g (ap (f ∘ g) (ε y)) (ε y)
+      iv = ap (_∙ ap g (ε y)) (ap-∘ (f ∘ g) g (ε y))
+    square2 : ap (g ∘ f) (η (g y)) ∙ ap g (ε y)
+               ≡ ap (g ∘ f ∘ g) (ε y) ∙ ap g (ε y)
+    square2 = begin
+      ap (g ∘ f) (η (g y)) ∙ ap g (ε y)  ≡⟨ i   ⟩
+      ap g (ap f (η (g y))) ∙ ap g (ε y) ≡⟨ ii  ⟩
+      ap g (ε (f (g y))) ∙ ap g (ε y)    ≡⟨ iii ⟩
+      ap (g ∘ f ∘ g) (ε y) ∙ ap g (ε y) ∎
+     where
+      i = ap (_∙ ap g (ε y)) (ap-∘ f g (η (g y)))
+      ii = ap (λ - → ap g - ∙ ap g (ε y)) (τ (g y))
+      iii = square1
+    square3 : η (g (f (g y))) ∙ ap g (ε y) ≡ ap (g ∘ f ∘ g) (ε y) ∙ ap g (ε y)
+    square3 = tr (λ - → - ∙ ap g (ε y) ≡ ap (g ∘ f ∘ g) (ε y) ∙ ap g (ε y))
+                 (~-id-naturality (g ∘ f) η ⁻¹) square2
+    square4 : η (g (f (g y))) ∙ ap g (ε y) ≡ ap (g ∘ f ∘ g) (ε y) ∙ η (g y)
+    square4 = begin
+      η (g (f (g y))) ∙ ap g (ε y)         ≡˘⟨ i   ⟩
+      η (g (f (g y))) ∙ ap id (ap g (ε y)) ≡⟨ ii   ⟩
+      ap (g ∘ f) (ap g (ε y)) ∙ η (g y)    ≡˘⟨ iii ⟩
+      ap (g ∘ f ∘ g) (ε y) ∙ η (g y)       ∎
+     where
+      i = ap (η (g (f (g y))) ∙_) (ap-id (ap g (ε y)))
+      ii = ∼-naturality (g ∘ f) id η
+      iii = ap (_∙ η (g y)) (ap-∘ g (g ∘ f) (ε y))
+
+isHae'⇒isHae : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+       → (f : A → B)
+       → isHae' f → isHae f
+isHae'⇒isHae f (g , η , ε , τ) =
+  let (_ , _ , _ , ν) = isHae⇒isHae' g (f , ε , η , τ)
+   in (g , η , ε , ν)
+
 -- Helper
 isHae⇒isQinv : {X : 𝒰 𝒾} {Y : 𝒰 𝒿} (f : X → Y)
            → isHae f → isQinv f
@@ -78,8 +141,7 @@ fib f y = Σ x ꞉ domain f , f x ≡ y
 ≡-comm p q = ua eqv
   where
     eqv : (p ≡ q) ≃ (q ≡ p)
-    eqv = (_⁻¹) , invs⇒equivs (_⁻¹)
-                   ((_⁻¹) , ⁻¹-involutive , ⁻¹-involutive)
+    eqv = (_⁻¹) , invs⇒equivs (_⁻¹) ((_⁻¹) , ⁻¹-involutive , ⁻¹-involutive)
 
 -- Lemma 4.2.5.
 fib-≡-≃ : {𝒾 𝒿 : Level} {A : 𝒰 𝒾} {B : 𝒰 𝒿}
@@ -373,7 +435,7 @@ isProp-isHae f =
       , Σ η ꞉ g ∘ f ∼ id
       , ((x : domain f) → ap f (η x) ≡ ε (f x)))
         ≃ (Σ u ꞉ isRinv f , rcoh f (pr₁ u , pr₂ u))
-  ii = Σ-assoc
+  ii = Σ-assoc (λ z → Σ (λ η → (x : domain f) → ap f (η x) ≡ pr₂ z (f x)))
   iii : isHae f → isContr (Σ u ꞉ isRinv f , rcoh f (pr₁ u , pr₂ u))
   iii haef = Σ-preserves-contr isRinv-isContr rcoh-isContr
    where

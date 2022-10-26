@@ -220,7 +220,7 @@ postulate
               → (m : (a : A) → tr P (merid A a) n ≡ s)
               → ((a : A) → (apd (𝝨-ind A P n s m) (merid A a) ≡ m a))
 
-
+-- Lemma 6.5.1.
 𝝨𝟚≃𝕊¹ : 𝝨 𝟚 ≃ 𝕊¹
 𝝨𝟚≃𝕊¹ = f , invs⇒equivs f (g , ε , η)
  where
@@ -319,6 +319,11 @@ postulate
       X    = ap (λ - → (-)⁻¹ ∙ loop) refl-right
       XI   = ⁻¹-left∙ loop
 
+-- Definition 6.5.2.
+𝕊ⁿ : (n : ℕ) → 𝒰₀
+𝕊ⁿ zero = 𝟚
+𝕊ⁿ (succ n) = 𝝨 (𝕊ⁿ n)
+
 Map* : ((A , a₀) : 𝒰∙ 𝒾) → ((B , b₀) : 𝒰∙ 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
 Map* (A , a₀) (B , b₀) = Σ f ꞉ (A → B) , f a₀ ≡ b₀
 
@@ -326,9 +331,9 @@ _₊ : (A : 𝒰 𝒾) → 𝒰∙ 𝒾
 A ₊ = (A ⊎ 𝟙) , inr ⋆
 
 -- Lemma 6.5.3.
-Map₊≃ : (A : 𝒰 𝒾) → ((B , b₀) : 𝒰∙ 𝒿)
+Map*₊≃ : (A : 𝒰 𝒾) → ((B , b₀) : 𝒰∙ 𝒿)
       → Map* (A ₊) (B , b₀) ≃ (A → B)
-Map₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
+Map*₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
  where
   map = λ (f , eq) → f ∘ inl
   map⁻¹ = λ g → ⊎-rec B g (λ - → b₀) , refl b₀
@@ -366,6 +371,129 @@ Map₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
       iv  = refl-right
       v   = ap (λ - → (- (inr ⋆))⁻¹) (≡-Π-comp f'∼f)
       vi  = ⁻¹-involutive eq
+
+-- Needed Lemma for the next lemma (it's exercise 6.11)
+𝝨→-≃ : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
+     → (𝝨 A → B) ≃ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ)))
+𝝨→-≃ A B = map , invs⇒equivs map (map⁻¹ , ε , η)
+ where
+  map : (𝝨 A → B) → (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ)))
+  map f = (f (N A) , f (S A) , λ x → ap f (merid A x))
+  map⁻¹ : (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ))) → (𝝨 A → B)
+  map⁻¹ (bₙ , bₛ , g) = 𝝨-rec A B bₙ bₛ g
+  ε : (map  ∘ map⁻¹) ∼ id
+  ε (bₙ , bₛ , g) =
+    pair⁼(refl bₙ ,
+      pair⁼(refl bₛ ,
+        funext (λ x → 𝝨-rec-comp A B bₙ bₛ g x)))
+  η : (map⁻¹  ∘ map) ∼ id
+  η f = funext (λ x →
+    𝝨-ind A (λ - → (map⁻¹ ∘ map) f - ≡ id f -)
+      (refl _) (refl _) (λ a → (begin
+        tr (λ - → map⁻¹ (map f) - ≡ f -) (merid A a)
+           (refl (map⁻¹ (map f) (N A)))              ≡⟨ i a ⟩
+        ap (map⁻¹ (map f)) (merid A a) ⁻¹
+          ∙ refl (map⁻¹ (map f) (N A))
+          ∙ ap f (merid A a)                         ≡⟨ ii a ⟩
+        ap (map⁻¹ (map f)) (merid A a) ⁻¹
+          ∙ ap f (merid A a)                         ≡⟨ iii a ⟩
+        ap f (merid A a) ⁻¹
+          ∙ ap f (merid A a)                         ≡⟨ iv a ⟩
+        refl (map⁻¹ (map f) (S A)) ∎)) x)
+   where
+    i = λ a → tr-fx≡gx (map⁻¹ (map f)) f (merid A a) (refl _)
+    ii = λ a → ap (_∙ ap f (merid A a)) refl-right
+    iii = λ a → ap (λ - → - ⁻¹ ∙ ap f (merid A a))
+      (𝝨-rec-comp A B (f (N A)) (f (S A)) (λ x → ap f (merid A x)) a)
+    iv = λ a → ⁻¹-left∙ (ap f (merid A a))
+
+zxcd : (A : 𝒰 𝒾) (B : 𝒰 𝒿) (P : A → 𝒰 𝓀) (A≃B : A ≃ B)
+     → (Σ x ꞉ A , P x) ≃ (Σ y ꞉ B , P (≃-← A≃B y))
+zxcd A B P A≃B = map , invs⇒equivs map (map⁻¹ , ε , η)
+ where
+  map : (Σ x ꞉ A , P x) → (Σ y ꞉ B , P (≃-← A≃B y))
+  map (x , px) = (≃-→ A≃B x , tr P ((≃-η A≃B x)⁻¹) px)
+  map⁻¹ : (Σ y ꞉ B , P (≃-← A≃B y)) → (Σ x ꞉ A , P x)
+  map⁻¹ (y , py) = (≃-← A≃B y , py)
+  ε : (map  ∘ map⁻¹) ∼ id
+  ε (y , py) = pair⁼(≃-ε A≃B y , (begin
+    tr (P ∘ (≃-← A≃B)) (≃-ε A≃B y)
+       (tr P ((≃-η A≃B (≃-← A≃B y))⁻¹) py) ≡˘⟨ i ⟩
+    tr P (ap (≃-← A≃B) (≃-ε A≃B y))
+       (tr P ((≃-η A≃B (≃-← A≃B y))⁻¹) py) ≡⟨ ii ⟩
+    tr P ((≃-η A≃B (≃-← A≃B y))⁻¹
+      ∙ ap (≃-← A≃B) (≃-ε A≃B y)) py       ≡⟨ iii ⟩
+    py ∎))
+   where
+    i = happly (tr-ap' P (≃-← A≃B) (≃-ε A≃B y)) (tr P ((≃-η A≃B (≃-← A≃B y))⁻¹) py)
+    ii = happly (tr-∘ P ((≃-η A≃B (≃-← A≃B y))⁻¹) (ap (≃-← A≃B) (≃-ε A≃B y))) py
+    iii = _
+  η : (map⁻¹  ∘ map) ∼ id
+  η (x , px) = {!!}
+
+-- Lemma 6.5.4.
+Map*𝝨≃ : ((A , a₀) : 𝒰∙ 𝒾) ((B , b₀) : 𝒰∙ 𝒿)
+       → Map* (𝝨 A , N A) (B , b₀) ≃ Map* (A , a₀) (Ω (B , b₀))
+Map*𝝨≃ (A , a₀) (B , b₀) = _
+ where
+  arst : (𝝨 A → B) ≃ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ)))
+  arst = 𝝨→-≃ A B
+  qwfp : (Σ f ꞉ (𝝨 A → B) , f (N A) ≡ b₀) ≃ (Σ f ꞉ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ))) , (pr₁ f ≡ b₀))
+  qwfp = map , invs⇒equivs map (map⁻¹ , ε , η)
+   where
+    map : (Σ f ꞉ (𝝨 A → B) , f (N A) ≡ b₀)
+        → (Σ f ꞉ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ))) , (pr₁ f ≡ b₀))
+    map (f , p) = (≃-→ arst f , p)
+    map⁻¹ : (Σ f ꞉ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ))) , (pr₁ f ≡ b₀))
+          → (Σ f ꞉ (𝝨 A → B) , f (N A) ≡ b₀)
+    map⁻¹ (f , p) = (≃-← arst f , p)
+    ε : (map  ∘ map⁻¹) ∼ id
+    ε (f , p) = pair⁼(≃-ε arst f , (begin
+      tr (λ z → pr₁ z ≡ b₀) (≃-ε (𝝨→-≃ A B) f) p  ≡⟨ i ⟩
+      ap pr₁ (≃-ε (𝝨→-≃ A B) f) ⁻¹ ∙ p
+        ∙ ap (λ - → b₀) (≃-ε (𝝨→-≃ A B) f)        ≡⟨ ii ⟩
+      ap pr₁ (≃-ε (𝝨→-≃ A B) f) ⁻¹ ∙ p ∙ (refl _) ≡⟨ iii ⟩
+      refl _ ∙ p ∙ (refl _)                       ≡⟨ iv ⟩
+      refl _ ∙ p                                  ≡⟨ v ⟩
+      p                                           ∎))
+     where
+      i = tr-fx≡gx pr₁ (λ - → b₀) (≃-ε (𝝨→-≃ A B) f) p
+      ii = ap (ap pr₁ (≃-ε (𝝨→-≃ A B) f) ⁻¹ ∙ p ∙_) (ap-const _ b₀)
+      iii = ap (λ - → - ∙ p ∙ (refl _))
+               (tr (λ - → - ⁻¹ ≡ refl _)
+               ((≡-Σ-comp₁ (refl (pr₁ f)) _)⁻¹) (refl _))
+      iv = refl-right
+      v = refl-left
+    η : (map⁻¹  ∘ map) ∼ id
+    η (f , p) = pair⁼(≃-η arst f , (begin
+      tr (λ z → z (N A) ≡ b₀) (≃-η (𝝨→-≃ A B) f) p   ≡⟨ i ⟩
+      happly (≃-η (𝝨→-≃ A B) f) (N A) ⁻¹ ∙ p ∙
+        ap (λ - → b₀) (≃-η (𝝨→-≃ A B) f)             ≡⟨ ii ⟩
+      happly (≃-η (𝝨→-≃ A B) f) (N A) ⁻¹ ∙ p ∙
+        (refl _)                                     ≡⟨ _ ⟩
+      p ∎))
+     where
+      i = tr-fx≡gx (λ - → - (N A)) (λ - → b₀) (≃-η (𝝨→-≃ A B) f) p
+      ii = ap (ap (λ - → - (N A)) (≃-η (𝝨→-≃ A B) f) ⁻¹ ∙ p ∙_) (ap-const _ b₀)
+      -- qwfp' : happly (≃-η (𝝨→-≃ A B) f) (N A) ≡ refl ((≃-← (𝝨→-≃ A B) ∘ ≃-→ (𝝨→-≃ A B)) f (N A))
+      qwfp' : ap (λ - → - (N A)) (≃-η (𝝨→-≃ A B) f) ≡ refl ((≃-← (𝝨→-≃ A B) ∘ ≃-→ (𝝨→-≃ A B)) f (N A))
+      qwfp' = idk
+       where
+        eqv : (𝝨 A → B) ≃ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ)))
+        eqv = 𝝨→-≃ A B
+        f' = pr₁ eqv
+        g' = pr₁ (pr₁ (pr₂ eqv))
+        α' = pr₂ (pr₁ (pr₂ eqv))
+        h' = pr₁ (pr₂ (pr₂ eqv))
+        β' = pr₂ (pr₂ (pr₂ eqv))
+        γ' : (x : codomain f') → (g' x ≡ h' x)
+        γ' x = begin
+          g' x ≡˘⟨ β' (g' x) ⟩
+          h' (f' (g' x)) ≡⟨ ap h' (α' x) ⟩
+          h' x ∎
+        -- idk : happly (β' (g' (f' f)) ⁻¹ ∙ (ap h' (α' (f' f)) ∙ refl _) ∙ β' f) (N A) ≡ refl ((≃-← (𝝨→-≃ A B) ∘ ≃-→ (𝝨→-≃ A B)) f (N A))
+        idk : happly (β' (g' (f' f)) ⁻¹ ∙ (ap h' (α' (f' f)) ∙ refl _) ∙ β' f) (N A) ≡ refl ((≃-← (𝝨→-≃ A B) ∘ ≃-→ (𝝨→-≃ A B)) f (N A))
+        idk = _
 ```
 
 ## 6.9 Truncations

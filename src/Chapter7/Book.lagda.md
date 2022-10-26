@@ -158,7 +158,7 @@ isNType-isNType : (n : ℕ)
                 → isNType (succ n) (NType𝒰 n 𝒾)
 isNType-isNType 0 (X , p) (X' , p') =
    ≃-isNType⇒isNType 0 (≃-sym (≡-isNType𝒰-≃ 0 (X , p) (X' , p')))
-     (≃-isNType⇒isNType 0 (≃-sym (≡-≡-≃ X X'))
+     (≃-isNType⇒isNType 0 (≃-sym (≡-𝒰-≃ X X'))
        (isPointedProp⇒isContr (X ≃ X')
          (≃-trans (isContr⇒≃𝟙 X p) (≃-sym (isContr⇒≃𝟙 X' p')) ,
           (λ f g →
@@ -170,7 +170,7 @@ isNType-isNType 0 (X , p) (X' , p') =
   X'≃1 = isContr⇒≃𝟙 X' p'
 isNType-isNType (succ n) X X' =
    ≃-isNType⇒isNType (succ n) (≃-sym (≡-isNType𝒰-≃ (succ n) X X'))
-     (≃-isNType⇒isNType (succ n) (≃-sym (≡-≡-≃ (pr₁ X) (pr₁ X')))
+     (≃-isNType⇒isNType (succ n) (≃-sym (≡-𝒰-≃ (pr₁ X) (pr₁ X')))
        (isEmbedding-isNType⇒isNType n pr₁
          (isEmbedding-pr₁-isNType𝒰-≃ (succ n) X X')
          (isNType-Π (succ n) λ _ → (pr₂ X')) )) 
@@ -242,4 +242,18 @@ hasDecidableEquality-ℕ (succ x) (succ y) =
         (λ p → inl(ap succ p))
         (λ f → inr(λ p → f (sm≡sn⇒m≡n p)))
         (hasDecidableEquality-ℕ x y)
+```
+
+## 7.3. Truncations
+
+```agda
+postulate
+  ∥_∥ₙ : {𝒾 : Level} → (A : 𝒰 𝒾) → (n : ℕ) → 𝒰 𝒾
+  ∣_∣ₙ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → (n : ℕ) → ∥ A ∥ₙ n
+  ∥∥ₙ-hub : {𝒾 : Level} (A : 𝒰 𝒾) (n : ℕ)
+         → (𝕊ⁿ (succ n) → ∥ A ∥ₙ n)
+         → (∥ A ∥ₙ n)
+  ∥∥ₙ-spoke : {𝒾 : Level} (A : 𝒰 𝒾) (n : ℕ)
+            → (r : 𝕊ⁿ (succ n) → ∥ A ∥ₙ n)
+            → (x : 𝕊ⁿ (succ n)) → (r x ≡ ∥∥ₙ-hub A n r)
 ```

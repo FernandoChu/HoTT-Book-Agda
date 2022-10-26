@@ -138,7 +138,7 @@ e₀≢e₁ p = ₁-is-not-₀ r
     assumption = isSet-𝒰₀ {𝟚} {𝟚} p (refl 𝟚)
     p≡refl : e₁ ≡ idtoeqv (refl 𝟚)
     p≡refl = begin
-      e₁                ≡⟨ (≃-ε (≡-≡-≃ 𝟚 𝟚) e₁)⁻¹  ⟩
+      e₁                ≡⟨ (≃-ε (≡-𝒰-≃ 𝟚 𝟚) e₁)⁻¹  ⟩
       idtoeqv (ua e₁)   ≡⟨ ap (idtoeqv) assumption ⟩
       idtoeqv (refl 𝟚)  ∎
     swap₂≡id : swap₂ ≡ 𝑖𝑑 𝟚
