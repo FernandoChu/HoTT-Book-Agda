@@ -341,6 +341,11 @@ A ≃ B = Σ f ꞉ (A → B), isEquiv f
         f⁻¹ (f x)           ≡⟨ qf x ⟩
         x ∎
   in  ((g ∘ f) , invs⇒equivs (g ∘ f) ((f⁻¹ ∘ g⁻¹) , h1 , h2))
+
+_≃∙_ : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+      → A ≃ B → B ≃ C → A ≃ C
+eqv1 ≃∙ eqv2 = ≃-trans eqv1 eqv2
+infixl 30 _≃∙_
 ```
 
 ## 2.5 The higher groupoid structure of type formers
@@ -974,6 +979,41 @@ ind-≃ P f A B e =
   where
     lemma : (p : A ≡ B) → (A , ≃-refl A) ≡ (B , ≃-→ (≡-𝒰-≃ A B) p)
     lemma (refl A) = pair⁼(refl _ , refl _)
+```
+
+Also `×` is commutative in the following sense
+```agda
+×-comm : (A : 𝒰 𝒾) (B : 𝒰 𝒿) → A × B ≃ B × A
+×-comm A B = map , invs⇒equivs map (map⁻¹ , ε , η)
+ where
+  map = λ (x , y) → (y , x)
+  map⁻¹ = λ (y , x) → (x , y)
+  ε = refl
+  η = refl
+```
+
+It associates with `Σ` in the sense that: (see also Exercise 2.10)
+```agda
+Σ-×-assoc : (A : 𝒰 𝒾) (P : A → 𝒰 𝒿) (Q : 𝒰 𝓀)
+          → (Σ x ꞉ A , P x × Q) ≃ ((Σ x ꞉ A , P x) × Q)
+Σ-×-assoc A P Q = map , invs⇒equivs map (map⁻¹ , ε , η)
+ where
+  map = λ (x , y , z) → ((x , y) , z)
+  map⁻¹ = λ ((x , y) , z) → (x , y , z)
+  ε = refl
+  η = refl
+```
+
+`Σ` commutes with itself in the sense that
+```agda
+Σ-comm : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (P : A → B → 𝒰 𝓀)
+       → (Σ x ꞉ A , Σ y ꞉ B , P x y) ≃ (Σ y ꞉ B , Σ x ꞉ A , P x y)
+Σ-comm P = map , invs⇒equivs map (map⁻¹ , ε , η)
+ where
+  map = λ (x , y , z) → (y , x , z)
+  map⁻¹ = λ (y , x , z) → (x , y , z)
+  ε = refl
+  η = refl
 ```
 
 Since we don't have cumulativity we'll use the fact that `raise` is a equivalence.

@@ -396,6 +396,14 @@ isContr-BasedPaths {𝒾} {A} a = ( (a , refl a) , f )
     f : (xp : Σ x ꞉ A , a ≡ x) → (a , refl a) ≡ xp
     f (x , p) = pair⁼(p , ((tr-Homc─ a p (refl a)) ∙ refl-left))
 
+isContr-BasedPaths' : {A : 𝒰 𝒾} (a : A) → isContr (Σ x ꞉ A , x ≡ a)
+isContr-BasedPaths' {𝒾} {A} a = ( (a , refl a) , f )
+  where
+    f : (xp : Σ x ꞉ A , x ≡ a) → (a , refl a) ≡ xp
+    f (x , p) =
+      pair⁼((p ⁻¹) , ((tr-Hom─c a (p ⁻¹) (refl a))
+        ∙ refl-right ∙ (⁻¹-involutive p)))
+
 -- Lemma 3.11.9.
 isContr-Σ⇒base : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿)
                → ((x : A) → isContr (P x))

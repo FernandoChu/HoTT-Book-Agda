@@ -85,8 +85,8 @@ isProp⇒isProp-isDecidible' A B f g c (inr b) (inr b') =
 
 -- Exercise 3.20.
 isContr-Σ⇒fiber-base : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿)
-                               → ((a , f) : isContr A)
-                               → (Σ x ꞉ A , P x) ≃ P a
+                     → ((a , f) : isContr A)
+                     → (Σ x ꞉ A , P x) ≃ P a
 isContr-Σ⇒fiber-base {𝒾} {𝒿} {A} P (a , f) =
   map , invs⇒equivs map (map⁻¹ , ε , η)
  where

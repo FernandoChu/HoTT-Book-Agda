@@ -16,6 +16,18 @@ open import Chapter2.Book public
  where
   map = λ (x , y , c) → ((x , y) , c)
   map⁻¹ = λ ((x , y) , c) → (x , y , c)
-  ε = λ - → refl -
-  η = λ - → refl -
+  ε = refl
+  η = refl
+
+-- Exercise 2.17 iii)
+-- Σ-≃-fst is on Chapter6, as it is easier to prove it with more theorems
+Σ-≃-snd : {A : 𝒰 𝒾} {P : A → 𝒰 𝒿} {Q : A → 𝒰 𝓀}
+        → ((x : A) → P x ≃ Q x)
+        → -Σ A P ≃ -Σ A Q
+Σ-≃-snd f = map , invs⇒equivs map (map⁻¹ , ε , η)
+ where
+  map = λ (x , px) → (x , ≃-→ (f x) px)
+  map⁻¹ = λ (x , px) → (x , ≃-← (f x) px)
+  ε = λ (x , px) → pair⁼(refl x , ≃-ε (f x) px)
+  η = λ (x , px) → pair⁼(refl x , ≃-η (f x) px)
 ```
