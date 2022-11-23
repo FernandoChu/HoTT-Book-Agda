@@ -37,25 +37,25 @@ isContr-endo⇒isProp A h x y = happly (A→A-isProp (λ _ → x) (λ _ → y)) 
     A→A-isProp = pr₂ (isContr⇒isPointedProp (A → A) h)
 
 -- Exercise 3.5.
-isProp-implies-point→isContr : {A : 𝒰 𝒾}
+isProp⇒inhab→isContr : {A : 𝒰 𝒾}
     → isProp A → (A → isContr A)
-isProp-implies-point→isContr fp c = (c , λ x → fp c x)
+isProp⇒inhab→isContr fp c = (c , λ x → fp c x)
 
-point→isContr-implies-isProp : {A : 𝒰 𝒾}
+inhab→isContr⇒isProp : {A : 𝒰 𝒾}
     → (A → isContr A) → isProp A
-point→isContr-implies-isProp g x y =
+inhab→isContr⇒isProp g x y =
   pr₂ (isContr⇒isPointedProp (domain g) (g x)) x y
 
-isProp≃point→isContr : {A : 𝒰 𝒾}
+isProp≃inhab→isContr : {A : 𝒰 𝒾}
     → isProp A ≃ (A → isContr A)
-isProp≃point→isContr {𝒾} {A} = (isProp-implies-point→isContr ,
-  invs⇒equivs isProp-implies-point→isContr
-    (point→isContr-implies-isProp , ε , η))
+isProp≃inhab→isContr {𝒾} {A} = (isProp⇒inhab→isContr ,
+  invs⇒equivs isProp⇒inhab→isContr
+    (inhab→isContr⇒isProp , ε , η))
  where
-  ε : (isProp-implies-point→isContr ∘ point→isContr-implies-isProp)
+  ε : (isProp⇒inhab→isContr ∘ inhab→isContr⇒isProp)
         ∼ id
   ε g = funext (λ x → isProp-isContr _ _ _)
-  η : (point→isContr-implies-isProp ∘ isProp-implies-point→isContr)
+  η : (inhab→isContr⇒isProp ∘ isProp⇒inhab→isContr)
         ∼ id
   η fp = funext (λ x → funext (λ y → isProp⇒isSet fp _ _))
 

@@ -423,7 +423,7 @@ isProp-isHae : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
     → (f : A → B)
     → isProp (isHae f)
 isProp-isHae f =
-  point→isContr-implies-isProp iv
+  inhab→isContr⇒isProp iv
  where
   i : isHae f ≃ (Σ g ꞉ (codomain f → domain f)
                 , Σ ε ꞉ f ∘ g ∼ id
@@ -467,7 +467,7 @@ isBiinv f = isRinv f × isLinv f
 isProp-isBiinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
              → (f : A → B) → isProp (isBiinv f)
 isProp-isBiinv f =
-  point→isContr-implies-isProp v
+  inhab→isContr⇒isProp v
  where
   v : isBiinv f → isContr (isBiinv f)
   v isBiinv-f = ×-preserves-contr isRinv-isContr isLinv-isContr

@@ -181,6 +181,10 @@ ind-ℕ A a₀ f = h
     h : (n : ℕ) → A n
     h 0        = a₀
     h (succ n) = f n (h n)
+
+add-ℕ : ℕ → ℕ → ℕ
+add-ℕ 0 n = n
+add-ℕ (succ m) n = succ (add-ℕ m n)
 ```
 
 ## Section 1.11 Propositions as types

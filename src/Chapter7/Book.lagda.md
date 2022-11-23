@@ -16,10 +16,23 @@ open import Chapter6.Exercises public
 
 ```agda
 -- Definition 7.1.1.
--- Nothe that this is really the property of being an n-2 type.
+-- Note that this is really the property of being an n-2 type.
 isNType : (n : ℕ) (A : 𝒰 𝒾) → 𝒰 𝒾
 isNType 0 A        = isContr A
 isNType (succ n) A = (x y : A) → isNType n (x ≡ y)
+
+-- Example 7.1.3.
+is-1Type⇒isProp : {X : 𝒰 𝒾} → isNType 1 X → isProp X
+is-1Type⇒isProp f = isContr-≡⇒isProp f
+
+isProp⇒is-1Type : {X : 𝒰 𝒾} → isProp X → isNType 1 X
+isProp⇒is-1Type f = isProp⇒isContr-≡ f
+
+is0Type⇒isSet : {X : 𝒰 𝒾} → isNType 2 X → isSet X
+is0Type⇒isSet f = is-1Type⇒isProp (f _ _)
+
+isSet⇒is0Type : {X : 𝒰 𝒾} → isSet X → isNType 2 X
+isSet⇒is0Type f x y = isProp⇒is-1Type f
 
 -- Theorem 7.1.4.
 ◁-isNType⇒isNType : (n : ℕ) {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A ◁ B)
@@ -183,20 +196,20 @@ hasAxiomK : 𝒰 𝒾 → 𝒰 𝒾
 hasAxiomK X = {x : X} (p : x ≡ x) → (p ≡ refl x)
 
 -- Theorem 7.2.1.
-isSet⇒hasAxiomK : (X : 𝒰 𝒾) → isSet X → hasAxiomK X
-isSet⇒hasAxiomK X f p = f p (refl _)
+isSet⇒hasAxiomK : {X : 𝒰 𝒾} → isSet X → hasAxiomK X
+isSet⇒hasAxiomK f p = f p (refl _)
 
-hasAxiomK⇒isSet : (X : 𝒰 𝒾) → hasAxiomK X → isSet X
-hasAxiomK⇒isSet X f p (refl x) = f p
+hasAxiomK⇒isSet : {X : 𝒰 𝒾} → hasAxiomK X → isSet X
+hasAxiomK⇒isSet f p (refl x) = f p
 
 -- Theorem 7.2.2.
 mereRelation⇒≡⇒isSet :
-       (X : 𝒰 𝒾) (R : mereRelation X 𝒿)
+       {X : 𝒰 𝒾} (R : mereRelation X 𝒿)
      → ((x : X) → pr₁ (R(x , x)))
      → ((x y : X) → pr₁ (R(x , y)) → x ≡ y)
      → isSet X
-mereRelation⇒≡⇒isSet X R ρ f =
- hasAxiomK⇒isSet X (λ {x} p → ∙-left-cancel (f x x (ρ x)) (begin
+mereRelation⇒≡⇒isSet R ρ f =
+ hasAxiomK⇒isSet (λ {x} p → ∙-left-cancel (f x x (ρ x)) (begin
   f x x (ρ x) ∙ p                  ≡˘⟨ tr-Homc─ x p (f x x (ρ x)) ⟩
   tr (λ v → x ≡ v) p (f x x (ρ x)) ≡⟨ ≃-→ (≡-tr-Π-≃ p (f x x) (f x x))
                                           (apd (f x) p) (ρ x) ⟩
@@ -207,11 +220,11 @@ mereRelation⇒≡⇒isSet X R ρ f =
 
 -- Corollary 7.2.3.
 hasRAA-Equality⇒isSet :
-       (X : 𝒰 𝒾)
+       {X : 𝒰 𝒾}
      → ((x y : X) → ¬¬(x ≡ y) → (x ≡ y))
      → isSet X
-hasRAA-Equality⇒isSet X f =
-  mereRelation⇒≡⇒isSet X
+hasRAA-Equality⇒isSet f =
+  mereRelation⇒≡⇒isSet
     (λ (x , y) → ¬¬(x ≡ y)
     , λ g h → funext (λ - → isProp-𝟘 _ _))
     (λ x → λ p → p (refl x))
@@ -219,20 +232,21 @@ hasRAA-Equality⇒isSet X f =
 
 -- Lemma 7.2.4.
 isDecidable⇒hasRAA :
-    (A : 𝒰 𝒾)
+    {A : 𝒰 𝒾}
   → isDecidable A
   → hasRAA A
-isDecidable⇒hasRAA A f =
+isDecidable⇒hasRAA {A = A} f =
   ⊎-rec (¬¬ A → A) (λ a - → a) (λ f g → !𝟘 A (g f) ) f
 
 -- Theorem 7.2.5.
-Hedberg : (X : 𝒰 𝒾)
+Hedberg : {X : 𝒰 𝒾}
         → hasDecidableEquality X
         → isSet X
-Hedberg X f =
-  hasRAA-Equality⇒isSet X
-    (λ x y → isDecidable⇒hasRAA (x ≡ y) (f x y))
+Hedberg f =
+  hasRAA-Equality⇒isSet
+    (λ x y → isDecidable⇒hasRAA (f x y))
 
+-- Theorem 7.2.6.
 hasDecidableEquality-ℕ : hasDecidableEquality ℕ
 hasDecidableEquality-ℕ zero zero = inl (refl zero)
 hasDecidableEquality-ℕ zero (succ y) = inr (¬0≡succ y)
@@ -242,6 +256,58 @@ hasDecidableEquality-ℕ (succ x) (succ y) =
         (λ p → inl(ap succ p))
         (λ f → inr(λ p → f (sm≡sn⇒m≡n p)))
         (hasDecidableEquality-ℕ x y)
+
+-- Lemma 7.2.8.
+inhab-isNType⇒isNType : {X : 𝒰 𝒾} (n : ℕ)
+                      → ((x : X) → isNType (succ n) X)
+                      → isNType (succ n) X
+inhab-isNType⇒isNType n f x y = f x x y
+
+-- Theorem 7.2.7.
+isNType⇒isNType-Ω : {X : 𝒰 𝒾} (n : ℕ)
+                 → (isNType (succ (succ n)) X)
+                 → ((x : X) → isNType (succ n) (x ≡ x))
+isNType⇒isNType-Ω n p x = p x x
+
+isNType-Ω⇒isNType : {X : 𝒰 𝒾} (n : ℕ)
+                 → ((x : X) → isNType (succ n) (x ≡ x))
+                 → (isNType (succ (succ n)) X)
+isNType-Ω⇒isNType n f x x' = inhab-isNType⇒isNType n lemma
+  where
+    lemma : x ≡ x' → isNType (succ n) (x ≡ x')
+    lemma (refl x) = f x
+
+-- Theorem 7.2.9.
+isNType⇒isContr-Ω : {A : 𝒰 𝒾} (n : ℕ)
+                  → isNType (succ n) A
+                  → ((a : A) → isContr (pr₁ (Ωⁿ n (A , a))))
+isNType⇒isContr-Ω 0 f a = isProp⇒inhab→isContr (is-1Type⇒isProp f) a
+isNType⇒isContr-Ω 1 f a =
+  (refl a , λ p → (isSet⇒hasAxiomK (is0Type⇒isSet f) p)⁻¹)
+isNType⇒isContr-Ω (succ (succ n)) f a =
+  (isNType⇒isContr-Ω (succ n) (isNType⇒isNType-Ω (succ n) f a)) (refl a)
+
+isContr-Ω⇒isNType : {A : 𝒰 𝒾} (n : ℕ)
+                  → ((a : A) → isContr (pr₁ (Ωⁿ n (A , a))))
+                  → isNType (succ n) A
+isContr-Ω⇒isNType 0 f = isProp⇒is-1Type (inhab→isContr⇒isProp f)
+isContr-Ω⇒isNType 1 f =
+  isSet⇒is0Type (hasAxiomK⇒isSet λ p → (pr₂ (f _) p)⁻¹ ∙ (pr₂ (f _) (refl _)))
+isContr-Ω⇒isNType {A = A} (succ (succ n)) f =
+  isNType-Ω⇒isNType (succ n)
+    (λ a → isContr-Ω⇒isNType (succ n)
+             (λ p → tr isContr (ap (pr₁ ∘ Ωⁿ n) (lemma a p)) (f a)))
+ where
+  lemma : (a : A) (p : a ≡ a)
+        → (Ω ((a ≡ a) , refl a)) ≡ (Ω ((a ≡ a) , p))
+  lemma a p = (pair⁼(ua eqv , ((≡-𝒰-comp eqv (pr₂ (Ω ((a ≡ a) , p))))
+       ∙ (ap (_∙ ⁻¹-right∙ p) refl-right ) ∙ ⁻¹-left∙ (⁻¹-right∙ p))))⁻¹
+   where
+    eqv : pr₁ (Ω ((a ≡ a) , p)) ≃ pr₁ (Ω ((a ≡ a) , refl a))
+    eqv =
+     ((_ , isEquiv⇒isEquiv-ap (_∙ p ⁻¹) (invs⇒equivs _ (isQinv-─∙ (p ⁻¹))) p p)
+       ≃∙ (_ , invs⇒equivs _ (isQinv-∙─ ((⁻¹-right∙ p)⁻¹)))
+       ≃∙ (_ , invs⇒equivs _ (isQinv-─∙ (⁻¹-right∙ p))))
 ```
 
 ## 7.3. Truncations
@@ -256,6 +322,7 @@ postulate
   ∥∥ₙ-spoke : {𝒾 : Level} (A : 𝒰 𝒾) (n : ℕ)
             → (r : 𝕊ⁿ (succ n) → ∥ A ∥ₙ n)
             → (x : 𝕊ⁿ (succ n)) → (r x ≡ ∥∥ₙ-hub A n r)
+  ∥∥₋₂ : {𝒾 : Level} → {A : 𝒰 𝒾} → ∥ A ∥ₙ 0 ≃ 𝟙
 
 -- Lemma 7.3.1.
 -- isNType-∥∥ₙ : {A : 𝒰 𝒾} → (n : ℕ) → isNType n (∥ A ∥ₙ n)

@@ -266,6 +266,21 @@ isQinv f = Σ g ꞉ (codomain f → domain f) , (f ∘ g ∼ id) × (g ∘ f ∼
 isQinv-id : (A : 𝒰 𝒾) → isQinv (𝑖𝑑 A)
 isQinv-id A = (𝑖𝑑 A) , refl , refl
 
+-- Example 2.4.8.
+isQinv-∙─ : {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y)
+          → isQinv (λ (- : y ≡ z) → p ∙ -)
+isQinv-∙─ p =
+  (λ - → p ⁻¹ ∙ -) ,
+  (λ q → (∙-assoc p)⁻¹ ∙ ap (_∙ q) (⁻¹-right∙ p) ∙ refl-left) ,
+  (λ q → (∙-assoc (p ⁻¹))⁻¹ ∙ ap (_∙ q) (⁻¹-left∙ p) ∙ refl-left)
+
+isQinv-─∙ : {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y)
+          → isQinv (λ (- : z ≡ x) → - ∙ p)
+isQinv-─∙ p =
+  (λ - → - ∙ p ⁻¹) ,
+  (λ q → (∙-assoc q) ∙ ap (q ∙_) (⁻¹-left∙ p) ∙ refl-right) ,
+  (λ q → (∙-assoc q) ∙ ap (q ∙_) (⁻¹-right∙ p) ∙ refl-right)
+
 -- Definition 2.4.10.
 isEquiv : {A : 𝒰 𝒾} {B : 𝒰 𝒿} → (A → B) → 𝒰 (𝒾 ⊔ 𝒿)
 isEquiv f = (Σ g ꞉ (codomain f → domain f) , (f ∘ g ∼ id))
@@ -593,7 +608,7 @@ ua-id {A = A} = begin
 ≡-𝒰-∙ : {A B C : 𝒰 𝒾} (eqvf : A ≃ B) (eqvg : B ≃ C)
      → ua eqvf ∙ ua eqvg ≡ ua (≃-trans eqvf eqvg)
 ≡-𝒰-∙ {𝒾} {A} {B} {C} eqvf eqvg = begin
-  ua eqvf ∙ ua eqvg                    ≡⟨ ≡-𝒰-uniq (p ∙ q)                 ⟩
+  ua eqvf ∙ ua eqvg                    ≡⟨ ≡-𝒰-uniq (p ∙ q)                ⟩
   ua (idtoeqv (p ∙ q))                 ≡˘⟨ ap (λ - → ua -) idtoeqv-∙      ⟩
   ua (≃-trans (idtoeqv p) (idtoeqv q)) ≡˘⟨ ap (λ - → ua
                                                (≃-trans (idtoeqv p) -))
@@ -693,7 +708,7 @@ ua⁻¹ {𝒾} {A} {B} eqvf@(f , e) =
 ## 2.11 Identity type
 
 ```agda
--- Lemma 2.11.2.
+-- Lemma 2.11.1.
 isEquiv⇒isEquiv-ap :
              {A : 𝒰 𝒾} {B : 𝒰 𝒾}
            → (f : A → B)
