@@ -372,7 +372,16 @@ Map*₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
       v   = ap (λ - → (- (inr ⋆))⁻¹) (≡-Π-comp f'∼f)
       vi  = ⁻¹-involutive eq
 
--- Needed Lemma for the next lemma (it's exercise 6.11)
+-- Unnumbered corollary
+Map*𝟚→-≃ : ((B , b₀) : 𝒰∙ 𝒿)
+         → Map* (𝟚 , ₁) (B , b₀) ≃ B
+Map*𝟚→-≃ (B , b₀) = Map*₊≃ 𝟙 (B , b₀) ≃∙ 𝟙→B≃B
+ where
+  𝟙→B≃B : (𝟙 → B) ≃ B
+  𝟙→B≃B = (λ f → f ⋆) , invs⇒equivs (λ f → f ⋆)
+    ((λ {b ⋆ → b}) , refl , λ f → funext λ {⋆ → refl _})
+
+-- Needed Lemma for Lemma 6.5.4. (it's exercise 6.11)
 𝝨→-≃ : (A : 𝒰 𝒾) (B : 𝒰 𝒿)
      → (𝝨 A → B) ≃ (Σ bₙ ꞉ B , Σ bₛ ꞉ B , (A → (bₙ ≡ bₛ)))
 𝝨→-≃ A B = map , invs⇒equivs map (map⁻¹ , ε , η)
@@ -407,6 +416,7 @@ Map*₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
       (𝝨-rec-comp A B (f (N A)) (f (S A)) (λ x → ap f (merid A x)) a)
     iv = λ a → ⁻¹-left∙ (ap f (merid A a))
 
+-- Additional lemma
 Σ-≃-fst : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (A≃B : A ≃ B) (P : A → 𝒰 𝓀)
      → (Σ x ꞉ A , P x) ≃ (Σ y ꞉ B , P (≃-← A≃B y))
 Σ-≃-fst {A = A} {B} A≃B P = map , invs⇒equivs map (map⁻¹ , ε' , η')
@@ -427,7 +437,7 @@ Map*₊≃ A (B , b₀) = map , invs⇒equivs map (map⁻¹ , ε , η)
   ε' : (map  ∘ map⁻¹) ∼ id
   ε' (y , py) = pair⁼(ε y , (begin
     tr (P ∘ (≃-← A≃B)) (ε y)
-       (tr P ((η (≃-← A≃B y))⁻¹) py) ≡˘⟨ i ⟩
+       (tr P ((η (≃-← A≃B y))⁻¹) py) ≡⟨ i ⟩
     tr P (ap (≃-← A≃B) (ε y))
        (tr P ((η (≃-← A≃B y))⁻¹) py) ≡⟨ ii ⟩
     tr P ((η (≃-← A≃B y))⁻¹
@@ -505,6 +515,16 @@ Map*𝝨≃ (A , a₀) (B , b₀) =
            (Σ g ꞉ (A → (b₀ ≡ b₀)) , g a₀ ≡ refl b₀)
   eqv7 = isContr-Σ⇒fiber-base
     (λ r → Σ g ꞉ (A → (b₀ ≡ pr₁ r)) , g a₀ ≡ pr₂ r) (isContr-BasedPaths b₀)
+
+N𝕊ⁿ : (n : ℕ) → 𝕊ⁿ n
+N𝕊ⁿ 0 = ₁
+N𝕊ⁿ (succ n) = N (𝕊ⁿ n)
+
+-- Unnumbered corollary
+Map*𝕊ⁿ→-≃Ωⁿ : (n : ℕ) (B : 𝒰∙ 𝒿)
+            → Map* (𝕊ⁿ n , N𝕊ⁿ n) B ≃ pr₁ (Ωⁿ n B)
+Map*𝕊ⁿ→-≃Ωⁿ 0 B = Map*𝟚→-≃ B
+Map*𝕊ⁿ→-≃Ωⁿ (succ n) B = Map*𝝨≃ (𝕊ⁿ n , N𝕊ⁿ n) B ≃∙ (Map*𝕊ⁿ→-≃Ωⁿ n (Ω B))
 ```
 
 ## 6.9 Truncations
@@ -797,6 +817,27 @@ rℕ (a , b) =
     (λ _ → (0 , (b ∸ a)))
     (isDecidable-≤ b a)
 
+rℕ-≡ : (m n : ℕ)
+     → (rℕ (m , n) ≡ ((m ∸ n) , 0)) ⊎ (rℕ (m , n) ≡ (0 , (n ∸ m)))
+rℕ-≡ m n =
+  ⊎-ind (λ - → (
+    (⊎-rec (ℕ × ℕ)
+      (λ _ → ((m ∸ n) , 0))
+      (λ _ → (0 , (n ∸ m))) -) ≡ ((m ∸ n) , 0)) ⊎ (
+    (⊎-rec (ℕ × ℕ)
+      (λ _ → ((m ∸ n) , 0))
+      (λ _ → (0 , (n ∸ m))) -) ≡ (0 , (n ∸ m))))
+    (λ _ → inl (refl _))
+    (λ _ → inr (refl _))
+    (isDecidable-≤ n m)
+
+rℕ-¬succ : (m n : ℕ) → ¬ (rℕ (succ m , succ n) ≡ (succ m , succ n))
+rℕ-¬succ m n p =
+  (⊎-rec _
+    (λ e → ¬0≡succ n (ap pr₂ (e ⁻¹ ∙ p)))
+    (λ e → ¬0≡succ m (ap pr₁ (e ⁻¹ ∙ p)))
+    (rℕ-≡ (succ m) (succ n)))
+
 rℕ-succ : (n m : ℕ) → rℕ (n , m) ≡ rℕ (succ n , succ m)
 rℕ-succ a b =
   ⊎-ind (λ - → (
@@ -878,6 +919,7 @@ isSet-ℤ =
     isSet-ℕ×ℕ
     (λ - → isSet⇒is1Type (isSet-Σ isSet-ℕ λ - → isSet-ℕ ))
 
+-- Lemma 6.10.12.
 ℤ-ind-full : (P : ℤ → 𝒰 𝒾)
              (d₀ : P 0ℤ)
              (d₊ : (n : ℕ) → P (ℕ-in-ℤ≥0 n) → P (ℕ-in-ℤ≥0 (succ n)))
@@ -1002,4 +1044,106 @@ isSet-ℤ =
 ℤ-ind-comp-ℤ≤0 P d₀ d₊ d₋ =
   let (f , f0 , fn⁺ , fn⁻) = ℤ-ind-full P d₀ d₊ d₋
    in fn⁻
+
+-- Helpers for the non-dependent case
+ℤ-rec : (B : 𝒰 𝒾)
+        (d₀ : B)
+        (d₊ : B → B)
+        (d₋ : B → B)
+      → ℤ → B
+ℤ-rec B d₀ d₊ d₋ = ℤ-ind (λ _ → B) d₀ (λ _ → d₊) (λ _ → d₋)
+
+ℤ-rec-comp-0ℤ :
+        (B : 𝒰 𝒾)
+        (d₀ : B)
+        (d₊ : B → B)
+        (d₋ : B → B)
+      → ℤ-rec B d₀ d₊ d₋ 0ℤ ≡ d₀
+ℤ-rec-comp-0ℤ B d₀ d₊ d₋ = ℤ-ind-comp-0ℤ (λ _ → B) d₀ (λ _ → d₊) (λ _ → d₋)
+
+ℤ-rec-comp-ℤ≥0 :
+        (B : 𝒰 𝒾)
+        (d₀ : B)
+        (d₊ : B → B)
+        (d₋ : B → B)
+      → ((n : ℕ) → ℤ-rec B d₀ d₊ d₋ (ℕ-in-ℤ≥0 (succ n)) ≡ d₊ (ℤ-rec B d₀ d₊ d₋ (ℕ-in-ℤ≥0 n)))
+ℤ-rec-comp-ℤ≥0 B d₀ d₊ d₋ = ℤ-ind-comp-ℤ≥0 (λ _ → B) d₀ (λ _ → d₊) (λ _ → d₋)
+
+ℤ-rec-comp-ℤ≤0 :
+        (B : 𝒰 𝒾)
+        (d₀ : B)
+        (d₊ : B → B)
+        (d₋ : B → B)
+      → ((n : ℕ) → ℤ-rec B d₀ d₊ d₋ (ℕ-in-ℤ≤0 (succ n)) ≡ d₋ (ℤ-rec B d₀ d₊ d₋ (ℕ-in-ℤ≤0 n)))
+ℤ-rec-comp-ℤ≤0 B d₀ d₊ d₋ = ℤ-ind-comp-ℤ≤0 (λ _ → B) d₀ (λ _ → d₊) (λ _ → d₋)
+
+-- Lemmas to use for the induction and recursion computation rules
+ℤ-<0∨≥0 : (z : ℤ) → (Σ n ꞉ ℕ , z ≡ (ℕ-in-ℤ≤0 (succ n))) ⊎ (Σ n ꞉ ℕ , z ≡ ℕ-in-ℤ≥0 n)
+ℤ-<0∨≥0 ((zero , zero) , p) = inr (0 , pair⁼ (refl (zero , zero) , isSet-ℕ×ℕ _ _))
+ℤ-<0∨≥0 ((zero , succ b) , p) = inl (b , pair⁼(refl _ , isSet-ℕ×ℕ _ _))
+ℤ-<0∨≥0 ((succ a , zero) , p) = inr (succ a , pair⁼(refl _ , isSet-ℕ×ℕ _ _))
+ℤ-<0∨≥0 ((succ a , succ b) , p) = !𝟘 _ (rℕ-¬succ a b p)
+
+ℤ-≤0∨>0 : (z : ℤ) → (Σ n ꞉ ℕ , z ≡ (ℕ-in-ℤ≤0 n)) ⊎ (Σ n ꞉ ℕ , z ≡ ℕ-in-ℤ≥0 (succ n))
+ℤ-≤0∨>0 ((zero , zero) , p) = inl (0 , pair⁼ (refl (zero , zero) , isSet-ℕ×ℕ _ _))
+ℤ-≤0∨>0 ((zero , succ b) , p) = inl (succ b , pair⁼(refl _ , isSet-ℕ×ℕ _ _))
+ℤ-≤0∨>0 ((succ a , zero) , p) = inr (a , pair⁼(refl _ , isSet-ℕ×ℕ _ _))
+ℤ-≤0∨>0 ((succ a , succ b) , p) = !𝟘 _ (rℕ-¬succ a b p)
+
+-- Define the succ function for integers
+succ-ℤ : ℤ → ℤ
+succ-ℤ ((zero , zero) , p) = ((1 , 0) , refl (1 , 0))
+succ-ℤ ((zero , succ b) , p) = ((0 , b) , rℕ-left-0 b)
+succ-ℤ ((succ a , zero) , p) = ((succ (succ a) , 0) , rℕ-right-0 (succ (succ a)))
+succ-ℤ ((succ a , succ b) , p) = !𝟘 ℤ (rℕ-¬succ a b p)
+
+pred-ℤ : ℤ → ℤ
+pred-ℤ ((zero , zero) , p) = ((0 , 1) , refl (0 , 1))
+pred-ℤ ((zero , succ b) , p) = ((0 , succ (succ b)) , rℕ-left-0 (succ (succ b)))
+pred-ℤ ((succ a , zero) , p) = ((a , 0) , rℕ-right-0 a)
+pred-ℤ ((succ a , succ b) , p) = !𝟘 ℤ (rℕ-¬succ a b p)
+
+-- Succ is an equivalence
+succ-ℤ-≃ : ℤ ≃ ℤ
+succ-ℤ-≃ = succ-ℤ , invs⇒equivs succ-ℤ (pred-ℤ , ε , η)
+ where
+  ε-lemma : (a : ℕ) (p : rℕ(a , 0) ≡ (a , 0))
+          → (succ-ℤ ∘ pred-ℤ) ((a , 0) , p) ≡ ((a , 0) , p)
+  ε-lemma zero p = pair⁼ (refl (zero , zero) , isSet-ℕ×ℕ _ _)
+  ε-lemma (succ zero) p = pair⁼ (refl (1 , zero) , isSet-ℕ×ℕ _ _)
+  ε-lemma (succ (succ a)) p = pair⁼ (refl (succ (succ a) , zero) , isSet-ℕ×ℕ _ _)
+
+  η-lemma : (a : ℕ) (p : rℕ(0 , a) ≡ (0 , a))
+          → (pred-ℤ ∘ succ-ℤ) ((0 , a) , p) ≡ ((0 , a) , p)
+  η-lemma zero p = pair⁼ (refl (zero , zero) , isSet-ℕ×ℕ _ _)
+  η-lemma (succ zero) p = pair⁼ (refl (0 , 1) , isSet-ℕ×ℕ _ _)
+  η-lemma (succ (succ a)) p = pair⁼ (refl (zero , succ (succ a)) , isSet-ℕ×ℕ _ _)
+
+  ε : (succ-ℤ ∘ pred-ℤ) ∼ id
+  ε ((zero , zero) , p) = pair⁼ (refl (zero , zero) , isSet-ℕ×ℕ _ _)
+  ε ((zero , succ b) , p) = pair⁼ (refl (zero , succ b) , isSet-ℕ×ℕ _ _)
+  ε ((succ a , zero) , p) = ε-lemma (succ a) p
+  ε ((succ a , succ b) , p) = !𝟘 _ (rℕ-¬succ a b p)
+
+  η : (pred-ℤ ∘ succ-ℤ) ∼ id
+  η ((zero , zero) , p) = pair⁼ (refl (zero , zero) , isSet-ℕ×ℕ _ _)
+  η ((zero , succ b) , p) = η-lemma (succ b) p
+  η ((succ a , zero) , p) = pair⁼ (refl (succ a , zero) , isSet-ℕ×ℕ _ _)
+  η ((succ a , succ b) , p) = !𝟘 _ (rℕ-¬succ a b p)
+
+-- Some additional lemmas
+pred-ℤ-ℕ-in-ℤ≤0 : (n : ℕ) → (pred-ℤ (ℕ-in-ℤ≤0 n)) ≡ (ℕ-in-ℤ≤0 (succ n))
+pred-ℤ-ℕ-in-ℤ≤0 zero = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
+pred-ℤ-ℕ-in-ℤ≤0 (succ n) = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
+
+pred-ℤ-ℕ-in-ℤ≥0 : (n : ℕ) → (pred-ℤ (ℕ-in-ℤ≥0 (succ n))) ≡ (ℕ-in-ℤ≥0 n)
+pred-ℤ-ℕ-in-ℤ≥0 n = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
+
+succ-ℤ-ℕ-in-ℤ≤0 : (n : ℕ) → (succ-ℤ (ℕ-in-ℤ≤0 (succ n))) ≡ (ℕ-in-ℤ≤0 n)
+succ-ℤ-ℕ-in-ℤ≤0 zero = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
+succ-ℤ-ℕ-in-ℤ≤0 (succ n) = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
+
+succ-ℤ-ℕ-in-ℤ≥0 : (n : ℕ) → (succ-ℤ (ℕ-in-ℤ≥0 n)) ≡ (ℕ-in-ℤ≥0 (succ n))
+succ-ℤ-ℕ-in-ℤ≥0 zero = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
+succ-ℤ-ℕ-in-ℤ≥0 (succ n) = pair⁼(refl _ , isSet-ℕ×ℕ _ _)
 ```

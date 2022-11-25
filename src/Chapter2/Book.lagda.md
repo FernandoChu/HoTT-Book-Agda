@@ -7,7 +7,6 @@ title: Chapter 2. Homotopy Type Theory
 ```agda
 module Chapter2.Book where
 
-open import Chapter1.Book public
 open import Chapter1.Exercises public
 ```
 
@@ -200,14 +199,21 @@ tr-∘ P (refl x) (refl x) = refl id
 -- Lemma 2.3.10.
 tr-ap : {A : 𝒰 𝒾} (B : A → 𝒰 𝒿) (f : A → A)
         {x y : A} (p : x ≡ y)
-      → tr B (ap f p) ≡ tr (B ∘ f) p
+      → tr (B ∘ f) p ≡ tr B (ap f p)
 tr-ap B f (refl _) = refl _
 
 -- A slight generalization of the above lemma
 tr-ap' : {A : 𝒰 𝒾} {B : 𝒰 𝒿} (P : A → 𝒰 𝓀) (f : B → A)
          {x y : B} (p : x ≡ y)
-       → tr P (ap f p) ≡ tr (P ∘ f) p
+       → tr (P ∘ f) p ≡ tr P (ap f p)
 tr-ap' P f (refl _) = refl _
+
+-- A related result
+tr-ap-assoc : {A : 𝒰 𝒾} (B : A → 𝒰 𝒿) {x y : A}
+              (p : x ≡ y)
+            → tr (id ∘ B) p ≡ tr id (ap B p)
+tr-ap-assoc B (refl _) = refl _
+
 ```
 
 ## Section 2.4 Homotopies and equivalences
@@ -939,7 +945,7 @@ encode∘decode-ℕ∼id (succ m) (succ n) c = begin
   encode-ℕ m n (decode-ℕ m n c)                                       ≡⟨ ii ⟩
   c ∎
  where
-  i = happly (tr-ap (code-ℕ (succ m)) succ ((decode-ℕ m n c))) (r-ℕ (succ m))
+  i = happly (tr-ap (code-ℕ (succ m)) succ ((decode-ℕ m n c)) ⁻¹) (r-ℕ (succ m))
   ii = encode∘decode-ℕ∼id m n c
 
 ≡-ℕ-≃ : (m n : ℕ) → (m ≡ n) ≃ code-ℕ m n

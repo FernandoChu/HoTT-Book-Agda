@@ -313,18 +313,55 @@ isContr-Ω⇒isNType {A = A} (succ (succ n)) f =
 ## 7.3. Truncations
 
 ```agda
-postulate
+postulate -- take care of numbers...
   ∥_∥ₙ : {𝒾 : Level} → (A : 𝒰 𝒾) → (n : ℕ) → 𝒰 𝒾
   ∣_∣ₙ : {𝒾 : Level} → {A : 𝒰 𝒾} → A → (n : ℕ) → ∥ A ∥ₙ n
-  ∥∥ₙ-hub : {𝒾 : Level} (A : 𝒰 𝒾) (n : ℕ)
-         → (𝕊ⁿ (succ n) → ∥ A ∥ₙ n)
-         → (∥ A ∥ₙ n)
-  ∥∥ₙ-spoke : {𝒾 : Level} (A : 𝒰 𝒾) (n : ℕ)
-            → (r : 𝕊ⁿ (succ n) → ∥ A ∥ₙ n)
-            → (x : 𝕊ⁿ (succ n)) → (r x ≡ ∥∥ₙ-hub A n r)
-  ∥∥₋₂ : {𝒾 : Level} → {A : 𝒰 𝒾} → ∥ A ∥ₙ 0 ≃ 𝟙
+  ∥∥ₙ-hub : {𝒾 : Level} {A : 𝒰 𝒾} (n : ℕ)
+         → (𝕊ⁿ n → ∥ A ∥ₙ (succ n))
+         → (∥ A ∥ₙ (succ n))
+  ∥∥ₙ-spoke : {𝒾 : Level} {A : 𝒰 𝒾} (n : ℕ)
+            → (r : 𝕊ⁿ n → ∥ A ∥ₙ (succ n))
+            → (x : 𝕊ⁿ n) → (r x ≡ ∥∥ₙ-hub n r)
+  ∥∥₋₂ : {𝒾 : Level} → (A : 𝒰 𝒾) → ∥ A ∥ₙ 0 ≃ 𝟙
 
 -- Lemma 7.3.1.
--- isNType-∥∥ₙ : {A : 𝒰 𝒾} → (n : ℕ) → isNType n (∥ A ∥ₙ n)
--- isNType-∥∥ₙ = _
+isNType-∥∥ₙ : (A : 𝒰 𝒾) → (n : ℕ) → isNType n (∥ A ∥ₙ n)
+isNType-∥∥ₙ A zero = ≃𝟙⇒isContr (∥ A ∥ₙ zero) (∥∥₋₂ A)
+isNType-∥∥ₙ A (succ n) =
+  isContr-Ω⇒isNType n
+    (λ b → ≃-isNType⇒isNType 0 (Map*𝕊ⁿ→-≃Ωⁿ n (∥ A ∥ₙ (succ n) , b)) (lemma b))
+ where
+  lemma : (b : ∥ A ∥ₙ (succ n))
+        → isContr (Map* (𝕊ⁿ n , N𝕊ⁿ n) (∥ A ∥ₙ (succ n) , b))
+  lemma b = (((λ x → b) , refl b) , contr)
+   where
+    contr : ((r , p) : Map* (𝕊ⁿ n , N𝕊ⁿ n) (∥ A ∥ₙ (succ n) , b))
+          → ((λ x → b) , refl b) ≡ (r , p)
+    contr (r , p) = pair⁼(funext htpy , (begin
+      tr (λ f → f (N𝕊ⁿ n) ≡ b) (funext htpy) (refl b)  ≡⟨ i ⟩
+      (ap (λ f → f (N𝕊ⁿ n)) (funext htpy))⁻¹ ∙ refl b
+        ∙ ap (λ _ → b) (funext htpy)                   ≡⟨ ii ⟩
+      (ap (λ f → f (N𝕊ⁿ n)) (funext htpy))⁻¹
+        ∙ ap (λ _ → b) (funext htpy)                   ≡⟨ iii ⟩
+      (ap (λ f → f (N𝕊ⁿ n)) (funext htpy))⁻¹
+        ∙ refl _ ≡⟨ iv ⟩
+      (ap (λ f → f (N𝕊ⁿ n)) (funext htpy))⁻¹           ≡⟨ v ⟩
+      (p ⁻¹ ∙ ∥∥ₙ-spoke n r (N𝕊ⁿ n)
+        ∙ ((∥∥ₙ-spoke n r ((N𝕊ⁿ n)))⁻¹))⁻¹             ≡⟨ vi ⟩
+      (p ⁻¹ ∙ (∥∥ₙ-spoke n r (N𝕊ⁿ n)
+        ∙ ((∥∥ₙ-spoke n r ((N𝕊ⁿ n)))⁻¹)))⁻¹            ≡⟨ vii ⟩
+      (p ⁻¹ ∙ refl _)⁻¹                                ≡⟨ viii ⟩
+      (p ⁻¹)⁻¹                                         ≡⟨ ix ⟩
+      p ∎))
+     where
+      htpy = λ x → p ⁻¹ ∙ ∥∥ₙ-spoke n r (N𝕊ⁿ n) ∙ ((∥∥ₙ-spoke n r x)⁻¹)
+      i = tr-fx≡gx (λ f → f (N𝕊ⁿ n)) (λ _ → b) _ (refl b)
+      ii = ap (_∙ ap (λ _ → b) (funext htpy)) refl-right
+      iii = ap ((ap (λ f → f (N𝕊ⁿ n)) (funext htpy))⁻¹ ∙_) (ap-const _ b)
+      iv = refl-right
+      v = ap (_⁻¹) (happly (≡-Π-comp htpy) (N𝕊ⁿ n))
+      vi = ap (_⁻¹) (∙-assoc (p ⁻¹))
+      vii = ap (λ - → (p ⁻¹ ∙ -)⁻¹) (⁻¹-right∙ (∥∥ₙ-spoke n r (N𝕊ⁿ n)))
+      viii = ap (_⁻¹) refl-right
+      ix = ⁻¹-involutive p
 ```
