@@ -335,6 +335,30 @@ A ≃ B = Σ f ꞉ (A → B), isEquiv f
  let (g , ε , η) = equivs⇒invs f eqv
   in η
 
+-- Additional helpers
+
+≃-→-cancel : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+           → (equiv : (A ≃ B))
+           → {x y : A}
+           → (≃-→ equiv x ≡ ≃-→ equiv y)
+           → x ≡ y
+≃-→-cancel e {x} {y} p =
+  x               ≡˘⟨ ≃-η e x ⟩
+  ≃-← e (≃-→ e x) ≡⟨ ap (≃-← e) p ⟩
+  ≃-← e (≃-→ e y) ≡⟨ ≃-η e y ⟩
+  y ∎
+
+≃-←-cancel : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+           → (equiv : (A ≃ B))
+           → {x y : B}
+           → (≃-← equiv x ≡ ≃-← equiv y)
+           → x ≡ y
+≃-←-cancel e {x} {y} p =
+  x               ≡˘⟨ ≃-ε e x ⟩
+  ≃-→ e (≃-← e x) ≡⟨ ap (≃-→ e) p ⟩
+  ≃-→ e (≃-← e y) ≡⟨ ≃-ε e y ⟩
+  y ∎
+
 -- Lemma 2.4.12. i)
 ≃-refl : (A : 𝒰 𝒾) → A ≃ A
 ≃-refl A = ( 𝑖𝑑 A , invs⇒equivs (𝑖𝑑 A) (isQinv-id A) )
@@ -507,6 +531,10 @@ isProp-𝟙 : (x y : 𝟙) → (x ≡ y)
 isProp-𝟙 x y =
   let (f , ((g , f-g) , (h , h-f))) = ≡-𝟙-≃ x y
    in h ⋆
+
+-- Also usefull
+isProp-Raised𝟙 : (x y : Raised 𝒾 𝟙) → (x ≡ y)
+isProp-Raised𝟙 (raise ⋆) (raise ⋆) = refl _
 ```
 
 ## 2.9 Π-types and the function extensionality axiom

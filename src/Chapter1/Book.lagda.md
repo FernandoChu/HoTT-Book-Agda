@@ -15,7 +15,7 @@ open import Agda.Primitive public
            ; Setω to 𝓤ω)
 
 variable
-  𝒾 𝒿 𝓀 : Level
+  𝒾 𝒿 𝓀 𝓁 : Level
 
 𝒰 : (ℓ : Level) → Universe (ℓ ⁺)
 𝒰 ℓ = Universe ℓ

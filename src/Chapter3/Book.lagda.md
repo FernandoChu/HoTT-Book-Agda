@@ -36,6 +36,10 @@ isSet-𝟘 {x} {y} p q = !𝟘 (p ≡ q) x
 isProp-𝟘 : (x y : 𝟘) → x ≡ y
 isProp-𝟘 x y = !𝟘 (x ≡ y) x
 
+-- Also useful
+isProp-Raised𝟘 : (x y : Raised 𝒾 𝟘) → x ≡ y
+isProp-Raised𝟘 (raise ()) y
+
 -- Example 3.1.4.
 isSet-ℕ : isSet ℕ
 isSet-ℕ {m} {n} p q =
@@ -205,6 +209,10 @@ isProp-isProp A f g =
 ## 3.4 Classical vs. intuitionistic logic
 
 ```agda
+-- Equation 3.4.1.
+LEM : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
+LEM (𝒾) = (A : 𝒰 𝒾) → isProp A → A ⊎ ¬ A
+
 -- Definition 3.4.3.
 isDecidable : 𝒰 𝒾 → 𝒰 𝒾
 isDecidable A = A ⊎ ¬ A

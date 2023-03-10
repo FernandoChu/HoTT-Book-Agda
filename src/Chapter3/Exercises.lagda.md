@@ -72,8 +72,8 @@ isProp⇒isProp-isDecidible A f (inr c) (inr d) = ap inr p
 
 -- Exercise 3.7.
 isProp⇒isProp-isDecidible' : (A : 𝒰 𝒾) → (B : 𝒰 𝒿)
-                          → isProp A → isProp B → ¬ (A × B)
-                          → isProp (A ⊎ B)
+                           → isProp A → isProp B → ¬ (A × B)
+                           → isProp (A ⊎ B)
 isProp⇒isProp-isDecidible' A B f g c (inl a) (inl a') =
   ap inl (f a a')
 isProp⇒isProp-isDecidible' A B f g c (inl a) (inr b) =
@@ -82,6 +82,88 @@ isProp⇒isProp-isDecidible' A B f g c (inr b) (inl a) =
   !𝟘 (inr b ≡ inl a) (c (a , b))
 isProp⇒isProp-isDecidible' A B f g c (inr b) (inr b') =
   ap inr (g b b')
+
+-- Exercise 3.8.
+LEM→Prop𝒰≃𝟚 : {𝒾 : Level} → LEM 𝒾 → (Prop𝒰 𝒾 ≃ 𝟚)
+LEM→Prop𝒰≃𝟚 {𝒾} LEM-holds =
+  (Prop𝒰→𝟚 , invs⇒equivs Prop𝒰→𝟚 (𝟚→Prop𝒰 , ε , η))
+ where
+  Prop𝒰→𝟚 : Prop𝒰 𝒾 → 𝟚
+  Prop𝒰→𝟚 P = ⊎-rec 𝟚 (λ _ → ₁) (λ _ → ₀) (LEM-holds (pr₁ P) (pr₂ P))
+  𝟚→Prop𝒰 : 𝟚 → Prop𝒰 𝒾
+  𝟚→Prop𝒰 ₀ = (Raised 𝒾 𝟘 , isProp-Raised𝟘)
+  𝟚→Prop𝒰 ₁ = (Raised 𝒾 𝟙 , isProp-Raised𝟙)
+  ε : (Prop𝒰→𝟚 ∘ 𝟚→Prop𝒰) ∼ id
+  ε ₀ = ⊎-ind (λ - → ((⊎-rec 𝟚 (λ _ → ₁) (λ _ → ₀) -) ≡ id ₀))
+    (λ {(raise ())}) (λ _ → refl ₀)
+    (LEM-holds (Raised 𝒾 𝟘) isProp-Raised𝟘)
+  ε ₁ = ⊎-ind (λ - → ((⊎-rec 𝟚 (λ _ → ₁) (λ _ → ₀) -) ≡ id ₁))
+    (λ _ → refl ₁) (λ p → !𝟘 (₀ ≡ ₁) (p (raise ⋆)))
+    (LEM-holds (Raised 𝒾 𝟙) isProp-Raised𝟙)
+  η : (𝟚→Prop𝒰 ∘ Prop𝒰→𝟚) ∼ id
+  η P = ⊎-ind (λ - → (𝟚→Prop𝒰 (⊎-rec 𝟚 (λ _ → ₁) (λ _ → ₀) -) ≡ P))
+    (λ p → pair⁼
+      (ua (isProp-areLogEq⇒Eq (Raised 𝒾 𝟙) (pr₁ P) isProp-Raised𝟙 (pr₂ P)
+        (λ _ → p) (λ _ → raise ⋆))
+      , isProp-isProp (pr₁ P) _ _))
+    (λ ¬p → pair⁼
+      (ua (isProp-areLogEq⇒Eq (Raised 𝒾 𝟘) (pr₁ P) isProp-Raised𝟘 (pr₂ P)
+        (λ {(raise ())}) (λ p → !𝟘 _ (¬p p)))
+      , isProp-isProp (pr₁ P) _ _))
+    (LEM-holds (pr₁ P) (pr₂ P))
+
+Prop𝒰≃𝟚→LEM : {𝒾 : Level} → (Prop𝒰 𝒾 ≃ 𝟚) → LEM 𝒾
+Prop𝒰≃𝟚→LEM {𝒾} Prop𝒰𝒾≃𝟚 P isProp-P =
+ ⊎-rec (P ⊎ ¬ P)
+   -- imP ≡ ₀
+   (λ p → ⊎-rec _
+     -- (im𝟘 ≡ ₀) × (im𝟙 ≡ ₁)
+     (λ (q , r) → inr (λ P-holds → !𝟘' _
+       (tr id (ap pr₁ (≃-→-cancel Prop𝒰𝒾≃𝟚 (p ∙ (q ⁻¹)))) P-holds)))
+     -- (im𝟘 ≡ ₁) × (im𝟙 ≡ ₀)
+     (λ (q , r) → inl
+       (tr id (ap pr₁ (≃-→-cancel Prop𝒰𝒾≃𝟚 (r ∙ (p ⁻¹)))) (raise ⋆)))
+     H)
+   -- imP ≡ ₁
+   (λ p → ⊎-rec _
+     -- (im𝟘 ≡ ₀) × (im𝟙 ≡ ₁)
+     (λ (q , r) → inl
+       (tr id (ap pr₁ (≃-→-cancel Prop𝒰𝒾≃𝟚 (r ∙ (p ⁻¹)))) (raise ⋆)))
+     -- (im𝟘 ≡ ₁) × (im𝟙 ≡ ₀)
+     (λ (q , r) → inr (λ P-holds → !𝟘' _
+       (tr id (ap pr₁ (≃-→-cancel Prop𝒰𝒾≃𝟚 (p ∙ (q ⁻¹)))) P-holds)))
+     H)
+   (₀or₁ imP)
+ where
+  !𝟘' : (C : 𝒰 𝒿) → Raised 𝒾 𝟘 → C
+  !𝟘' C (raise ())
+  ₀or₁ : (x : 𝟚) → (x ≡ ₀) ⊎ (x ≡ ₁)
+  ₀or₁ ₀ = inl (refl ₀)
+  ₀or₁ ₁ = inr (refl ₁)
+  imP im𝟘 im𝟙 : 𝟚
+  imP = ≃-→ Prop𝒰𝒾≃𝟚 (P , isProp-P)
+  im𝟘 = ≃-→ Prop𝒰𝒾≃𝟚 (Raised 𝒾 𝟘 , isProp-Raised𝟘)
+  im𝟙 = ≃-→ Prop𝒰𝒾≃𝟚 (Raised 𝒾 𝟙 , isProp-Raised𝟙)
+  H : ((im𝟘 ≡ ₀) × (im𝟙 ≡ ₁)) ⊎ ((im𝟘 ≡ ₁) × (im𝟙 ≡ ₀))
+  H = ⊎-rec ((im𝟘 ≡ ₀) × (im𝟙 ≡ ₁) ⊎ (im𝟘 ≡ ₁) × (im𝟙 ≡ ₀))
+    -- im𝟘 ≡ ₀
+    (⊎-rec _
+      -- im𝟙 ≡ ₀
+      (λ p q → !𝟘' _ (absurd (q ∙ (p ⁻¹))))
+      -- im𝟙 ≡ ₁
+      (λ p q → inr (p , q))
+      (₀or₁ im𝟘))
+    -- im𝟘 ≡ ₁
+    (⊎-rec _
+      -- im𝟙 ≡ ₀
+      (λ p q → inl (p , q))
+      -- im𝟙 ≡ ₁
+      (λ p q → !𝟘' _ (absurd (q ∙ (p ⁻¹))))
+      (₀or₁ im𝟘))
+    (₀or₁ im𝟙)
+   where
+     absurd : (im𝟙 ≡ im𝟘) → Raised 𝒾 𝟘
+     absurd p = tr id  (ap pr₁ (≃-→-cancel Prop𝒰𝒾≃𝟚 p)) (raise ⋆)
 
 -- Exercise 3.20.
 isContr-Σ⇒fiber-base : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿)
