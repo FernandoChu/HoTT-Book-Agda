@@ -138,8 +138,7 @@ aside#toc > div#toc-container ul a[href]:visited {
   /* NameKinds. */
   /* OtherAspects. */
   /* Standard attributes. */
-  font-family: "iosevka", "Iosevka", "Fantasque Sans Mono", "Roboto Mono",
-    monospace;
+  font-family: "Fantasque Sans Mono", "Roboto Mono", monospace;
   font-weight: 400;
 }
 
