@@ -527,6 +527,82 @@ Map*𝕊ⁿ→-≃Ωⁿ 0 B = Map*𝟚→-≃ B
 Map*𝕊ⁿ→-≃Ωⁿ (succ n) B = Map*𝝨≃ (𝕊ⁿ n , N𝕊ⁿ n) B ≃∙ (Map*𝕊ⁿ→-≃Ωⁿ n (Ω B))
 ```
 
+## 6.8 Pushouts
+```agda
+postulate
+  Pushout : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+            (f : C → A) (g : C → B)
+          → 𝒰 (𝒾 ⊔ 𝒿 ⊔ 𝓀)
+  inl⊔ : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+         (f : C → A) (g : C → B)
+       → A → Pushout f g
+  inr⊔ : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+         (f : C → A) (g : C → B)
+       → B → Pushout f g
+  glue : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+         (f : C → A) (g : C → B)
+         (c : C) → inl⊔ f g (f c) ≡ inr⊔ f g (g c)
+  Pushout-rec : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀} {D : 𝒰 𝓁}
+                (f : C → A) (g : C → B)
+              → (inl' : A → D)
+              → (inr' : B → D)
+              → ((c : C) → inl' (f c) ≡ inr' (g c))
+              → Pushout f g → D
+  Pushout-rec-comp-inl :
+        {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀} {D : 𝒰 𝓁}
+        (f : C → A) (g : C → B)
+      → (inl' : A → D)
+      → (inr' : B → D)
+      → (glue' : ((c : C) → inl' (f c) ≡ inr' (g c)))
+      → (a : A) → Pushout-rec f g inl' inr' glue' (inl⊔ f g a) ≡ inl' a
+  {-# REWRITE Pushout-rec-comp-inl #-}
+  Pushout-rec-comp-inr :
+        {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀} {D : 𝒰 𝓁}
+        (f : C → A) (g : C → B)
+      → (inl' : A → D)
+      → (inr' : B → D)
+      → (glue' : ((c : C) → inl' (f c) ≡ inr' (g c)))
+      → (b : B) → Pushout-rec f g inl' inr' glue' (inr⊔ f g b) ≡ inr' b
+  {-# REWRITE Pushout-rec-comp-inr #-}
+  Pushout-rec-comp : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀} {D : 𝒰 𝓁}
+                     (f : C → A) (g : C → B)
+                   → (inl' : A → D)
+                   → (inr' : B → D)
+                   → (glue' : ((c : C) → inl' (f c) ≡ inr' (g c)))
+                   → (c : C) → ap (Pushout-rec f g inl' inr' glue') (glue f g c) ≡ glue' c
+
+  -- Omitted induction principle
+  Pushout-ind : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+                (f : C → A) (g : C → B) {P : Pushout f g → 𝒰 𝓁}
+              → (inl' : (a : A) → P (inl⊔ f g a))
+              → (inr' : (b : B) → P (inr⊔ f g b))
+              → ((c : C) → tr P (glue f g c) (inl' (f c)) ≡ inr' (g c))
+              → (p : Pushout f g) → P p
+  Pushout-ind-comp-inl :
+        {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+        (f : C → A) (g : C → B) {P : Pushout f g → 𝒰 𝓁}
+      → (inl' : (a : A) → P (inl⊔ f g a))
+      → (inr' : (b : B) → P (inr⊔ f g b))
+      → (glue' : ((c : C) → tr P (glue f g c) (inl' (f c)) ≡ inr' (g c)))
+      → (a : A) → Pushout-ind f g inl' inr' glue' (inl⊔ f g a) ≡ inl' a
+  {-# REWRITE Pushout-ind-comp-inl #-}
+  Pushout-ind-comp-inr :
+        {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+        (f : C → A) (g : C → B) {P : Pushout f g → 𝒰 𝓁}
+      → (inl' : (a : A) → P (inl⊔ f g a))
+      → (inr' : (b : B) → P (inr⊔ f g b))
+      → (glue' : ((c : C) → tr P (glue f g c) (inl' (f c)) ≡ inr' (g c)))
+      → (b : B) → Pushout-ind f g inl' inr' glue' (inr⊔ f g b) ≡ inr' b
+  {-# REWRITE Pushout-ind-comp-inr #-}
+  Pushout-ind-comp :
+        {A : 𝒰 𝒾} {B : 𝒰 𝒿} {C : 𝒰 𝓀}
+        (f : C → A) (g : C → B) {P : Pushout f g → 𝒰 𝓁}
+      → (inl' : (a : A) → P (inl⊔ f g a))
+      → (inr' : (b : B) → P (inr⊔ f g b))
+      → (glue' : ((c : C) → tr P (glue f g c) (inl' (f c)) ≡ inr' (g c)))
+      → (c : C) → apd (Pushout-ind f g inl' inr' glue') (glue f g c) ≡ glue' c
+```
+
 ## 6.9 Truncations
 
 ```agda
