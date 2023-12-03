@@ -156,20 +156,13 @@ isEmbedding-pr₁-isNType𝒰-≃ n (X , p) (X' , p') (f , equiv-f) (g , equiv-g
   ε k = ≡-Σ-comp₁ k (isProp-isEquiv g (tr isEquiv k equiv-f) equiv-g)
   η : h ∘ (ap pr₁) ∼ id
   η equiv = begin
-    (h ∘ ap pr₁) equiv ≡⟨ i ⟩
-    h (pair⁼⁻¹₁ (pair⁼ (pair⁼⁻¹ equiv))) ≡⟨ ap h ii ⟩
-    h (ap pr₁ equiv) ≡⟨ _ ⟩
-    pair⁼(ap pr₁ equiv , isProp-isEquiv g (tr isEquiv (ap pr₁ equiv) (equiv-f)) equiv-g) ≡⟨ iii ⟩
-    pair⁼(ap pr₁ equiv , pair⁼⁻¹₂ equiv)             ≡⟨ iv ⟩
+    pair⁼(ap pr₁ equiv , isProp-isEquiv g _ equiv-g) ≡⟨ i ⟩
+    pair⁼(ap pr₁ equiv , pair⁼⁻¹₂ equiv)             ≡⟨ ii ⟩
     equiv ∎
    where
-    i : h (ap pr₁ equiv) ≡ h (ap pr₁ (pair⁼ (pair⁼⁻¹ equiv)))
-    i = ap (h ∘ ap pr₁) (≡-Σ-uniq equiv)
-    ii : (pair⁼⁻¹₁ (pair⁼ (pair⁼⁻¹ equiv))) ≡ (ap pr₁ equiv)
-    ii = ≡-Σ-comp₁ (pair⁼⁻¹₁ equiv) (pair⁼⁻¹₂ equiv)
-    iii = ap (λ - → pair⁼(ap pr₁ equiv , -))
+    i = ap (λ - → pair⁼(ap pr₁ equiv , -))
            (isProp⇒isSet (isProp-isEquiv g) _ _)
-    iv = ≃-η (≡-Σ-≃ _ _) equiv
+    ii = ≃-η (≡-Σ-≃ _ _) equiv
 
 -- Theorem 7.1.11.
 isNType-isNType : (n : ℕ)

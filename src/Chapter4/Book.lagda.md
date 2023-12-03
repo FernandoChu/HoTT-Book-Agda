@@ -477,9 +477,10 @@ isProp-isBiinv f =
     isLinv-isContr = isQinv⇒isContr-isLinv f isQinv-f
     isRinv-isContr = isQinv⇒isContr-isRinv f isQinv-f
 
-isProp-isEquiv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
-             → (f : A → B) → isProp (isEquiv f)
-isProp-isEquiv = isProp-isBiinv
+abstract
+  isProp-isEquiv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
+               → (f : A → B) → isProp (isEquiv f)
+  isProp-isEquiv = isProp-isBiinv
 
 -- Corollary 4.3.3.
 isHae⇒isBiinv : {A : 𝒰 𝒾} {B : 𝒰 𝒿}
