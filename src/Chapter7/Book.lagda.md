@@ -5,7 +5,7 @@ title: Chapter 7. Homotopy n-types
 # Chapter 7. Homotopy n-types
 
 ```agda
-{-# OPTIONS --experimental-lossy-unification #-}
+{-# OPTIONS --lossy-unification #-}
 
 module Chapter7.Book where
 

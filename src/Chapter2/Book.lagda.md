@@ -162,7 +162,7 @@ ap-const (refl _) c = refl _
 ```agda
 -- Lemma 2.3.1.
 tr : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿) {x y : A}
-          → x ≡ y → P x → P y
+   → x ≡ y → P x → P y
 tr P (refl x) = id
 
 -- Lemma 2.3.2.

@@ -29,7 +29,7 @@ universe-of : {ℓ : Level} (A : 𝒰 ℓ) → Level
 universe-of {ℓ} A = ℓ
 ```
 
-## Section 1.3 Dependent function types
+## Section 1.3 Universes and families
 
 ```agda
 -- Workaround to have cumulativity
@@ -68,6 +68,9 @@ codomain {𝒾} {𝒿} {A} {B} f = B
 
 ## Section 1.5 Product types
 
+We define the product type as a particular case of the dependent pair type,
+see the next section.
+
 ```agda
 data 𝟙 : 𝒰₀ where
   ⋆ : 𝟙
@@ -97,6 +100,11 @@ _×_ : (A : 𝒰 𝒾) (B : 𝒰 𝒿) → 𝒰 (𝒾 ⊔ 𝒿)
 A × B = Σ x ꞉ A , B
 infixr 30 _×_
 
+rec-Σ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {C : 𝒰 𝓀}
+      → ((x : A) (y : B x) → C)
+      → Σ B → C
+rec-Σ g (x , y) = g x y
+
 ind-Σ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} {C : Σ B → 𝒰 𝓀}
       → ((x : A) (y : B x) → C (x , y))
       → ((x , y) : Σ B) → C (x , y)
@@ -108,10 +116,18 @@ pr₁ (x , y) = x
 pr₂ : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} → (z : Σ B) → B (pr₁ z)
 pr₂ (x , y) = y
 
+-- The type-theoretic axiom of choice
 ac : {A : 𝒰 𝒾} {B : 𝒰 𝒿} {R : A → B → 𝒰 𝓀}
    → (Π x ꞉ A , Σ y ꞉ B , R x y)
    → (Σ f ꞉ (A → B) , Π x ꞉ A , R x (f x))
 ac g = ((λ x → pr₁ (g x)) , (λ x → pr₂ (g x)))
+
+-- The magma examples
+Magma : {𝒾 : Level} → 𝒰 (𝒾 ⁺)
+Magma {𝒾} = Σ A ꞉ 𝒰 𝒾 , (A → A → A)
+
+PointedMagma : {𝒾 : Level} → 𝒰 (𝒾 ⁺)
+PointedMagma {𝒾} = Σ A ꞉ 𝒰 𝒾 , ((A → A → A) × A)
 ```
 
 ## Section 1.7 Coproduct types
@@ -172,19 +188,26 @@ data ℕ : 𝒰₀ where
   succ : ℕ → ℕ
 {-# BUILTIN NATURAL ℕ #-}
 
-ind-ℕ : (A : ℕ → 𝒰 𝒾)
-            → A 0
-            → ((n : ℕ) → A n → A (succ n))
-            → (n : ℕ) → A n
-ind-ℕ A a₀ f = h
-  where
-    h : (n : ℕ) → A n
-    h 0        = a₀
-    h (succ n) = f n (h n)
+double : ℕ → ℕ
+double 0 = 0
+double (succ n) = succ (succ n)
 
 add-ℕ : ℕ → ℕ → ℕ
 add-ℕ 0 n = n
 add-ℕ (succ m) n = succ (add-ℕ m n)
+
+rec-ℕ : (C : 𝒰 𝒾)
+      → C → (ℕ → C → C)
+      → ℕ → C
+rec-ℕ C c₀ cₛ zero = c₀
+rec-ℕ C c₀ cₛ (succ n) = cₛ n (rec-ℕ C c₀ cₛ n)
+
+ind-ℕ : (C : ℕ → 𝒰 𝒾)
+      → C 0
+      → ((n : ℕ) → C n → C (succ n))
+      → (n : ℕ) → C n
+ind-ℕ C c₀ cₛ 0 = c₀
+ind-ℕ C c₀ cₛ (succ n) = cₛ n (ind-ℕ C c₀ cₛ n)
 ```
 
 ## Section 1.11 Propositions as types
@@ -223,12 +246,38 @@ infix   0 _≡_
 {-# BUILTIN EQUALITY _≡_ #-}
 {-# BUILTIN REWRITE _≡_ #-}
 
--- Helper
-_≢_ : {A : 𝒰 𝒾} → A → A → 𝒰 𝒾
-x ≢ y = ¬(x ≡ y)
+ind-≡ :
+    (A : 𝒰 𝒾) (C : (x y : A) → x ≡ y → 𝒰 𝒿)
+  → ((x : A) → C x x (refl x))
+  → (x y : A) (p : x ≡ y) → C x y p
+ind-≡ A C c x x (refl x) = c x
 
-ind-≡ : (A : 𝒰 𝒾) (D : (x y : A) → x ≡ y → 𝒰 𝒿)
-  → ((x : A) → D x x (refl x))
-  → (x y : A) (p : x ≡ y) → D x y p
-ind-≡ A D d x x (refl x) = d x
+based-ind-≡ :
+    (A : 𝒰 𝒾) (a : A)
+    (C : (x : A) → a ≡ x → 𝒰 𝒿)
+    (c : C a (refl a))
+  → (x : A) (p : a ≡ x) → C x p
+based-ind-≡ A a C c .a (refl .a) = c
+
+--- Equivalence of path induction and based path induction
+based-ind-≡⇒ind-≡ :
+    (A : 𝒰 𝒾) (C : (x y : A) → x ≡ y → 𝒰 𝒿)
+  → ((x : A) → C x x (refl x))
+  → (x y : A) (p : x ≡ y) → C x y p
+based-ind-≡⇒ind-≡ A C c x y p =
+  based-ind-≡ A x (C x) (c x) y p
+
+ind-≡⇒based-ind-≡ :
+    (A : 𝒰 𝒾) (a : A)
+    (C : (x : A) → a ≡ x → 𝒰 𝒿)
+    (c : C a (refl a))
+  → (x : A) (p : a ≡ x) → C x p
+ind-≡⇒based-ind-≡ {𝒾} {𝒿} A a C c x p =
+ ind-≡ A
+   (λ x y p → (C : ((z : A) → (x ≡ z) → 𝒰 𝒿)) → C x (refl x) → C y p)
+   (λ x C d → d) a x p C c
+
+--- Disequality
+_≢_ : {A : 𝒰 𝒾} → A → A → 𝒰 𝒾
+x ≢ y = ¬ (x ≡ y)
 ```
