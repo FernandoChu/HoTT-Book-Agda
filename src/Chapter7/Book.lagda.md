@@ -5,8 +5,6 @@ title: Chapter 7. Homotopy n-types
 # Chapter 7. Homotopy n-types
 
 ```agda
-{-# OPTIONS --lossy-unification #-}
-
 module Chapter7.Book where
 
 open import Chapter6.Exercises public
@@ -158,13 +156,20 @@ isEmbedding-pr₁-isNType𝒰-≃ n (X , p) (X' , p') (f , equiv-f) (g , equiv-g
   ε k = ≡-Σ-comp₁ k (isProp-isEquiv g (tr isEquiv k equiv-f) equiv-g)
   η : h ∘ (ap pr₁) ∼ id
   η equiv = begin
-    pair⁼(ap pr₁ equiv , isProp-isEquiv g _ equiv-g) ≡⟨ i ⟩
-    pair⁼(ap pr₁ equiv , pair⁼⁻¹₂ equiv)             ≡⟨ ii ⟩
+    (h ∘ ap pr₁) equiv ≡⟨ i ⟩
+    h (pair⁼⁻¹₁ (pair⁼ (pair⁼⁻¹ equiv))) ≡⟨ ap h ii ⟩
+    h (ap pr₁ equiv) ≡⟨ _ ⟩
+    pair⁼(ap pr₁ equiv , isProp-isEquiv g (tr isEquiv (ap pr₁ equiv) (equiv-f)) equiv-g) ≡⟨ iii ⟩
+    pair⁼(ap pr₁ equiv , pair⁼⁻¹₂ equiv)             ≡⟨ iv ⟩
     equiv ∎
    where
-    i = ap (λ - → pair⁼(ap pr₁ equiv , -))
+    i : h (ap pr₁ equiv) ≡ h (ap pr₁ (pair⁼ (pair⁼⁻¹ equiv)))
+    i = ap (h ∘ ap pr₁) (≡-Σ-uniq equiv)
+    ii : (pair⁼⁻¹₁ (pair⁼ (pair⁼⁻¹ equiv))) ≡ (ap pr₁ equiv)
+    ii = ≡-Σ-comp₁ (pair⁼⁻¹₁ equiv) (pair⁼⁻¹₂ equiv)
+    iii = ap (λ - → pair⁼(ap pr₁ equiv , -))
            (isProp⇒isSet (isProp-isEquiv g) _ _)
-    ii = ≃-η (≡-Σ-≃ _ _) equiv
+    iv = ≃-η (≡-Σ-≃ _ _) equiv
 
 -- Theorem 7.1.11.
 isNType-isNType : (n : ℕ)
@@ -186,7 +191,7 @@ isNType-isNType (succ n) X X' =
      (≃-isNType⇒isNType (succ n) (≃-sym (≡-𝒰-≃ (pr₁ X) (pr₁ X')))
        (isEmbedding-isNType⇒isNType n pr₁
          (isEmbedding-pr₁-isNType𝒰-≃ (succ n) X X')
-         (isNType-Π (succ n) λ _ → (pr₂ X')) )) 
+         (isNType-Π (succ n) λ _ → (pr₂ X')) ))
 ```
 
 ## 7.2. Uniqueness of identity proofs and Hedberg’s theorem
