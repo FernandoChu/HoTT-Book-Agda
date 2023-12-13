@@ -10,21 +10,41 @@ module Chapter2.Exercises where
 open import Chapter2.Book public
 
 -- Exercise 2.1
-≡-trans-alt₁ : {A : 𝒰 𝒾} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-≡-trans-alt₁ (refl x) p = p
+_∙₂_ : {A : 𝒰 𝒾} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+_∙₂_ (refl x) p = p
 
-≡-trans-alt₂ : {A : 𝒰 𝒾} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
-≡-trans-alt₂ p (refl x) = p
+_∙₃_ : {A : 𝒰 𝒾} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+_∙₃_ p (refl x) = p
 
-≡-trans-equal₁ :
+∙₁≡∙₂ :
     {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y) (q : y ≡ z)
-  → p ∙ q ≡ ≡-trans-alt₁ p q
-≡-trans-equal₁ (refl _) (refl _) = refl _
+  → p ∙ q ≡ p ∙₂ q
+∙₁≡∙₂ (refl _) (refl _) = refl _
 
-≡-trans-equal₂ :
+∙₂≡∙₃ :
     {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y) (q : y ≡ z)
-  → p ∙ q ≡ ≡-trans-alt₂ p q
-≡-trans-equal₂ (refl _) (refl _) = refl _
+  → p ∙₂ q ≡ p ∙₃ q
+∙₂≡∙₃ (refl _) (refl _) = refl _
+
+∙₁≡∙₃ :
+    {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y) (q : y ≡ z)
+  → p ∙ q ≡ p ∙₃ q
+∙₁≡∙₃ (refl _) (refl _) = refl _
+
+-- Exercise 2.2
+Exercise-2-2 :
+    {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y) (q : y ≡ z)
+  → (∙₁≡∙₂ p q) ∙ (∙₂≡∙₃ p q) ≡ (∙₁≡∙₃ p q)
+Exercise-2-2 (refl _) (refl _) = refl _
+
+-- Exercise 2.3
+_∙₄_ : {A : 𝒰 𝒾} {x y z : A} → x ≡ y → y ≡ z → x ≡ z
+_∙₄_ {x = x} p q = tr (λ - → x ≡ -) q p
+
+∙₁≡∙₄ :
+    {A : 𝒰 𝒾} {x y z : A} (p : x ≡ y) (q : y ≡ z)
+  → p ∙ q ≡ p ∙₄ q
+∙₁≡∙₄ (refl _) (refl _) = refl _
 
 -- Exercise 2.10
 Σ-assoc : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} (C : (Σ x ꞉ A , B x) → 𝒰 𝓀)
