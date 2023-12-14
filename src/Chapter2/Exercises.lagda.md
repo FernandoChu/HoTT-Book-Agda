@@ -46,6 +46,22 @@ _∙₄_ {x = x} p q = tr (λ - → x ≡ -) q p
   → p ∙ q ≡ p ∙₄ q
 ∙₁≡∙₄ (refl _) (refl _) = refl _
 
+-- Exercise 2.4
+-- The nth dimensional path is the third datum while the boundary are the first
+-- two, if needed we can extract the boundary.
+nth-path : (A : 𝒰 𝒾) → ℕ → 𝒰 𝒾
+nth-path A 0 = A
+nth-path A 1 = Σ x ꞉ A , Σ y ꞉ A , x ≡ y
+nth-path A (succ (succ n)) =
+  Σ p ꞉ (nth-path A (succ n)) , Σ q ꞉ (nth-path A (succ n)) , p ≡ q
+
+n+1th-path-boundary :
+    (A : 𝒰 𝒾) (n : ℕ)
+  → nth-path A (succ n)
+  → (nth-path A n × nth-path A n)
+n+1th-path-boundary A 0 (x , y , p) = (x , y)
+n+1th-path-boundary A (succ n) (p , q , h) = p , q
+
 -- Exercise 2.10
 Σ-assoc : {A : 𝒰 𝒾} {B : A → 𝒰 𝒿} (C : (Σ x ꞉ A , B x) → 𝒰 𝓀)
         → (Σ x ꞉ A , (Σ y ꞉ B x , C (x , y))) ≃ (Σ p ꞉ (Σ x ꞉ A , B x) , C p)
