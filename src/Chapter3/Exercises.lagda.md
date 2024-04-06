@@ -83,7 +83,7 @@ isProp⇒isProp-isDecidible' A B f g c (inr b) (inl a) =
 isProp⇒isProp-isDecidible' A B f g c (inr b) (inr b') =
   ap inr (g b b')
 
--- Exercise 3.8.
+-- Exercise 3.9.
 LEM→Prop𝒰≃𝟚 : {𝒾 : Level} → LEM 𝒾 → (Prop𝒰 𝒾 ≃ 𝟚)
 LEM→Prop𝒰≃𝟚 {𝒾} LEM-holds =
   (Prop𝒰→𝟚 , invs⇒equivs Prop𝒰→𝟚 (𝟚→Prop𝒰 , ε , η))
@@ -164,6 +164,20 @@ Prop𝒰≃𝟚→LEM {𝒾} Prop𝒰𝒾≃𝟚 P isProp-P =
    where
      absurd : (im𝟙 ≡ im𝟘) → Raised 𝒾 𝟘
      absurd p = tr id  (ap pr₁ (≃-→-cancel Prop𝒰𝒾≃𝟚 p)) (raise ⋆)
+
+-- Exercise 3.18.
+LEM→RAA : {𝒾 : Level} → LEM 𝒾 → RAA 𝒾
+LEM→RAA f A isProp-A nnA = lemma (f A isProp-A)
+  where
+    lemma : A ⊎ ¬ A → A
+    lemma (inl x) = x
+    lemma (inr x) = !𝟘 A (nnA x)
+
+RAA→LEM : {𝒾 : Level} → RAA 𝒾 → LEM 𝒾
+RAA→LEM f A isProp-A =
+  f (A ⊎ ¬ A)
+    (isProp⇒isProp-isDecidible A isProp-A)
+    (λ g → g (inr (λ a → g (inl a))))
 
 -- Exercise 3.20.
 isContr-Σ⇒fiber-base : {A : 𝒰 𝒾} (P : A → 𝒰 𝒿)

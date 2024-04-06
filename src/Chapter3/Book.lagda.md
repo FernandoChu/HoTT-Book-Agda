@@ -211,7 +211,11 @@ isProp-isProp A f g =
 ```agda
 -- Equation 3.4.1.
 LEM : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
-LEM (𝒾) = (A : 𝒰 𝒾) → isProp A → A ⊎ ¬ A
+LEM 𝒾 = (A : 𝒰 𝒾) → isProp A → A ⊎ ¬ A
+
+-- Equation 3.4.1.
+RAA : (𝒾 : Level) → 𝒰 (𝒾 ⁺)
+RAA 𝒾 = (A : 𝒰 𝒾) → isProp A → ¬¬ A → A
 
 -- Definition 3.4.3.
 isDecidable : 𝒰 𝒾 → 𝒰 𝒾
@@ -288,7 +292,15 @@ postulate
 ## 3.8 The axiom of choice
 
 ```agda
---
+-- Definition 3.8.1.
+AC :
+    (X : 𝒰 𝒾) (A : X → 𝒰 𝒿) (P : (x : X) → A x → 𝒰 𝓀)
+  → isSet X → ((x : X) → isSet (A x))
+  → ((x : X) (a : A x) → isProp (P x a))
+  → 𝒰 (𝒾 ⊔ 𝒿 ⊔ 𝓀)
+AC X A P _ _ _ =
+    ((x : X) → ∥ Σ a ꞉ A x , (P x a) ∥)
+  → ∥ Σ g ꞉ ((x : X) → A x) , ((x : X) → P x (g x)) ∥
 ```
 
 ## 3.9 The principle of unique choice
